@@ -1,13 +1,15 @@
 <script setup lang="ts">
-definePageMeta({ layout: 'default' })
+definePageMeta({
+  layout: 'default',
+})
 
 useSeoMeta({
-  title: 'The Church of Christ — Ekot Ekpene',
+  title: 'ICFR Família Redimida — Resgatando vidas para Cristo',
   description:
-    'Welcome to the Church of Christ, Ekot Ekpene. Join us for Sunday Worship, Bible Classes, and live streamed services. A New Testament church built on the word of God.',
-  ogTitle: 'The Church of Christ — Ekot Ekpene',
+    'Bem-vindo à ICFR Família Redimida. Acompanhe cultos, ensinamentos, eventos, congregações e atividades da igreja.',
+  ogTitle: 'ICFR Família Redimida',
   ogDescription:
-    'A New Testament church built solely on the word of God. Find worship times, live streams, sermons, and Sunday School lessons.',
+    'ICFR Família Redimida — Resgatando vidas para Cristo.',
   ogImage: '/images/heroImg.png',
 })
 
@@ -17,10 +19,18 @@ useHead({
       type: 'application/ld+json',
       innerHTML: JSON.stringify({
         '@context': 'https://schema.org',
-        '@type': 'WebSite',
-        name: 'Church of Christ, Worldwide',
-        url: 'https://churchofchrist.org',
-        description: 'Open-source Church of Christ management and public website.',
+        '@type': 'Organization',
+        name: 'ICFR Família Redimida',
+        description:
+          'Igreja cristã comprometida com a proclamação do Evangelho e com a transformação de vidas.',
+        email: 'igrejafamiliaredmida@gmail.com',
+        telephone: '+258845211814',
+        address: {
+          '@type': 'PostalAddress',
+          addressLocality: 'Beira',
+          addressRegion: 'Sofala',
+          addressCountry: 'MZ',
+        },
       }),
     },
   ],
@@ -30,12 +40,19 @@ useHead({
 <template>
   <div>
     <HeroBanner />
+
     <MinisterWelcome />
+
     <LiveStreamTeaser />
+
     <CongregationSearch />
+
     <SermonsTeaser />
+
     <EventsList />
+
     <ContactForm />
+
     <PhotoGallery />
   </div>
 </template>

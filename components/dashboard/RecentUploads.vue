@@ -48,7 +48,7 @@ const sermons = computed(() => teachingsStore.recentSermons)
       v-else
       icon="mdi:book-open-page-variant-outline"
       size="sm"
-      title="No uploads yet"
+      title="Ainda não existem publicações"
       description="Sermons and lessons you upload will be listed here."
     />
   </Card>

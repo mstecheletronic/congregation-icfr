@@ -1,16 +1,21 @@
 /**
- * Firestore access for messages left through the public contact form.
+ * Acesso ao Firestore para as mensagens enviadas
+ * através do formulário público de contacto da ICFR Família Redimida.
  *
- * This is the only collection an anonymous visitor may write to, which makes it the app's
- * spam surface. Two things keep that bounded, and both matter:
+ * Esta é a única coleção onde um visitante anónimo pode criar registos.
  *
- *   * `firestore.rules` pins the shape — exactly the expected fields, length caps on each,
- *     and `read`/`handled` forced to false so a submission cannot arrive pre-dismissed.
- *   * Nothing here reads back what it wrote. A visitor may create a message and nothing else:
- *     they cannot list, read, edit or delete any of them.
+ * A segurança é controlada pelas regras do Firestore:
  *
- * Rules cannot rate-limit, so a determined flood is still possible; see README § Contact
- * messages for the options if that ever happens.
+ * - Apenas os campos esperados podem ser enviados.
+ * - Existem limites de tamanho para os campos.
+ * - As mensagens novas são sempre criadas com:
+ *   read = false
+ *   handled = false
+ * - O visitante pode apenas enviar mensagens.
+ * - O visitante não pode listar, ler, editar ou eliminar mensagens.
+ *
+ * A leitura e gestão das mensagens ficam reservadas
+ * aos utilizadores autorizados da administração da ICFR.
  */
 
 import {
@@ -24,51 +29,134 @@ import {
   serverTimestamp,
   setDoc,
 } from 'firebase/firestore'
+
 import type { ContactMessage } from '~/types'
 import { toIsoString } from '~/utils/firestoreDates'
 
+/**
+ * Nome interno da coleção no Firestore.
+ *
+ * Não traduzir este valor sem também migrar
+ * os dados e as regras do Firestore.
+ */
 const COLLECTION = 'messages'
 
-/** What the public form supplies. Everything else is set here or by the server. */
-export type NewContactMessage = Pick<ContactMessage, 'name' | 'email' | 'phone' | 'message'>
+/**
+ * Dados enviados pelo formulário público de contacto.
+ *
+ * Os restantes campos são definidos automaticamente
+ * pelo sistema.
+ */
+export type NewContactMessage = Pick<
+  ContactMessage,
+  'name' | 'email' | 'phone' | 'message'
+>
 
 export function useMessagesRepository() {
   const nuxt = useNuxtApp()
 
-  /** Newest first — an inbox is read from the top. */
+  /**
+   * Carrega as mensagens da ICFR.
+   *
+   * As mensagens mais recentes aparecem primeiro
+   * na caixa de entrada.
+   */
   async function fetchMessages(): Promise<ContactMessage[]> {
     const snap = await getDocs(
-      query(collection(nuxt.$firestore, COLLECTION), orderBy('submittedAt', 'desc'))
+      query(
+        collection(nuxt.$firestore, COLLECTION),
+        orderBy('submittedAt', 'desc')
+      )
     )
+
     return snap.docs.map((d) => {
       const data = d.data() as Omit<ContactMessage, 'id'>
-      return { ...data, id: d.id, submittedAt: toIsoString(data.submittedAt) }
+
+      return {
+        ...data,
+        id: d.id,
+        submittedAt: toIsoString(data.submittedAt),
+      }
     })
   }
 
-  async function createMessage(input: NewContactMessage): Promise<void> {
-    await addDoc(collection(nuxt.$firestore, COLLECTION), {
-      name: input.name.trim(),
-      email: input.email.trim(),
-      phone: input.phone.trim(),
-      message: input.message.trim(),
-      // Server-stamped: a client clock says nothing reliable about when a message arrived.
-      submittedAt: serverTimestamp(),
-      read: false,
-      handled: false,
-    })
+  /**
+   * Cria uma nova mensagem enviada
+   * pelo formulário público da ICFR.
+   */
+  async function createMessage(
+    input: NewContactMessage
+  ): Promise<void> {
+    await addDoc(
+      collection(nuxt.$firestore, COLLECTION),
+      {
+        name: input.name.trim(),
+        email: input.email.trim(),
+        phone: input.phone.trim(),
+        message: input.message.trim(),
+
+        /**
+         * A data e hora são geradas pelo servidor
+         * para evitar depender do relógio do dispositivo do visitante.
+         */
+        submittedAt: serverTimestamp(),
+
+        /**
+         * Toda mensagem nova começa como:
+         * não lida e não resolvida.
+         */
+        read: false,
+        handled: false,
+      }
+    )
   }
 
+  /**
+   * Atualiza o estado de uma mensagem.
+   *
+   * Pode marcar como:
+   * - lida
+   * - resolvida
+   */
   async function updateMessage(
     id: string,
-    updates: Partial<Pick<ContactMessage, 'read' | 'handled'>>
+    updates: Partial<
+      Pick<ContactMessage, 'read' | 'handled'>
+    >
   ): Promise<void> {
-    await setDoc(doc(nuxt.$firestore, COLLECTION, id), updates, { merge: true })
+    await setDoc(
+      doc(
+        nuxt.$firestore,
+        COLLECTION,
+        id
+      ),
+      updates,
+      {
+        merge: true,
+      }
+    )
   }
 
-  async function deleteMessage(id: string): Promise<void> {
-    await deleteDoc(doc(nuxt.$firestore, COLLECTION, id))
+  /**
+   * Elimina uma mensagem da caixa
+   * de entrada da ICFR.
+   */
+  async function deleteMessage(
+    id: string
+  ): Promise<void> {
+    await deleteDoc(
+      doc(
+        nuxt.$firestore,
+        COLLECTION,
+        id
+      )
+    )
   }
 
-  return { fetchMessages, createMessage, updateMessage, deleteMessage }
+  return {
+    fetchMessages,
+    createMessage,
+    updateMessage,
+    deleteMessage,
+  }
 }

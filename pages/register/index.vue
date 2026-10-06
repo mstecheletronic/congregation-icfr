@@ -3,26 +3,28 @@ import type { EmergencyContact, Member } from '~/types'
 
 definePageMeta({
   layout: 'default',
-  pageTransition: { name: 'fade', mode: 'out-in' },
+  pageTransition: {
+    name: 'fade',
+    mode: 'out-in',
+  },
 })
 
 useSeoMeta({
-  title: 'Member Registration — Church of Christ',
+  title: 'Cadastro de Membro — ICFR Família Redimida',
   description:
-    'Register as a member of the Church of Christ, Ikot Ekpene. Fill in your personal, origin and contact details to be added to the nominal roll.',
-  ogTitle: 'Member Registration — Church of Christ',
-  ogDescription: 'Join the nominal roll of the Church of Christ, Ikot Ekpene.',
+    'Cadastre-se como membro da ICFR Família Redimida. Preencha os seus dados pessoais, contacto e informações da igreja.',
+  ogTitle: 'Cadastro de Membro — ICFR Família Redimida',
+  ogDescription:
+    'Faça o seu cadastro na ICFR Família Redimida — Resgatando vidas para Cristo.',
 })
 
 const membersStore = useMembersStore()
 const toast = useToast()
 
-/**
- * Self-registration collects the same fields the admin nominal roll holds, minus
- * the ones the church assigns: `status`, `absenceCount` and `churchNumber` are
- * set by the secretary after the record is reviewed.
- */
-type RegistrationForm = Omit<Member, 'id' | 'absenceCount' | 'status' | 'churchNumber'> & {
+type RegistrationForm = Omit<
+  Member,
+  'id' | 'absenceCount' | 'status' | 'churchNumber'
+> & {
   ecName: string
   ecRelationship: string
   ecPhone: string
@@ -33,7 +35,7 @@ const today = new Date().toISOString().slice(0, 10)
 
 function emptyForm(): RegistrationForm {
   return {
-    // Personal
+    // Dados pessoais
     name: '',
     gender: 'Male',
     phone: '',
@@ -42,20 +44,25 @@ function emptyForm(): RegistrationForm {
     maritalStatus: '',
     occupation: '',
     avatar: '',
-    // Church
+
+    // Igreja
     dateOfBaptism: '',
     dateJoined: today,
-    // Place of origin
-    country: 'Nigeria',
+
+    // Origem
+    country: 'Moçambique',
     state: '',
     localGovernment: '',
     village: '',
-    // Residence
+
+    // Residência
     address: '',
-    // Previous congregation
+
+    // Congregação anterior
     previousCongregation: '',
     previousMinisterPhone: '',
-    // Emergency contact (flat while editing)
+
+    // Contacto de emergência
     ecName: '',
     ecRelationship: '',
     ecPhone: '',
@@ -65,76 +72,143 @@ function emptyForm(): RegistrationForm {
 
 const form = reactive<RegistrationForm>(emptyForm())
 
-const genderOptions: Member['gender'][] = ['Male', 'Female']
-const maritalOptions = ['Single', 'Married', 'Widowed', 'Divorced']
+/**
+ * Mantemos os valores internos Male/Female para não quebrar
+ * os tipos e dados existentes. Apenas os textos visíveis são traduzidos.
+ */
+const genderOptions: {
+  label: string
+  value: Member['gender']
+}[] = [
+  {
+    label: 'Masculino',
+    value: 'Male',
+  },
+  {
+    label: 'Feminino',
+    value: 'Female',
+  },
+]
 
-// ─── Validation ───────────────────────────────────────────────────────────────
+const maritalOptions = [
+  {
+    label: 'Solteiro(a)',
+    value: 'Single',
+  },
+  {
+    label: 'Casado(a)',
+    value: 'Married',
+  },
+  {
+    label: 'Viúvo(a)',
+    value: 'Widowed',
+  },
+  {
+    label: 'Divorciado(a)',
+    value: 'Divorced',
+  },
+]
+
 type FieldErrors = Partial<
   Record<
-    'avatar' | 'name' | 'email' | 'phone' | 'dob' | 'address' | 'previousMinisterPhone',
+    | 'avatar'
+    | 'name'
+    | 'email'
+    | 'phone'
+    | 'dob'
+    | 'address'
+    | 'previousMinisterPhone',
     string
   >
 >
+
 const errors = ref<FieldErrors>({})
 const submitting = ref(false)
 const submitted = ref(false)
 
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
-// Accepts local (08012345678) and international (+234 801 234 5678) formats.
 const PHONE_RE = /^\+?[\d\s-]{7,20}$/
 
 function validate(): boolean {
-  // Checked in the order the fields appear on the page, so scrolling to the
-  // first error lands on the topmost one.
   const next: FieldErrors = {}
 
-  if (!form.avatar) next.avatar = 'A passport photograph is required'
+  if (!form.avatar) {
+    next.avatar = 'A fotografia é obrigatória'
+  }
 
-  if (!form.name.trim()) next.name = 'Your full name is required'
+  if (!form.name.trim()) {
+    next.name = 'O nome completo é obrigatório'
+  }
 
-  // Email is optional — many members register with a phone number only.
-  //
-  // Uniqueness is deliberately NOT checked here. This is an unauthenticated
-  // page, and comparing against the roll would mean granting anonymous read
-  // access to every member's record. Duplicates are cheap for the secretary to
-  // spot on the nominal roll; leaked member data is not. Enforce it in
-  // Firestore rules or a Cloud Function if it needs to be automatic.
   const email = form.email.trim().toLowerCase()
-  if (email && !EMAIL_RE.test(email)) next.email = 'Enter a valid email address'
 
-  if (!form.phone.trim()) next.phone = 'Phone number is required'
-  else if (!PHONE_RE.test(form.phone.trim())) next.phone = 'Enter a valid phone number'
+  if (email && !EMAIL_RE.test(email)) {
+    next.email = 'Introduza um endereço de email válido'
+  }
 
-  if (form.dob && form.dob > today) next.dob = 'Date of birth cannot be in the future'
+  if (!form.phone.trim()) {
+    next.phone = 'O número de telefone é obrigatório'
+  } else if (!PHONE_RE.test(form.phone.trim())) {
+    next.phone = 'Introduza um número de telefone válido'
+  }
 
-  if (!form.address?.trim()) next.address = 'Residential address is required'
+  if (form.dob && form.dob > today) {
+    next.dob = 'A data de nascimento não pode estar no futuro'
+  }
 
-  const ministerPhone = form.previousMinisterPhone?.trim()
-  if (ministerPhone && !PHONE_RE.test(ministerPhone))
-    next.previousMinisterPhone = 'Enter a valid phone number'
+  if (!form.address?.trim()) {
+    next.address = 'O endereço de residência é obrigatório'
+  }
+
+  const ministerPhone =
+    form.previousMinisterPhone?.trim()
+
+  if (
+    ministerPhone &&
+    !PHONE_RE.test(ministerPhone)
+  ) {
+    next.previousMinisterPhone =
+      'Introduza um número de telefone válido'
+  }
 
   errors.value = next
+
   return Object.keys(next).length === 0
 }
 
-const firstErrorField = computed(() => Object.keys(errors.value)[0])
+const firstErrorField = computed(
+  () => Object.keys(errors.value)[0]
+)
 
-// ─── Submit ───────────────────────────────────────────────────────────────────
 async function submit() {
   if (!validate()) {
-    toast.error('Please correct the highlighted fields')
-    const el = document.getElementById(`field-${firstErrorField.value}`)
-    el?.scrollIntoView({ behavior: 'smooth', block: 'center' })
+    toast.error(
+      'Corrija os campos destacados antes de continuar'
+    )
+
+    const el = document.getElementById(
+      `field-${firstErrorField.value}`
+    )
+
+    el?.scrollIntoView({
+      behavior: 'smooth',
+      block: 'center',
+    })
+
     return
   }
 
   submitting.value = true
 
-  const emergencyContact: EmergencyContact | undefined =
-    form.ecName.trim() || form.ecPhone.trim()
+  const emergencyContact:
+    | EmergencyContact
+    | undefined =
+    form.ecName.trim() ||
+    form.ecPhone.trim()
       ? {
           name: form.ecName.trim(),
-          relationship: form.ecRelationship.trim(),
+          relationship:
+            form.ecRelationship.trim(),
           phone: form.ecPhone.trim(),
           address: form.ecAddress.trim(),
         }
@@ -147,27 +221,44 @@ async function submit() {
       phone: form.phone.trim(),
       email: form.email.trim(),
       dob: form.dob,
+
+      // Mantemos o valor interno esperado pelo sistema.
       status: 'Active',
+
       absenceCount: 0,
       avatar: form.avatar,
       maritalStatus: form.maritalStatus,
       dateOfBaptism: form.dateOfBaptism,
-      dateJoined: form.dateJoined || today,
+      dateJoined:
+        form.dateJoined || today,
       occupation: form.occupation,
+
       country: form.country,
       state: form.state,
-      localGovernment: form.localGovernment,
+      localGovernment:
+        form.localGovernment,
       village: form.village,
+
       address: form.address,
-      previousCongregation: form.previousCongregation?.trim(),
-      previousMinisterPhone: form.previousMinisterPhone?.trim(),
+
+      previousCongregation:
+        form.previousCongregation?.trim(),
+
+      previousMinisterPhone:
+        form.previousMinisterPhone?.trim(),
+
       emergencyContact,
     })
+
     submitted.value = true
-    window.scrollTo({ top: 0, behavior: 'smooth' })
+
+    window.scrollTo({
+      top: 0,
+      behavior: 'smooth',
+    })
   } catch {
-    // The store already surfaced the reason via toast. Keep the form filled in
-    // so nothing the member typed is lost to a failed write.
+    // O store já apresenta o erro.
+    // Mantemos o formulário preenchido.
   } finally {
     submitting.value = false
   }
@@ -175,337 +266,769 @@ async function submit() {
 
 function registerAnother() {
   Object.assign(form, emptyForm())
+
   errors.value = {}
   submitted.value = false
 }
 
-// Drop the photo error the moment one is uploaded — leaving it up next to a
-// visible thumbnail reads as though the upload failed.
 watch(
   () => form.avatar,
   (url) => {
-    if (url && errors.value.avatar) errors.value = { ...errors.value, avatar: undefined }
+    if (
+      url &&
+      errors.value.avatar
+    ) {
+      errors.value = {
+        ...errors.value,
+        avatar: undefined,
+      }
+    }
   }
 )
 
 const registeredName = ref('')
-watch(submitted, (v) => {
-  if (v) registeredName.value = form.name.trim()
+
+watch(submitted, (value) => {
+  if (value) {
+    registeredName.value =
+      form.name.trim()
+  }
 })
 </script>
 
 <template>
-  <div class="min-h-screen bg-gray-50 pb-16">
-    <!-- Page header -->
-    <div class="border-b border-gray-100 bg-white py-8">
-      <div class="mx-auto max-w-3xl px-4 sm:px-6 lg:px-8">
-        <div class="mb-1 flex items-center gap-2 text-xs font-medium text-gray-400">
-          <NuxtLink to="/" class="transition-colors hover:text-blue-600">Home</NuxtLink>
-          <Icon icon="mdi:chevron-right" class="h-3.5 w-3.5" />
-          <span class="text-gray-600">Register</span>
+  <div
+    class="min-h-screen bg-gray-50 pb-16"
+  >
+    <!-- Cabeçalho -->
+    <div
+      class="border-b border-gray-100 bg-white py-8"
+    >
+      <div
+        class="mx-auto max-w-3xl px-4 sm:px-6 lg:px-8"
+      >
+        <div
+          class="mb-1 flex items-center gap-2 text-xs font-medium text-gray-400"
+        >
+          <NuxtLink
+            to="/"
+            class="transition-colors hover:text-blue-600"
+          >
+            Início
+          </NuxtLink>
+
+          <Icon
+            icon="mdi:chevron-right"
+            class="h-3.5 w-3.5"
+          />
+
+          <span class="text-gray-600">
+            Cadastro
+          </span>
         </div>
-        <h1 class="text-2xl font-bold text-gray-900 sm:text-3xl">Member Registration</h1>
-        <p class="mt-1 text-sm text-gray-500">
-          Fill in your details to be added to the church nominal roll. Fields marked
-          <span class="text-red-500">*</span> are required.
+
+        <h1
+          class="text-2xl font-bold text-gray-900 sm:text-3xl"
+        >
+          Cadastro de Membro
+        </h1>
+
+        <p
+          class="mt-1 text-sm text-gray-500"
+        >
+          Preencha os seus dados para fazer parte do registo de membros da ICFR Família Redimida.
+          Os campos marcados com
+
+          <span class="text-red-500">
+            *
+          </span>
+
+          são obrigatórios.
         </p>
       </div>
     </div>
 
-    <div class="mx-auto max-w-3xl px-4 pt-6 sm:px-6 lg:px-8">
-      <!-- ── Success state ──────────────────────────────────────────────────── -->
-      <Card v-if="submitted" padding="lg">
-        <div class="flex flex-col items-center py-8 text-center">
-          <div class="flex h-14 w-14 items-center justify-center rounded-full bg-green-50">
-            <Icon icon="mdi:check-circle-outline" class="text-3xl text-green-600" />
+    <div
+      class="mx-auto max-w-3xl px-4 pt-6 sm:px-6 lg:px-8"
+    >
+      <!-- Cadastro concluído -->
+      <Card
+        v-if="submitted"
+        padding="lg"
+      >
+        <div
+          class="flex flex-col items-center py-8 text-center"
+        >
+          <div
+            class="flex h-14 w-14 items-center justify-center rounded-full bg-green-50"
+          >
+            <Icon
+              icon="mdi:check-circle-outline"
+              class="text-3xl text-green-600"
+            />
           </div>
-          <h2 class="mt-4 text-xl font-bold text-gray-900">Registration received</h2>
-          <p class="mt-1 max-w-md text-sm text-gray-500">
-            Thank you{{ registeredName ? `, ${registeredName}` : '' }}. Your details have been
-            submitted to the church secretary. You will be contacted once your record is confirmed
-            on the nominal roll.
+
+          <h2
+            class="mt-4 text-xl font-bold text-gray-900"
+          >
+            Cadastro recebido com sucesso
+          </h2>
+
+          <p
+            class="mt-1 max-w-md text-sm text-gray-500"
+          >
+            Obrigado{{ registeredName ? `, ${registeredName}` : '' }}.
+            Os seus dados foram enviados para a ICFR Família Redimida.
+            A administração poderá analisar e confirmar o seu registo.
           </p>
-          <div class="mt-6 flex flex-wrap justify-center gap-2">
-            <Button variant="secondary" @click="registerAnother">
-              <template #icon-left><Icon icon="mdi:account-plus-outline" /></template>
-              Register another member
+
+          <div
+            class="mt-6 flex flex-wrap justify-center gap-2"
+          >
+            <Button
+              variant="secondary"
+              @click="registerAnother"
+            >
+              <template #icon-left>
+                <Icon
+                  icon="mdi:account-plus-outline"
+                />
+              </template>
+
+              Cadastrar outro membro
             </Button>
+
             <NuxtLink to="/">
-              <Button>Back to Home</Button>
+              <Button>
+                Voltar ao Início
+              </Button>
             </NuxtLink>
           </div>
         </div>
       </Card>
 
-      <!-- ── Form ───────────────────────────────────────────────────────────── -->
-      <form v-else class="flex flex-col gap-4" novalidate @submit.prevent="submit">
-        <!-- Personal Information -->
+      <!-- Formulário -->
+      <form
+        v-else
+        class="flex flex-col gap-4"
+        novalidate
+        @submit.prevent="submit"
+      >
+        <!-- Informações pessoais -->
         <Card padding="lg">
           <section>
-            <div class="mb-5 flex items-start gap-3">
-              <div class="flex h-9 w-9 items-center justify-center rounded-lg bg-blue-50">
-                <Icon icon="mdi:account-outline" class="text-lg text-accent" />
+            <div
+              class="mb-5 flex items-start gap-3"
+            >
+              <div
+                class="flex h-9 w-9 items-center justify-center rounded-lg bg-blue-50"
+              >
+                <Icon
+                  icon="mdi:account-outline"
+                  class="text-lg text-accent"
+                />
               </div>
+
               <div>
-                <h2 class="text-sm font-semibold text-gray-900">Personal Information</h2>
-                <p class="text-xs text-gray-500">How the church can identify and reach you.</p>
+                <h2
+                  class="text-sm font-semibold text-gray-900"
+                >
+                  Informações Pessoais
+                </h2>
+
+                <p
+                  class="text-xs text-gray-500"
+                >
+                  Dados básicos para identificação e contacto.
+                </p>
               </div>
             </div>
 
             <div class="space-y-4">
+              <!-- Fotografia -->
               <div
                 id="field-avatar"
                 class="flex flex-col items-start gap-4 sm:flex-row sm:items-center"
               >
-                <div :class="errors.avatar ? 'rounded-full ring-2 ring-red-400' : ''">
+                <div
+                  :class="
+                    errors.avatar
+                      ? 'rounded-full ring-2 ring-red-400'
+                      : ''
+                  "
+                >
                   <ImageUpload
                     v-model="form.avatar"
                     shape="circle"
                     folder="members"
-                    :max-bytes="2 * 1024 * 1024"
+                    :max-bytes="
+                      2 * 1024 * 1024
+                    "
                   />
                 </div>
+
                 <div>
-                  <p class="text-xs text-gray-500">
-                    Passport photograph <span class="text-red-500">*</span><br />
-                    JPG or PNG. Large photos are compressed automatically.
+                  <p
+                    class="text-xs text-gray-500"
+                  >
+                    Fotografia
+
+                    <span
+                      class="text-red-500"
+                    >
+                      *
+                    </span>
+
+                    <br />
+
+                    JPG ou PNG. Fotografias grandes serão comprimidas automaticamente.
                   </p>
-                  <p v-if="errors.avatar" class="mt-1 text-xs text-red-500">{{ errors.avatar }}</p>
+
+                  <p
+                    v-if="errors.avatar"
+                    class="mt-1 text-xs text-red-500"
+                  >
+                    {{ errors.avatar }}
+                  </p>
                 </div>
               </div>
 
-              <div class="grid grid-cols-1 gap-3 sm:grid-cols-2">
-                <EditField id="field-name" label="Full Name *">
+              <!-- Nome + Email -->
+              <div
+                class="grid grid-cols-1 gap-3 sm:grid-cols-2"
+              >
+                <EditField
+                  id="field-name"
+                  label="Nome Completo *"
+                >
                   <input
                     v-model="form.name"
                     type="text"
                     autocomplete="name"
-                    placeholder="Enter your full name"
-                    :class="errors.name ? 'border-red-400 focus:border-red-400' : ''"
+                    placeholder="Digite o seu nome completo"
+                    :class="
+                      errors.name
+                        ? 'border-red-400 focus:border-red-400'
+                        : ''
+                    "
                   />
-                  <p v-if="errors.name" class="mt-1 text-xs text-red-500">{{ errors.name }}</p>
+
+                  <p
+                    v-if="errors.name"
+                    class="mt-1 text-xs text-red-500"
+                  >
+                    {{ errors.name }}
+                  </p>
                 </EditField>
-                <EditField id="field-email" label="Email Address">
+
+                <EditField
+                  id="field-email"
+                  label="Email"
+                >
                   <input
                     v-model="form.email"
                     type="email"
                     autocomplete="email"
-                    placeholder="you@example.com (optional)"
-                    :class="errors.email ? 'border-red-400 focus:border-red-400' : ''"
+                    placeholder="exemplo@email.com (opcional)"
+                    :class="
+                      errors.email
+                        ? 'border-red-400 focus:border-red-400'
+                        : ''
+                    "
                   />
-                  <p v-if="errors.email" class="mt-1 text-xs text-red-500">{{ errors.email }}</p>
+
+                  <p
+                    v-if="errors.email"
+                    class="mt-1 text-xs text-red-500"
+                  >
+                    {{ errors.email }}
+                  </p>
                 </EditField>
               </div>
 
-              <div class="grid grid-cols-1 gap-3 sm:grid-cols-4">
-                <EditField id="field-phone" label="Phone Number *" class="sm:col-span-2">
+              <!-- Telefone / Sexo / Estado civil -->
+              <div
+                class="grid grid-cols-1 gap-3 sm:grid-cols-4"
+              >
+                <EditField
+                  id="field-phone"
+                  label="Telefone *"
+                  class="sm:col-span-2"
+                >
                   <input
                     v-model="form.phone"
                     type="tel"
                     autocomplete="tel"
-                    placeholder="+234 800 000 0000"
-                    :class="errors.phone ? 'border-red-400 focus:border-red-400' : ''"
+                    placeholder="+258 84 000 0000"
+                    :class="
+                      errors.phone
+                        ? 'border-red-400 focus:border-red-400'
+                        : ''
+                    "
                   />
-                  <p v-if="errors.phone" class="mt-1 text-xs text-red-500">{{ errors.phone }}</p>
+
+                  <p
+                    v-if="errors.phone"
+                    class="mt-1 text-xs text-red-500"
+                  >
+                    {{ errors.phone }}
+                  </p>
                 </EditField>
-                <EditField label="Gender">
-                  <select v-model="form.gender">
-                    <option v-for="g in genderOptions" :key="g" :value="g">{{ g }}</option>
+
+                <EditField label="Sexo">
+                  <select
+                    v-model="form.gender"
+                  >
+                    <option
+                      v-for="g in genderOptions"
+                      :key="g.value"
+                      :value="g.value"
+                    >
+                      {{ g.label }}
+                    </option>
                   </select>
                 </EditField>
-                <EditField label="Marital Status">
-                  <select v-model="form.maritalStatus">
-                    <option value="">— Select —</option>
-                    <option v-for="m in maritalOptions" :key="m" :value="m">{{ m }}</option>
+
+                <EditField
+                  label="Estado Civil"
+                >
+                  <select
+                    v-model="form.maritalStatus"
+                  >
+                    <option value="">
+                      — Selecionar —
+                    </option>
+
+                    <option
+                      v-for="m in maritalOptions"
+                      :key="m.value"
+                      :value="m.value"
+                    >
+                      {{ m.label }}
+                    </option>
                   </select>
                 </EditField>
               </div>
 
-              <div class="grid grid-cols-1 gap-3 sm:grid-cols-2">
-                <EditField id="field-dob" label="Date of Birth">
+              <!-- Nascimento / profissão -->
+              <div
+                class="grid grid-cols-1 gap-3 sm:grid-cols-2"
+              >
+                <EditField
+                  id="field-dob"
+                  label="Data de Nascimento"
+                >
                   <input
                     v-model="form.dob"
                     type="date"
                     :max="today"
-                    :class="errors.dob ? 'border-red-400 focus:border-red-400' : ''"
+                    :class="
+                      errors.dob
+                        ? 'border-red-400 focus:border-red-400'
+                        : ''
+                    "
                   />
-                  <p v-if="errors.dob" class="mt-1 text-xs text-red-500">{{ errors.dob }}</p>
+
+                  <p
+                    v-if="errors.dob"
+                    class="mt-1 text-xs text-red-500"
+                  >
+                    {{ errors.dob }}
+                  </p>
                 </EditField>
-                <EditField label="Occupation">
-                  <input v-model="form.occupation" type="text" placeholder="e.g. Teacher" />
+
+                <EditField label="Ocupação">
+                  <input
+                    v-model="form.occupation"
+                    type="text"
+                    placeholder="Ex.: Professor, Estudante, Técnico"
+                  />
                 </EditField>
               </div>
             </div>
           </section>
         </Card>
 
-        <!-- Church Information -->
+        <!-- Informações da igreja -->
         <Card padding="lg">
           <section>
-            <div class="mb-5 flex items-start gap-3">
-              <div class="flex h-9 w-9 items-center justify-center rounded-lg bg-blue-50">
-                <Icon icon="mdi:church" class="text-lg text-accent" />
+            <div
+              class="mb-5 flex items-start gap-3"
+            >
+              <div
+                class="flex h-9 w-9 items-center justify-center rounded-lg bg-blue-50"
+              >
+                <Icon
+                  icon="mdi:church"
+                  class="text-lg text-accent"
+                />
               </div>
-              <div>
-                <h2 class="text-sm font-semibold text-gray-900">Church Information</h2>
-                <p class="text-xs text-gray-500">
-                  Leave the baptism date blank if you have not yet been baptised.
-                </p>
-              </div>
-            </div>
 
-            <div class="grid grid-cols-1 gap-3 sm:grid-cols-2">
-              <EditField label="Date of Baptism">
-                <input v-model="form.dateOfBaptism" type="date" :max="today" />
-              </EditField>
-              <EditField label="Date of Registration">
-                <input v-model="form.dateJoined" type="date" :max="today" />
-              </EditField>
-            </div>
-          </section>
-        </Card>
-
-        <!-- Previous Congregation -->
-        <Card padding="lg">
-          <section>
-            <div class="mb-5 flex items-start gap-3">
-              <div class="flex h-9 w-9 items-center justify-center rounded-lg bg-blue-50">
-                <Icon icon="mdi:account-switch-outline" class="text-lg text-accent" />
-              </div>
               <div>
-                <h2 class="text-sm font-semibold text-gray-900">
-                  Previous Congregation
-                  <span class="text-xs font-normal text-gray-400">(optional)</span>
+                <h2
+                  class="text-sm font-semibold text-gray-900"
+                >
+                  Informações da Igreja
                 </h2>
-                <p class="text-xs text-gray-500">
-                  If you are transferring from another congregation, tell us where you worshipped
-                  and how we can reach the minister there.
+
+                <p
+                  class="text-xs text-gray-500"
+                >
+                  Se ainda não foi batizado, deixe a data de batismo em branco.
                 </p>
               </div>
             </div>
 
-            <div class="grid grid-cols-1 gap-3 sm:grid-cols-2">
-              <EditField label="Previous Congregation">
+            <div
+              class="grid grid-cols-1 gap-3 sm:grid-cols-2"
+            >
+              <EditField
+                label="Data do Batismo"
+              >
                 <input
-                  v-model="form.previousCongregation"
+                  v-model="
+                    form.dateOfBaptism
+                  "
+                  type="date"
+                  :max="today"
+                />
+              </EditField>
+
+              <EditField
+                label="Data do Cadastro"
+              >
+                <input
+                  v-model="form.dateJoined"
+                  type="date"
+                  :max="today"
+                />
+              </EditField>
+            </div>
+          </section>
+        </Card>
+
+        <!-- Congregação anterior -->
+        <Card padding="lg">
+          <section>
+            <div
+              class="mb-5 flex items-start gap-3"
+            >
+              <div
+                class="flex h-9 w-9 items-center justify-center rounded-lg bg-blue-50"
+              >
+                <Icon
+                  icon="mdi:account-switch-outline"
+                  class="text-lg text-accent"
+                />
+              </div>
+
+              <div>
+                <h2
+                  class="text-sm font-semibold text-gray-900"
+                >
+                  Congregação Anterior
+
+                  <span
+                    class="text-xs font-normal text-gray-400"
+                  >
+                    (opcional)
+                  </span>
+                </h2>
+
+                <p
+                  class="text-xs text-gray-500"
+                >
+                  Preencha apenas se veio transferido de outra igreja ou congregação.
+                </p>
+              </div>
+            </div>
+
+            <div
+              class="grid grid-cols-1 gap-3 sm:grid-cols-2"
+            >
+              <EditField
+                label="Congregação Anterior"
+              >
+                <input
+                  v-model="
+                    form.previousCongregation
+                  "
                   type="text"
-                  placeholder="e.g. Church of Christ, Uyo"
+                  placeholder="Ex.: Congregação Central"
                 />
               </EditField>
-              <EditField id="field-previousMinisterPhone" label="Minister / Preacher's Phone">
+
+              <EditField
+                id="field-previousMinisterPhone"
+                label="Telefone do Pastor / Líder"
+              >
                 <input
-                  v-model="form.previousMinisterPhone"
+                  v-model="
+                    form.previousMinisterPhone
+                  "
                   type="tel"
-                  placeholder="+234 803 333 4444"
-                  :class="errors.previousMinisterPhone ? 'border-red-400 focus:border-red-400' : ''"
+                  placeholder="+258 84 000 0000"
+                  :class="
+                    errors.previousMinisterPhone
+                      ? 'border-red-400 focus:border-red-400'
+                      : ''
+                  "
                 />
-                <p v-if="errors.previousMinisterPhone" class="mt-1 text-xs text-red-500">
-                  {{ errors.previousMinisterPhone }}
+
+                <p
+                  v-if="
+                    errors.previousMinisterPhone
+                  "
+                  class="mt-1 text-xs text-red-500"
+                >
+                  {{
+                    errors.previousMinisterPhone
+                  }}
                 </p>
               </EditField>
             </div>
           </section>
         </Card>
 
-        <!-- Place of Origin -->
+        <!-- Local de origem -->
         <Card padding="lg">
           <section>
-            <div class="mb-5 flex items-start gap-3">
-              <div class="flex h-9 w-9 items-center justify-center rounded-lg bg-blue-50">
-                <Icon icon="mdi:map-marker-outline" class="text-lg text-accent" />
+            <div
+              class="mb-5 flex items-start gap-3"
+            >
+              <div
+                class="flex h-9 w-9 items-center justify-center rounded-lg bg-blue-50"
+              >
+                <Icon
+                  icon="mdi:map-marker-outline"
+                  class="text-lg text-accent"
+                />
               </div>
+
               <div>
-                <h2 class="text-sm font-semibold text-gray-900">Place of Origin</h2>
-                <p class="text-xs text-gray-500">Where you hail from.</p>
+                <h2
+                  class="text-sm font-semibold text-gray-900"
+                >
+                  Local de Origem
+                </h2>
+
+                <p
+                  class="text-xs text-gray-500"
+                >
+                  Informe a sua proveniência.
+                </p>
               </div>
             </div>
 
-            <div class="grid grid-cols-1 gap-3 sm:grid-cols-2">
-              <EditField label="Country">
-                <input v-model="form.country" type="text" placeholder="Nigeria" />
+            <div
+              class="grid grid-cols-1 gap-3 sm:grid-cols-2"
+            >
+              <EditField label="País">
+                <input
+                  v-model="form.country"
+                  type="text"
+                  placeholder="Moçambique"
+                />
               </EditField>
-              <EditField label="State of Origin">
-                <input v-model="form.state" type="text" placeholder="Akwa Ibom State" />
+
+              <EditField
+                label="Província"
+              >
+                <input
+                  v-model="form.state"
+                  type="text"
+                  placeholder="Ex.: Sofala"
+                />
               </EditField>
-              <EditField label="Local Government Area">
-                <input v-model="form.localGovernment" type="text" placeholder="Ibiono Ibom" />
+
+              <EditField
+                label="Distrito"
+              >
+                <input
+                  v-model="
+                    form.localGovernment
+                  "
+                  type="text"
+                  placeholder="Ex.: Beira"
+                />
               </EditField>
-              <EditField label="Village">
-                <input v-model="form.village" type="text" placeholder="Ikot Oku" />
+
+              <EditField
+                label="Localidade / Bairro"
+              >
+                <input
+                  v-model="form.village"
+                  type="text"
+                  placeholder="Ex.: Munhava"
+                />
               </EditField>
             </div>
           </section>
         </Card>
 
-        <!-- Residential Address -->
+        <!-- Endereço -->
         <Card padding="lg">
           <section>
-            <div class="mb-5 flex items-start gap-3">
-              <div class="flex h-9 w-9 items-center justify-center rounded-lg bg-blue-50">
-                <Icon icon="mdi:home-outline" class="text-lg text-accent" />
+            <div
+              class="mb-5 flex items-start gap-3"
+            >
+              <div
+                class="flex h-9 w-9 items-center justify-center rounded-lg bg-blue-50"
+              >
+                <Icon
+                  icon="mdi:home-outline"
+                  class="text-lg text-accent"
+                />
               </div>
+
               <div>
-                <h2 class="text-sm font-semibold text-gray-900">Residential Address</h2>
-                <p class="text-xs text-gray-500">Where you currently live.</p>
+                <h2
+                  class="text-sm font-semibold text-gray-900"
+                >
+                  Endereço de Residência
+                </h2>
+
+                <p
+                  class="text-xs text-gray-500"
+                >
+                  Informe onde vive atualmente.
+                </p>
               </div>
             </div>
 
-            <EditField id="field-address" label="Full Address *">
+            <EditField
+              id="field-address"
+              label="Endereço Completo *"
+            >
               <input
                 v-model="form.address"
                 type="text"
                 autocomplete="street-address"
-                placeholder="No. 8 Convent Road, Ikot Ekpene"
-                :class="errors.address ? 'border-red-400 focus:border-red-400' : ''"
+                placeholder="Ex.: Bairro da Munhava, Beira"
+                :class="
+                  errors.address
+                    ? 'border-red-400 focus:border-red-400'
+                    : ''
+                "
               />
-              <p v-if="errors.address" class="mt-1 text-xs text-red-500">{{ errors.address }}</p>
+
+              <p
+                v-if="errors.address"
+                class="mt-1 text-xs text-red-500"
+              >
+                {{ errors.address }}
+              </p>
             </EditField>
           </section>
         </Card>
 
-        <!-- Emergency Contact -->
+        <!-- Contacto de emergência -->
         <Card padding="lg">
           <section>
-            <div class="mb-5 flex items-start gap-3">
-              <div class="flex h-9 w-9 items-center justify-center rounded-lg bg-blue-50">
-                <Icon icon="mdi:phone-alert-outline" class="text-lg text-accent" />
+            <div
+              class="mb-5 flex items-start gap-3"
+            >
+              <div
+                class="flex h-9 w-9 items-center justify-center rounded-lg bg-blue-50"
+              >
+                <Icon
+                  icon="mdi:phone-alert-outline"
+                  class="text-lg text-accent"
+                />
               </div>
+
               <div>
-                <h2 class="text-sm font-semibold text-gray-900">
-                  Emergency Contact
-                  <span class="text-xs font-normal text-gray-400">(optional)</span>
+                <h2
+                  class="text-sm font-semibold text-gray-900"
+                >
+                  Contacto de Emergência
+
+                  <span
+                    class="text-xs font-normal text-gray-400"
+                  >
+                    (opcional)
+                  </span>
                 </h2>
-                <p class="text-xs text-gray-500">Someone we can reach on your behalf.</p>
+
+                <p
+                  class="text-xs text-gray-500"
+                >
+                  Pessoa que poderá ser contactada em seu nome em caso de necessidade.
+                </p>
               </div>
             </div>
 
-            <div class="grid grid-cols-1 gap-3 sm:grid-cols-2">
-              <EditField label="Name">
-                <input v-model="form.ecName" type="text" placeholder="Brother John Adebayo" />
+            <div
+              class="grid grid-cols-1 gap-3 sm:grid-cols-2"
+            >
+              <EditField label="Nome">
+                <input
+                  v-model="form.ecName"
+                  type="text"
+                  placeholder="Nome completo"
+                />
               </EditField>
-              <EditField label="Relationship">
-                <input v-model="form.ecRelationship" type="text" placeholder="Brother" />
+
+              <EditField
+                label="Relação"
+              >
+                <input
+                  v-model="
+                    form.ecRelationship
+                  "
+                  type="text"
+                  placeholder="Ex.: Pai, Mãe, Irmão, Esposa"
+                />
               </EditField>
-              <EditField label="Phone Number">
-                <input v-model="form.ecPhone" type="tel" placeholder="+234 803 333 4444" />
+
+              <EditField
+                label="Telefone"
+              >
+                <input
+                  v-model="form.ecPhone"
+                  type="tel"
+                  placeholder="+258 84 000 0000"
+                />
               </EditField>
-              <EditField label="Address">
-                <input v-model="form.ecAddress" type="text" placeholder="Full address" />
+
+              <EditField
+                label="Endereço"
+              >
+                <input
+                  v-model="
+                    form.ecAddress
+                  "
+                  type="text"
+                  placeholder="Endereço completo"
+                />
               </EditField>
             </div>
           </section>
         </Card>
 
-        <!-- Submit -->
+        <!-- Enviar -->
         <div
           class="flex flex-col-reverse items-center gap-3 sm:flex-row sm:justify-between sm:gap-4"
         >
-          <p class="text-xs text-gray-400">
-            Your details are used only for church records and are never shared publicly.
+          <p
+            class="text-xs text-gray-400"
+          >
+            Os seus dados serão utilizados apenas para os registos internos da ICFR Família Redimida.
           </p>
-          <Button type="submit" size="lg" :loading="submitting" class="w-full sm:w-auto">
-            <template #icon-left><Icon icon="mdi:account-check-outline" /></template>
-            Submit Registration
+
+          <Button
+            type="submit"
+            size="lg"
+            :loading="submitting"
+            class="w-full sm:w-auto"
+          >
+            <template #icon-left>
+              <Icon
+                icon="mdi:account-check-outline"
+              />
+            </template>
+
+            Enviar Cadastro
           </Button>
         </div>
       </form>

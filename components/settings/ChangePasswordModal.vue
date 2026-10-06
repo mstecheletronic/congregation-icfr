@@ -99,7 +99,7 @@ async function submit() {
 
     <template #footer>
       <div class="flex gap-2 justify-end">
-        <Button variant="secondary" @click="close">Cancel</Button>
+        <Button variant="secondary" @click="close">Cancelar</Button>
         <Button :loading="saving" @click="submit">
           <template #icon-left><Icon icon="mdi:lock-reset" /></template>
           Update Password

@@ -63,8 +63,8 @@ const { confirmDelete } = useConfirm()
 async function deleteMember(id: string) {
   openMenuId.value = null
   const member = sourceMembers.value.find((m) => m.id === id)
-  // Named, so somebody who clicked the wrong row in a long table can see that they did.
-  const ok = await confirmDelete(member?.name ?? 'this member', {
+  // Nomed, so somebody who clicked the wrong row in a long table can see that they did.
+  const ok = await confirmDelete(member?.name ?? 'este membro', {
     message:
       'Their record, and their place on the nominal roll, will be removed. This cannot be undone.',
   })
@@ -120,22 +120,25 @@ onUnmounted(() => {
         <thead>
           <tr class="bg-gray-50 border-b border-gray-100">
             <th scope="col" class="text-left px-4 py-3 text-xs font-semibold text-gray-800 w-10">
-              S/N
+              Nº
             </th>
             <th scope="col" class="text-left px-4 py-3 text-xs font-semibold text-gray-800">
-              Name
+              Nome
             </th>
             <th scope="col" class="text-left px-4 py-3 text-xs font-semibold text-gray-800">
-              Gender
+              Congregação
             </th>
             <th scope="col" class="text-left px-4 py-3 text-xs font-semibold text-gray-800">
-              Phone Number
+              Sexo
             </th>
             <th scope="col" class="text-left px-4 py-3 text-xs font-semibold text-gray-800">
-              Email Address
+              Telefone
             </th>
             <th scope="col" class="text-left px-4 py-3 text-xs font-semibold text-gray-800">
-              Attendance Status
+              Email
+            </th>
+            <th scope="col" class="text-left px-4 py-3 text-xs font-semibold text-gray-800">
+              Estado
             </th>
             <th scope="col" class="w-10 px-4 py-3"></th>
           </tr>
@@ -154,7 +157,12 @@ onUnmounted(() => {
                 <span class="font-medium text-gray-900">{{ member.name }}</span>
               </div>
             </td>
-            <td class="px-4 py-3 text-gray-600">{{ member.gender }}</td>
+            <td class="px-4 py-3 text-gray-600">
+              {{ member.congregation || '—' }}
+            </td>
+            <td class="px-4 py-3 text-gray-600">
+              {{ member.gender === 'Male' ? 'Masculino' : 'Feminino' }}
+            </td>
             <td class="px-4 py-3 text-gray-600">{{ member.phone }}</td>
             <td class="px-4 py-3 text-gray-600">{{ member.email }}</td>
             <td class="px-4 py-3">
@@ -164,7 +172,7 @@ onUnmounted(() => {
               <button
                 :ref="(el) => setMenuButtonRef(member.id, el)"
                 class="p-1 rounded hover:bg-gray-100 text-gray-400"
-                :aria-label="`Actions for ${member.name}`"
+                :aria-label="`Ações para ${member.name}`"
                 @click.stop="toggleMenu(member.id)"
               >
                 <Icon icon="mdi:dots-vertical" />
@@ -173,19 +181,19 @@ onUnmounted(() => {
           </tr>
 
           <tr v-if="membersStore.loading && !paginated.length">
-            <td colspan="7" class="px-4">
-              <LoadingState :rows="6" title="Loading members…" />
+            <td colspan="8" class="px-4">
+              <LoadingState :rows="6" title="Carregando membros..." />
             </td>
           </tr>
           <tr v-else-if="!paginated.length">
-            <td colspan="7" class="px-4">
+            <td colspan="8" class="px-4">
               <EmptyState
                 icon="mdi:account-group-outline"
-                :title="hasAnyMembers ? 'No members match these filters' : 'No members yet'"
+                :title="hasAnyMembers ? 'Nenhum membro corresponde a estes filtros' : 'Ainda não existem membros'"
                 :description="
                   hasAnyMembers
-                    ? 'Try clearing the search or switching tabs.'
-                    : 'Members appear here once they register or are added to the roll.'
+                    ? 'Tente limpar a pesquisa ou selecionar outra categoria.'
+                    : 'Os membros aparecerão aqui depois do cadastro ou registo pela administração.'
                 "
               />
             </td>
@@ -200,7 +208,7 @@ onUnmounted(() => {
       :total="total"
       :range-start="rangeStart"
       :range-end="rangeEnd"
-      label="members"
+      label="membros"
     />
   </Card>
 
@@ -229,7 +237,7 @@ onUnmounted(() => {
           :icon="isPending(openMenuMember.id) ? 'mdi:loading' : 'mdi:trash-can-outline'"
           :class="isPending(openMenuMember.id) && 'animate-spin'"
         />
-        {{ isPending(openMenuMember.id) ? 'Deleting…' : 'Delete' }}
+        {{ isPending(openMenuMember.id) ? 'A eliminar…' : 'Eliminar' }}
       </button>
     </div>
   </Teleport>

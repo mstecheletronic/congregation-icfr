@@ -1,8 +1,8 @@
 <script setup lang="ts">
 definePageMeta({ layout: 'admin', middleware: ['auth'] })
 useSeoMeta({
-  title: 'Upload Teaching',
-  description: 'Add new Sunday School teachings and sermons to your library.',
+  title: 'Publicar Ensinamento',
+  description: 'Adicione novos estudos bíblicos e sermões à biblioteca.',
 })
 
 const { setHeader } = usePageHeader()
@@ -10,15 +10,15 @@ const teachingsStore = useTeachingsStore()
 
 onMounted(() => {
   teachingsStore.load()
-  setHeader('Teachings Upload', 'Add new Sunday School teachings and sermons to your library')
+  setHeader('Publicar Ensinamento', 'Adicione novos estudos bíblicos e sermões à biblioteca')
 })
 
 const tips = [
   'Use clear, descriptive titles',
-  'Add detailed descriptions',
-  'Select high-quality thumbnails',
+  'Adicione descrições detalhadas',
+  'Escolha imagens de boa qualidade',
   'Tag content appropriately',
-  'Include sermon series info',
+  'Inclua informações da série de sermões',
 ]
 </script>
 
@@ -42,9 +42,9 @@ const tips = [
 
       <!-- Right: Recent uploads + Tips -->
       <div class="flex flex-col gap-4">
-        <!-- Recent Sermon Uploads -->
+        <!-- Publicações Recentes -->
         <Card>
-          <h3 class="font-serif text-lg font-bold text-gray-900 mb-4">Recent Sermon Uploads</h3>
+          <h3 class="font-serif text-lg font-bold text-gray-900 mb-4">Publicações Recentes</h3>
 
           <div
             v-if="teachingsStore.recentSermons.length"
@@ -72,7 +72,7 @@ const tips = [
                 to="/admin/teachings"
                 class="mt-2 inline-flex items-center gap-1 text-sm font-medium"
                 style="color: #0ba5ec"
-                :aria-label="`Read ${sermon.topic}`"
+                :aria-label="`Ver ${sermon.topic}`"
               >
                 Read more
                 <Icon icon="mdi:arrow-right" class="text-sm" />
@@ -80,12 +80,12 @@ const tips = [
             </article>
           </div>
 
-          <div v-else class="text-center py-6 text-gray-400 text-sm">No uploads yet</div>
+          <div v-else class="text-center py-6 text-gray-400 text-sm">Ainda não existem publicações</div>
         </Card>
 
-        <!-- Upload Tips -->
+        <!-- Dicas de Publicação -->
         <Card>
-          <h3 class="font-serif text-lg font-bold text-gray-900 mb-3">Upload Tips</h3>
+          <h3 class="font-serif text-lg font-bold text-gray-900 mb-3">Dicas de Publicação</h3>
           <ul class="space-y-2.5">
             <li v-for="tip in tips" :key="tip" class="flex items-start gap-2 text-sm text-gray-600">
               <span

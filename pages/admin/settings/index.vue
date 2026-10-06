@@ -344,14 +344,14 @@ function removeSundayDetail(i: number) {
                   label="Church name"
                   required
                   :error="errors.name"
-                  placeholder="The Church of Christ"
+                  placeholder="ICFR Família Redimida"
                 />
               </div>
               <div class="sm:col-span-2">
                 <Input
                   v-model="draft.address"
                   label="Address"
-                  placeholder="7B Esa Atan Ext. Ikot Ekpene"
+                  placeholder="Beira, Sofala"
                   helper="Also drives the map on the About page and the contact section."
                 />
               </div>
@@ -693,7 +693,7 @@ function removeSundayDetail(i: number) {
               <Input
                 v-model="draft.aboutHero.subtitle"
                 label="Subtitle"
-                placeholder="Church Of Christ, 7b Esa Atan Extension"
+                placeholder="ICFR Família Redimida, Beira"
               />
             </div>
           </SettingsSection>
@@ -858,7 +858,7 @@ function removeSundayDetail(i: number) {
               <Input
                 v-model="draft.aboutHistory.signatureRole"
                 label="Role"
-                placeholder="Minister — Church of Christ"
+                placeholder="Líder — ICFR Família Redimida"
               />
             </div>
           </SettingsSection>
@@ -1084,17 +1084,17 @@ function removeSundayDetail(i: number) {
               <Input
                 v-model="draft.worshipThisSunday.cardChurchName"
                 label="Church Name"
-                placeholder="Church of Christ"
+                placeholder="ICFR Família Redimida"
               />
               <Input
                 v-model="draft.worshipThisSunday.cardChurchSubtitle"
                 label="Subtitle"
-                placeholder="7b Esa Atan Extension"
+                placeholder="Beira, Sofala"
               />
               <Input
                 v-model="draft.worshipThisSunday.mapAddress"
                 label="Map Address"
-                placeholder="7b Esa Atan, Ikot Ekpene, Akwa Ibom State, Nigeria"
+                placeholder="Beira, Sofala, Moçambique"
               />
               <Input
                 v-model="draft.worshipThisSunday.directionsUrl"
@@ -1275,7 +1275,7 @@ function removeSundayDetail(i: number) {
                 :key="cg.id"
                 class="relative grid grid-cols-1 gap-3 rounded-lg border border-gray-200 p-3 pr-9 sm:grid-cols-2"
               >
-                <Input v-model="cg.name" label="Name" placeholder="Church of Christ, Uyo Central" />
+                <Input v-model="cg.name" label="Name" placeholder="ICFR Família Redimida — Beira Sede" />
                 <Input v-model="cg.city" label="City" placeholder="Uyo" />
                 <Input v-model="cg.address" label="Address" placeholder="14 Oron Road, Uyo" />
                 <Input v-model="cg.serviceTime" label="Service Time" placeholder="Sun 8:30 AM" />

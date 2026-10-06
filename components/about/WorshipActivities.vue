@@ -24,7 +24,7 @@ const cfg = computed(() => s.settings.worshipActivities)
       <EmptyState
         v-if="!cfg.items.length"
         icon="mdi:hands-pray"
-        title="No worship activities listed"
+        title="Ainda não existem atividades cadastradas"
         description="Add them in Settings → Worship Activities."
       />
 

@@ -27,15 +27,15 @@ const rows = computed(() => {
 <template>
   <Card>
     <h3 class="text-base font-semibold text-gray-900 mb-5">
-      Attendance Performance per Activity for {{ year }}
+      Desempenho de Presenças por Atividade em {{ year }}
     </h3>
 
     <EmptyState
       v-if="!attendanceStore.records.length"
       icon="mdi:chart-timeline-variant"
       size="sm"
-      title="No attendance recorded yet"
-      description="Per-activity rates appear once registers have been marked."
+      title="Ainda não existem presenças registadas"
+      description="As taxas por atividade aparecerão depois de os registos de presença serem preenchidos."
     />
 
     <div v-else class="flex flex-col gap-4">

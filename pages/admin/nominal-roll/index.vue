@@ -2,13 +2,13 @@
 import type { Member } from '~/types'
 
 definePageMeta({ layout: 'admin', middleware: ['auth'] })
-useSeoMeta({ title: 'Nominal Roll', description: 'Church member nominal roll management.' })
+useSeoMeta({ title: 'Membros — ICFR Família Redimida', description: 'Gestão dos membros da ICFR Família Redimida.' })
 
 const { setHeader } = usePageHeader()
 const membersStore = useMembersStore()
 
 onMounted(() => {
-  setHeader('Church Nominal Roll', 'Showing summary and member details for all categories')
+  setHeader('Membros da ICFR Família Redimida', 'Resumo e gestão dos membros de todas as congregações da ICFR')
 })
 
 const showAddModal = ref(false)
@@ -58,28 +58,28 @@ function pctChange(current: number, prior: number): number {
 
 const statCards = computed(() => [
   {
-    label: 'Active Members',
+    label: 'Membros Ativos',
     value: membersStore.activeCount,
     priorValue: lastYear.value.active,
     change: pctChange(membersStore.activeCount, lastYear.value.active),
     tab: 'active' as const,
   },
   {
-    label: 'Sisters',
+    label: 'Irmãs',
     value: membersStore.sisterCount,
     priorValue: lastYear.value.sisters,
     change: pctChange(membersStore.sisterCount, lastYear.value.sisters),
     tab: 'sisters' as const,
   },
   {
-    label: 'Brothers',
+    label: 'Irmãos',
     value: membersStore.brotherCount,
     priorValue: lastYear.value.brothers,
     change: pctChange(membersStore.brotherCount, lastYear.value.brothers),
     tab: 'brothers' as const,
   },
   {
-    label: 'Weak Brethren',
+    label: 'Membros em Acompanhamento',
     value: membersStore.weakCount,
     priorValue: lastYear.value.weak,
     change: pctChange(membersStore.weakCount, lastYear.value.weak),
@@ -95,18 +95,50 @@ function viewList(tab: 'active' | 'sisters' | 'brothers' | 'inactive') {
     tableRef.value?.scrollIntoView({ behavior: 'smooth', block: 'start' })
   })
 }
+
+const congregationCards = computed(() => {
+  const names = [
+    'Muchatazina Sede',
+    'Cerâmica',
+    'Crespim',
+    'Chimoio',
+    'Tete',
+  ]
+
+  return names.map((name) => ({
+    name,
+    count: membersStore.members.filter(
+      (m) => m.congregation === name
+    ).length,
+  }))
+})
+
+function viewCongregation(congregation: string) {
+  membersStore.setFilter({
+    congregation,
+    tab: 'all',
+  })
+
+  nextTick(() => {
+    tableRef.value?.scrollIntoView({
+      behavior: 'smooth',
+      block: 'start',
+    })
+  })
+}
+
 </script>
 
 <template>
   <div class="flex flex-col gap-5">
-    <!-- Add New Member CTA lives in the admin topbar via teleport, alongside
+    <!-- Adicionar Membro CTA lives in the admin topbar via teleport, alongside
          the page title rendered by the layout. -->
     <!-- `defer`: the admin layout is a separately async-loaded chunk, so its header (and this
          teleport's target) is not guaranteed to exist before this page's own chunk mounts.
          Without `defer`, that race intermittently throws "Failed to locate Teleport target". -->
     <Teleport defer to="#admin-header-actions">
       <Button @click="showAddModal = true">
-        Add New Member
+        Adicionar Membro
         <template #icon-right><Icon icon="mdi:plus" /></template>
       </Button>
     </Teleport>
@@ -144,14 +176,14 @@ function viewList(tab: 'active' | 'sisters' | 'brothers' | 'inactive') {
             <!-- Big number -->
             <p class="text-3xl font-bold text-gray-900">{{ card.value }}</p>
 
-            <!-- Footer: last year + view list -->
+            <!-- Footer: no ano passado + view list -->
             <div class="flex items-center justify-between text-xs">
-              <span class="text-gray-400">{{ card.priorValue }} last year</span>
+              <span class="text-gray-400">{{ card.priorValue }} no ano passado</span>
               <button
                 class="font-medium text-gray-700 hover:text-blue-600 cursor-pointer"
                 @click="viewList(card.tab)"
               >
-                View List
+                Ver Lista
               </button>
             </div>
           </div>
@@ -160,7 +192,58 @@ function viewList(tab: 'active' | 'sisters' | 'brothers' | 'inactive') {
       <RoleSummaryChart />
     </div>
 
-    <!-- Filters -->
+    <!-- Congregações -->
+    <section>
+      <div class="flex items-center justify-between mb-3">
+        <div>
+          <h2 class="text-base font-bold text-gray-900">
+            Membros por Congregação
+          </h2>
+          <p class="text-xs text-gray-500 mt-0.5">
+            Distribuição atual dos membros da ICFR Família Redimida
+          </p>
+        </div>
+
+        <button
+          class="text-xs font-medium text-blue-600 hover:text-blue-700"
+          @click="membersStore.setFilter({ congregation: '' })"
+        >
+          Ver todas
+        </button>
+      </div>
+
+      <div class="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-5 gap-3">
+        <button
+          v-for="congregation in congregationCards"
+          :key="congregation.name"
+          type="button"
+          class="rounded-xl border border-gray-200 bg-white p-4 text-left shadow-sm transition hover:border-blue-300 hover:shadow-md"
+          @click="viewCongregation(congregation.name)"
+        >
+          <div class="flex items-center justify-between gap-2">
+            <div
+              class="flex h-9 w-9 items-center justify-center rounded-lg bg-blue-50 text-blue-600"
+            >
+              <Icon icon="mdi:church-outline" class="text-xl" />
+            </div>
+
+            <span class="text-2xl font-bold text-gray-900">
+              {{ congregation.count }}
+            </span>
+          </div>
+
+          <p class="mt-3 text-sm font-semibold text-gray-800">
+            {{ congregation.name }}
+          </p>
+
+          <p class="mt-1 text-xs text-gray-400">
+            {{ congregation.count === 1 ? '1 membro' : `${congregation.count} membros` }}
+          </p>
+        </button>
+      </div>
+    </section>
+
+    <!-- Filtros -->
     <div ref="tableRef">
       <MemberFilters />
     </div>
@@ -171,6 +254,6 @@ function viewList(tab: 'active' | 'sisters' | 'brothers' | 'inactive') {
     <!-- Member detail panel -->
     <MemberDetailPanel v-model="panelOpen" :member="selectedMember" :auto-edit="panelAutoEdit" />
 
-    <AddMemberModal v-model="showAddModal" title="Add New Member" @save="onMemberSaved" />
+    <AddMemberModal v-model="showAddModal" title="Adicionar Novo Membro" @save="onMemberSaved" />
   </div>
 </template>

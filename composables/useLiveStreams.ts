@@ -7,15 +7,23 @@ export function useLiveStreams() {
     recordedStreams: computed(() => store.recordedStreams),
     filteredRecorded: computed(() => store.filteredRecorded),
     activeTab: computed(() => store.activeTab),
+
     searchQuery: computed({
       get: () => store.searchQuery,
-      set: (v: string) => store.setSearch(v),
+      set: (value: string) => store.setSearch(value),
     }),
+
     activityFilter: computed({
       get: () => store.activityFilter,
-      set: (v: string) => store.setFilter(v),
+      set: (value: string) => store.setFilter(value),
     }),
-    setTab: (tab: 'live' | 'recorded') => store.setTab(tab),
-    toggleLive: () => store.toggleLive(),
+
+    loading: computed(() => store.loading),
+    saving: computed(() => store.saving),
+
+    load: (force = false) => store.load(force),
+
+    setTab: (tab: 'live' | 'recorded') =>
+      store.setTab(tab),
   }
 }

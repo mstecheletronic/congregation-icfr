@@ -146,19 +146,19 @@ function preview(text: string) {
       </div>
     </div>
 
-    <LoadingState v-if="messagesStore.loading && !messagesStore.loaded" title="Loading messages…" />
+    <LoadingState v-if="messagesStore.loading && !messagesStore.loaded" title="Carregando mensagens..." />
 
     <EmptyState
       v-else-if="!messagesStore.messages.length"
       icon="mdi:email-outline"
-      title="No messages yet"
+      title="Ainda não existem mensagens"
       description="Enquiries left through the contact form on the website will appear here."
     />
 
     <EmptyState
       v-else-if="!visible.length"
       icon="mdi:email-search-outline"
-      title="No messages match"
+      title="Nenhuma mensagem encontrada"
       description="Try a different filter or search term."
       size="sm"
     />
@@ -217,7 +217,7 @@ function preview(text: string) {
 
       <template #footer>
         <div v-if="selected" class="flex flex-wrap justify-end gap-2">
-          <Button variant="secondary" @click="confirmDelete(selected)">Delete</Button>
+          <Button variant="secondary" @click="confirmDelete(selected)">Eliminar</Button>
           <Button
             variant="secondary"
             :loading="busyId === selected.id"

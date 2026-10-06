@@ -160,15 +160,15 @@ export const APP_ACTIONS: AppAction[] = ['view', 'add', 'edit', 'delete', 'expor
 
 // ─── Church identity ──────────────────────────────────────────────────────────
 
-export const CHURCH_NAME = 'ICFR Família Redimida'
-export const CHURCH_ADDRESS = 'Beira, Sofala, Moçambique'
-export const CHURCH_ADDRESS_SHORT = 'Beira, Sofala'
-export const CHURCH_CITY = 'Beira'
-export const CHURCH_STATE = 'Sofala'
-export const CHURCH_COUNTRY = 'Moçambique'
-export const CHURCH_PHONE = '+258 84 521 1814'
-export const CHURCH_EMAIL = 'igrejafamiliaredmida@gmail.com'
-export const CHURCH_SCRIPTURE = 'Lucas 19:10'
+export const CHURCH_NAME = 'Church of Christ'
+export const CHURCH_ADDRESS = '7b Esa Atan Extension, Ikot Ekpene, Akwa Ibom State, Nigeria'
+export const CHURCH_ADDRESS_SHORT = '7b Esa Atan Extension'
+export const CHURCH_CITY = 'Ikot Ekpene'
+export const CHURCH_STATE = 'Akwa Ibom State'
+export const CHURCH_COUNTRY = 'Nigeria'
+export const CHURCH_PHONE = '+234 803 000 0000'
+export const CHURCH_EMAIL = 'info@churchofchrist.org'
+export const CHURCH_SCRIPTURE = 'Romans 16:16'
 
 // ─── Routing ──────────────────────────────────────────────────────────────────
 
@@ -243,21 +243,18 @@ export type NavVisibilityKey =
   | 'register'
   | 'contactUs'
 
-export const NAV_VISIBILITY_ITEMS: {
-  key: NavVisibilityKey
-  label: string
-  path: string | null
-}[] = [
-  { key: 'home', label: 'Início', path: '/' },
-  { key: 'liveStreams', label: 'Cultos ao Vivo', path: '/live-streams' },
-  { key: 'teachings', label: 'Ensinamentos', path: '/teachings' },
-  { key: 'events', label: 'Eventos', path: '/events' },
-  { key: 'lectureship', label: 'Lectureship', path: '/lectureship' },
-  { key: 'gallery', label: 'Galeria', path: '/gallery' },
-  { key: 'aboutUs', label: 'Sobre Nós', path: '/about-us' },
-  { key: 'register', label: 'Cadastro de Membro', path: '/register' },
-  { key: 'contactUs', label: 'Contactos', path: null },
-]
+export const NAV_VISIBILITY_ITEMS: { key: NavVisibilityKey; label: string; path: string | null }[] =
+  [
+    { key: 'home', label: 'Home', path: '/' },
+    { key: 'liveStreams', label: 'Live Streams', path: '/live-streams' },
+    { key: 'teachings', label: 'Teachings', path: '/teachings' },
+    { key: 'events', label: 'Events', path: '/events' },
+    { key: 'lectureship', label: 'Lectureship', path: '/lectureship' },
+    { key: 'gallery', label: 'Gallery', path: '/gallery' },
+    { key: 'aboutUs', label: 'About Us', path: '/about-us' },
+    { key: 'register', label: 'Member Registration', path: '/register' },
+    { key: 'contactUs', label: 'Contact Us', path: null },
+  ]
 
 // ─── Lectureship speaker/officiating profiles ────────────────────────────────
 

@@ -1,7 +1,10 @@
 <script setup lang="ts">
-definePageMeta({ layout: 'default' })
+definePageMeta({
+  layout: 'default',
+})
 
 const store = usePublicTeachingsStore()
+
 const activeFilter = ref('All Sermons')
 const searchQuery = ref('')
 
@@ -17,26 +20,47 @@ const filterTags = [
   'Grace',
 ]
 
+const filterLabels: Record<string, string> = {
+  'All Sermons': 'Todos os Sermões',
+  Church: 'Igreja',
+  Faith: 'Fé',
+  Foundation: 'Fundamentos',
+  Baptism: 'Batismo',
+  Salvation: 'Salvação',
+  Scripture: 'Escrituras',
+  Gospel: 'Evangelho',
+  Grace: 'Graça',
+}
+
 watch(activeFilter, (v) => {
   store.setFilter(v === 'All Sermons' ? 'All' : v)
 })
 
-watch(searchQuery, (v) => store.setSearch(v))
+watch(searchQuery, (v) => {
+  store.setSearch(v)
+})
 
 const displayedCount = ref(9)
-const paginated = computed(() => store.filteredSermons.slice(0, displayedCount.value))
-const hasMore = computed(() => store.filteredSermons.length > displayedCount.value)
+
+const paginated = computed(() =>
+  store.filteredSermons.slice(0, displayedCount.value)
+)
+
+const hasMore = computed(
+  () => store.filteredSermons.length > displayedCount.value
+)
 
 function loadMore() {
   displayedCount.value += 6
 }
 
 useSeoMeta({
-  title: 'Sermons — Church of Christ',
+  title: 'Sermões — ICFR Família Redimida',
   description:
-    'Browse our full library of biblical sermons preached at the Church of Christ. Topics include faith, baptism, salvation, gospel, and more.',
-  ogTitle: 'Sermons — Church of Christ',
-  ogDescription: 'Biblical preaching that exalts Christ and proclaims the whole counsel of God.',
+    'Acompanhe sermões, mensagens e pregações bíblicas da ICFR Família Redimida.',
+  ogTitle: 'Sermões — ICFR Família Redimida',
+  ogDescription:
+    'Mensagens bíblicas para edificação, crescimento espiritual e fortalecimento da fé.',
   ogImage: '/images/heroImg.png',
 })
 </script>
@@ -44,23 +68,43 @@ useSeoMeta({
 <template>
   <div class="pt-16">
     <!-- Banner -->
-    <section class="relative bg-[#1E3A5F] py-20 overflow-hidden">
+    <section
+      class="relative overflow-hidden bg-[#1E3A5F] py-20"
+    >
       <img
         src="https://picsum.photos/seed/sermons-banner/1920/600"
-        alt="Sermons banner"
+        alt="Sermões da ICFR Família Redimida"
         class="absolute inset-0 h-full w-full object-cover opacity-20"
         loading="lazy"
       />
-      <div class="relative z-10 mx-auto max-w-4xl px-6 text-center text-white">
-        <h1 class="font-serif text-5xl font-bold drop-shadow-lg md:text-6xl">Sermons</h1>
-        <p class="mt-4 text-white/70 text-lg max-w-2xl mx-auto">
-          Biblical preaching that exalts Christ and proclaims the whole counsel of God.
+
+      <div
+        class="relative z-10 mx-auto max-w-4xl px-6 text-center text-white"
+      >
+        <p
+          class="mb-3 text-xs font-semibold uppercase tracking-widest text-blue-200"
+        >
+          Ensinamentos
+        </p>
+
+        <h1
+          class="font-serif text-5xl font-bold drop-shadow-lg md:text-6xl"
+        >
+          Sermões
+        </h1>
+
+        <p
+          class="mx-auto mt-4 max-w-2xl text-lg text-white/70"
+        >
+          Mensagens bíblicas para edificação, fortalecimento da fé e crescimento espiritual.
         </p>
       </div>
     </section>
 
-    <div class="mx-auto max-w-7xl px-4 py-12 sm:px-6 lg:px-8">
-      <!-- Filter bar -->
+    <div
+      class="mx-auto max-w-7xl px-4 py-12 sm:px-6 lg:px-8"
+    >
+      <!-- Filtros -->
       <div class="mb-3">
         <TagFilterBar
           :tags="filterTags"
@@ -69,22 +113,40 @@ useSeoMeta({
         />
       </div>
 
-      <!-- Search -->
+      <!-- Legenda dos filtros -->
+      <div class="mb-5 flex flex-wrap gap-2">
+        <span
+          v-for="tag in filterTags"
+          :key="tag"
+          class="text-xs text-gray-400"
+        >
+          {{ filterLabels[tag] ?? tag }}
+        </span>
+      </div>
+
+      <!-- Pesquisa -->
       <div
-        class="mb-8 flex items-center gap-3 rounded-xl border border-gray-200 bg-white px-4 py-3 shadow-sm max-w-md"
+        class="mb-8 flex max-w-md items-center gap-3 rounded-xl border border-gray-200 bg-white px-4 py-3 shadow-sm"
       >
-        <Icon icon="heroicons:magnifying-glass" class="h-5 w-5 shrink-0 text-gray-400" />
+        <Icon
+          icon="heroicons:magnifying-glass"
+          class="h-5 w-5 shrink-0 text-gray-400"
+        />
+
         <input
           v-model="searchQuery"
           type="text"
-          placeholder="Search sermons…"
+          placeholder="Pesquisar sermões..."
           class="flex-1 bg-transparent text-sm text-gray-700 placeholder:text-gray-400 outline-none"
-          aria-label="Search sermons"
+          aria-label="Pesquisar sermões"
         />
       </div>
 
-      <!-- Grid -->
-      <div v-if="paginated.length" class="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+      <!-- Lista -->
+      <div
+        v-if="paginated.length"
+        class="grid gap-6 sm:grid-cols-2 lg:grid-cols-3"
+      >
         <ContentCard
           v-for="sermon in paginated"
           :key="sermon.id"
@@ -97,46 +159,64 @@ useSeoMeta({
           type="sermon"
         />
       </div>
+
       <EmptyState
         v-else-if="store.sermons.length"
         icon="heroicons:microphone-slash"
-        title="No sermons match your search"
-        description="Try a different filter or search term."
+        title="Nenhum sermão encontrado"
+        description="Tente outro termo de pesquisa ou outro filtro."
       />
+
       <EmptyState
         v-else
         icon="heroicons:microphone-slash"
-        title="No sermons published yet"
-        description="Sermons appear here once they are uploaded from the admin dashboard."
+        title="Ainda não existem sermões publicados"
+        description="Os sermões aparecerão aqui depois de serem publicados no painel administrativo."
       />
 
-      <!-- Load more -->
-      <div v-if="hasMore" class="mt-10 text-center">
+      <!-- Carregar mais -->
+      <div
+        v-if="hasMore"
+        class="mt-10 text-center"
+      >
         <button
-          class="rounded-full border border-[#2563EB] px-8 py-3 text-sm font-semibold text-[#2563EB] hover:bg-blue-50 transition-colors"
-          aria-label="Load more sermons"
+          class="rounded-full border border-[#2563EB] px-8 py-3 text-sm font-semibold text-[#2563EB] transition-colors hover:bg-blue-50"
+          aria-label="Carregar mais sermões"
           @click="loadMore"
         >
-          Load More Sermons
+          Carregar Mais Sermões
         </button>
       </div>
     </div>
 
-    <!-- CTA banner -->
+    <!-- CTA -->
     <section class="bg-[#1E3A5F] py-14">
-      <div class="mx-auto max-w-4xl px-6 text-center text-white">
-        <h2 class="font-serif text-3xl font-bold mb-3">Want to Study the Bible?</h2>
-        <p class="text-white/70 mb-8 max-w-xl mx-auto">
-          Our Sunday School lessons offer in-depth, structured Bible study for every level of
-          maturity in the faith.
+      <div
+        class="mx-auto max-w-4xl px-6 text-center text-white"
+      >
+        <h2
+          class="mb-3 font-serif text-3xl font-bold"
+        >
+          Quer aprofundar o estudo da Bíblia?
+        </h2>
+
+        <p
+          class="mx-auto mb-8 max-w-xl text-white/70"
+        >
+          Explore os nossos estudos bíblicos e conteúdos de ensino da Palavra de Deus.
         </p>
+
         <NuxtLink
           to="/teachings/sunday-school"
-          class="inline-flex items-center gap-2 rounded-full bg-[#2563EB] px-8 py-3.5 text-sm font-semibold text-white hover:bg-blue-600 transition-colors"
-          aria-label="View Sunday School lessons"
+          class="inline-flex items-center gap-2 rounded-full bg-[#2563EB] px-8 py-3.5 text-sm font-semibold text-white transition-colors hover:bg-blue-600"
+          aria-label="Ver estudos bíblicos"
         >
-          View Sunday School Lessons
-          <Icon icon="heroicons:arrow-right" class="h-4 w-4" />
+          Ver Estudos Bíblicos
+
+          <Icon
+            icon="heroicons:arrow-right"
+            class="h-4 w-4"
+          />
         </NuxtLink>
       </div>
     </section>

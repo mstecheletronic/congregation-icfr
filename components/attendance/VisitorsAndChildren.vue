@@ -105,7 +105,7 @@ const visitorsForDate = computed(() =>
 
 /** Named the table for screen readers, which otherwise meet six columns with no context. */
 const tableCaption = computed(
-  () => `Visitors recorded for ${props.serviceType} on ${formatDate(selectedDate.value, 'full')}`
+  () => `Visitantes registados em ${props.serviceType} no dia ${formatDate(selectedDate.value, 'full')}`
 )
 
 const showForm = ref(false)
@@ -161,7 +161,7 @@ const { isPending, run } = usePendingAction()
 
 async function remove(visitor: Visitor) {
   const ok = await confirmDelete(visitor.name, {
-    message: `Their visit on ${formatDate(visitor.date, 'full')} will be removed from the record.`,
+    message: `A visita em ${formatDate(visitor.date, 'full')} será removida do registo.`,
   })
   if (!ok) return
   await run(visitor.id, () => visitorsStore.deleteVisitor(visitor.id).catch(() => {}))
@@ -175,7 +175,7 @@ function doExport() {
       Service: v.serviceType,
       Name: v.name,
       Phone: v.phone ?? '',
-      'Email Address': v.email ?? '',
+      'Email': v.email ?? '',
       Church: v.church ?? '',
       Address: v.address ?? '',
     })),
@@ -189,9 +189,9 @@ function doExport() {
     <div class="p-4 lg:p-5 border-b border-gray-100">
       <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
         <div>
-          <h3 class="text-sm font-semibold text-gray-900">Visitors &amp; Children</h3>
+          <h3 class="text-sm font-semibold text-gray-900">Visitantes e Crianças</h3>
           <p class="text-xs text-gray-400 mt-0.5">
-            Recorded per {{ serviceType }} — visitors by name, children by number
+            Registado por {{ serviceType }} — visitantes por nome e crianças por quantidade
           </p>
         </div>
         <div class="flex gap-2 shrink-0">
@@ -199,7 +199,7 @@ function doExport() {
             variant="secondary"
             size="sm"
             :disabled="!visitorsStore.visitors.length"
-            :aria-label="`Export ${visitorsStore.totalVisitors} visitors to CSV`"
+            :aria-label="`Exportar ${visitorsStore.totalVisitors} visitantes para CSV`"
             @click="doExport"
           >
             <template #icon-left><Icon icon="mdi:upload-outline" /></template>
@@ -207,7 +207,7 @@ function doExport() {
           </Button>
           <Button size="sm" @click="openAdd">
             <template #icon-left><Icon icon="mdi:account-plus-outline" /></template>
-            Add Visitor
+            Adicionar Visitante
           </Button>
         </div>
       </div>
@@ -216,7 +216,7 @@ function doExport() {
            cards below, where a number can be read at a glance instead of being buried in the
            label of a closed dropdown. -->
       <div class="mt-4 sm:max-w-md">
-        <EditField label="Service Date">
+        <EditField label="Data do Culto">
           <select v-model="selectedDate">
             <option v-for="date in sundayOptions" :key="date" :value="date">
               {{ formatDate(date, 'full') }}
@@ -239,7 +239,7 @@ function doExport() {
       <div class="rounded-xl border border-gray-100 bg-white p-4 shadow-sm">
         <div class="flex items-start justify-between gap-3">
           <div class="min-w-0">
-            <p class="text-xs font-medium text-gray-500">Visitors</p>
+            <p class="text-xs font-medium text-gray-500">Visitantes</p>
             <p class="mt-1 text-3xl font-bold text-gray-900 tabular-nums">
               {{ visitorsForDate.length }}
             </p>
@@ -247,7 +247,7 @@ function doExport() {
               {{
                 visitorsForDate.length
                   ? 'Listed below for this service'
-                  : 'None recorded for this service'
+                  : 'Nenhum registado neste culto'
               }}
             </p>
           </div>
@@ -272,7 +272,7 @@ function doExport() {
             <p class="mt-1 flex items-center gap-1 text-xs">
               <template v-if="recordedChildren !== null">
                 <Icon icon="mdi:check-circle" class="shrink-0 text-emerald-500" />
-                <span class="text-gray-400">Recorded for this service</span>
+                <span class="text-gray-400">Registado neste culto</span>
               </template>
               <span v-else class="text-gray-400">Not counted yet</span>
             </p>
@@ -359,10 +359,10 @@ function doExport() {
               Name
             </th>
             <th scope="col" class="text-left px-4 py-2.5 text-xs font-medium text-gray-500">
-              Phone Number
+              Telefone
             </th>
             <th scope="col" class="text-left px-4 py-2.5 text-xs font-medium text-gray-500">
-              Email Address
+              Email
             </th>
             <th scope="col" class="text-left px-4 py-2.5 text-xs font-medium text-gray-500">
               Church
@@ -378,20 +378,20 @@ function doExport() {
         <tbody>
           <tr v-if="visitorsStore.loading && !visitorsForDate.length">
             <td colspan="6" class="px-4 py-6">
-              <LoadingState :rows="3" size="sm" title="Loading visitors…" />
+              <LoadingState :rows="3" size="sm" title="Carregando visitantes..." />
             </td>
           </tr>
           <tr v-else-if="!visitorsForDate.length">
             <td colspan="6" class="px-4 py-8">
               <EmptyState
                 icon="mdi:account-multiple-outline"
-                title="No visitors recorded for this service"
-                description="Add the visitors' slips from this Sunday and they will be listed here."
+                title="Nenhum visitante registado neste culto"
+                description="Adicione os visitantes deste culto e eles aparecerão aqui."
               >
                 <template #action>
                   <Button size="sm" @click="openAdd">
                     <template #icon-left><Icon icon="mdi:account-plus-outline" /></template>
-                    Add Visitor
+                    Adicionar Visitante
                   </Button>
                 </template>
               </EmptyState>
@@ -409,7 +409,7 @@ function doExport() {
                    by keyboard. -->
               <button
                 class="flex items-center gap-2.5 text-left group"
-                :aria-label="`View ${visitor.name}'s details`"
+                :aria-label="`Ver detalhes de ${visitor.name}`"
                 @click="openDetails(visitor)"
               >
                 <Avatar :name="visitor.name" size="sm" />
@@ -438,21 +438,21 @@ function doExport() {
               <div class="flex items-center justify-end gap-1">
                 <button
                   class="p-1.5 rounded-lg hover:bg-gray-100 text-gray-500 transition-colors"
-                  :aria-label="`View ${visitor.name}'s details`"
+                  :aria-label="`Ver detalhes de ${visitor.name}`"
                   @click="openDetails(visitor)"
                 >
                   <Icon icon="mdi:eye-outline" />
                 </button>
                 <button
                   class="p-1.5 rounded-lg hover:bg-gray-100 text-gray-500 transition-colors"
-                  :aria-label="`Edit ${visitor.name}`"
+                  :aria-label="`Editar ${visitor.name}`"
                   @click="openEdit(visitor)"
                 >
                   <Icon icon="mdi:pencil-outline" />
                 </button>
                 <button
                   class="p-1.5 rounded-lg hover:bg-red-50 text-red-500 transition-colors disabled:opacity-40"
-                  :aria-label="`Remove ${visitor.name}`"
+                  :aria-label="`Remover ${visitor.name}`"
                   :disabled="isPending(visitor.id)"
                   @click="remove(visitor)"
                 >

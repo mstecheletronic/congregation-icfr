@@ -28,29 +28,29 @@ const emit = defineEmits<{
     </div>
 
     <h3 class="font-serif text-2xl font-bold text-[#1E3A5F] mb-3">
-      The last live stream has ended
+      A última transmissão ao vivo terminou
     </h3>
     <p class="text-gray-500 max-w-md mb-8 leading-relaxed">
-      Our live worship service has concluded. Join us next Sunday for our next service or browse our
-      recorded streams and sermons below.
+      O nosso culto ao vivo terminou. Acompanhe o próximo culto ou veja as
+      transmissões gravadas e sermões abaixo.
     </p>
 
     <div class="flex flex-col gap-3 sm:flex-row">
       <button
         class="inline-flex items-center gap-2 rounded-full bg-[#2563EB] px-6 py-3 text-sm font-semibold text-white hover:bg-blue-700 transition-colors"
-        aria-label="Watch recorded videos"
+        aria-label="Assistir vídeos gravados"
         @click="emit('watch-recorded')"
       >
         <Icon icon="heroicons:play-circle" class="h-5 w-5" />
-        Watch Recorded Videos
+        Assistir Gravações
       </button>
       <NuxtLink
         to="/teachings/sermons"
         class="inline-flex items-center gap-2 rounded-full border border-[#2563EB] px-6 py-3 text-sm font-semibold text-[#2563EB] hover:bg-blue-50 transition-colors"
-        aria-label="Browse sermons"
+        aria-label="Ver sermões"
       >
         <Icon icon="heroicons:book-open" class="h-5 w-5" />
-        Browse Sermons Instead
+        Ver Sermões
       </NuxtLink>
     </div>
   </div>

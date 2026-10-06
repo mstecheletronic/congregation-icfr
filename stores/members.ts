@@ -16,252 +16,514 @@ export const useMembersStore = defineStore('members', () => {
   const saving = ref(false)
   const error = ref<string | null>(null)
   const loaded = ref(false)
+
   const filters = ref<MemberFilters>({
     search: '',
     gender: '',
+    congregation: '',
     status: '',
     tab: 'all',
   })
 
-  // Statuses that are excluded from the "All Members" default view
+  /**
+   * Valores internos.
+   * Não traduzir estes status porque outros módulos podem depender deles.
+   */
   const HIDDEN_FROM_ALL: Member['status'][] = ['Late']
 
   const filteredMembers = computed(() => {
     let result = [...members.value]
-    const { search, gender, status, tab } = filters.value
 
-    if (tab === 'brothers')
-      result = result.filter((m) => m.gender === 'Male' && !HIDDEN_FROM_ALL.includes(m.status))
-    else if (tab === 'sisters')
-      result = result.filter((m) => m.gender === 'Female' && !HIDDEN_FROM_ALL.includes(m.status))
-    else if (tab === 'active') result = result.filter((m) => m.status === 'Active')
-    else if (tab === 'inactive')
-      result = result.filter((m) => !['Active', 'Late'].includes(m.status))
-    else if (tab === 'disfellowshipped')
-      result = result.filter((m) => m.status === 'Disfellowshipped')
-    else if (tab === 'transfer') result = result.filter((m) => m.status === 'Transfer')
-    else if (tab === 'weak') result = result.filter((m) => m.status === 'Weak')
-    else if (tab === 'late') result = result.filter((m) => m.status === 'Late')
-    else result = result.filter((m) => !HIDDEN_FROM_ALL.includes(m.status)) // 'all' tab
+    const { search, gender, congregation, status, tab } = filters.value
 
-    if (gender) result = result.filter((m) => m.gender === gender)
-    if (status) result = result.filter((m) => m.status === status)
-    if (search) {
-      const q = search.toLowerCase()
+    // Filtros das abas
+    if (tab === 'brothers') {
       result = result.filter(
         (m) =>
-          m.name.toLowerCase().includes(q) ||
-          m.email.toLowerCase().includes(q) ||
-          m.phone.includes(q)
+          m.gender === 'Male' &&
+          !HIDDEN_FROM_ALL.includes(m.status)
       )
+    } else if (tab === 'sisters') {
+      result = result.filter(
+        (m) =>
+          m.gender === 'Female' &&
+          !HIDDEN_FROM_ALL.includes(m.status)
+      )
+    } else if (tab === 'active') {
+      result = result.filter(
+        (m) => m.status === 'Active'
+      )
+    } else if (tab === 'inactive') {
+      result = result.filter(
+        (m) =>
+          !['Active', 'Late'].includes(m.status)
+      )
+    } else if (tab === 'disfellowshipped') {
+      result = result.filter(
+        (m) => m.status === 'Disfellowshipped'
+      )
+    } else if (tab === 'transfer') {
+      result = result.filter(
+        (m) => m.status === 'Transfer'
+      )
+    } else if (tab === 'weak') {
+      result = result.filter(
+        (m) => m.status === 'Weak'
+      )
+    } else if (tab === 'late') {
+      result = result.filter(
+        (m) => m.status === 'Late'
+      )
+    } else {
+      // Aba "todos"
+      result = result.filter(
+        (m) => !HIDDEN_FROM_ALL.includes(m.status)
+      )
+    }
+
+    // Sexo
+    if (gender) {
+      result = result.filter(
+        (m) => m.gender === gender
+      )
+    }
+
+    // Congregação atual
+    if (congregation) {
+      result = result.filter(
+        (m) => m.congregation === congregation
+      )
+    }
+
+    // Estado
+    if (status) {
+      result = result.filter(
+        (m) => m.status === status
+      )
+    }
+
+    // Pesquisa
+    if (search.trim()) {
+      const q = search.trim().toLowerCase()
+
+      result = result.filter((m) => {
+        const name = m.name?.toLowerCase() ?? ''
+        const email = m.email?.toLowerCase() ?? ''
+        const phone = m.phone ?? ''
+        const churchNumber =
+          m.churchNumber?.toLowerCase() ?? ''
+
+        return (
+          name.includes(q) ||
+          email.includes(q) ||
+          phone.includes(q) ||
+          churchNumber.includes(q)
+        )
+      })
     }
 
     return result
   })
 
   /**
-   * Who, if anyone, already holds this church number — ignoring `exceptId`, so a member editing
-   * their own record does not collide with themselves.
-   *
-   * This is for immediate feedback in the form. It only knows about the members already loaded,
-   * so it is not the guarantee: `membersRepository` claims the number in a transaction, which is
-   * what actually holds when two people save at once.
+   * Verifica se um número de membro já pertence a outro membro.
    */
-  function churchNumberHolder(churchNumber: string, exceptId?: string): Member | undefined {
+  function churchNumberHolder(
+    churchNumber: string,
+    exceptId?: string
+  ): Member | undefined {
     const key = churchNumberKey(churchNumber)
+
     if (!key) return undefined
+
     return members.value.find(
-      (m) => m.id !== exceptId && churchNumberKey(m.churchNumber ?? '') === key
+      (m) =>
+        m.id !== exceptId &&
+        churchNumberKey(
+          m.churchNumber ?? ''
+        ) === key
     )
   }
 
-  const activeCount = computed(() => members.value.filter((m) => m.status === 'Active').length)
+  // ─────────────────────────────────────────────
+  // Estatísticas
+  // ─────────────────────────────────────────────
 
-  const sisterCount = computed(() => members.value.filter((m) => m.gender === 'Female').length)
+  const activeCount = computed(
+    () =>
+      members.value.filter(
+        (m) => m.status === 'Active'
+      ).length
+  )
 
-  const brotherCount = computed(() => members.value.filter((m) => m.gender === 'Male').length)
+  const sisterCount = computed(
+    () =>
+      members.value.filter(
+        (m) => m.gender === 'Female'
+      ).length
+  )
+
+  const brotherCount = computed(
+    () =>
+      members.value.filter(
+        (m) => m.gender === 'Male'
+      ).length
+  )
 
   const weakCount = computed(
     () =>
       members.value.filter(
-        (m) => m.status === 'Weak' || m.status === 'Distant' || m.status === 'Withdrawal'
+        (m) =>
+          m.status === 'Weak' ||
+          m.status === 'Distant' ||
+          m.status === 'Withdrawal'
       ).length
   )
 
-  // Youth: members aged 13–35. `isYouth` is shared with the detail panel, which offers the
-  // schooling fields on the same basis.
+  /**
+   * Jovens: 13–35 anos.
+   */
   const youthMembers = computed(() => {
     const now = new Date()
-    return members.value.filter((m) => isYouth(m, now))
+
+    return members.value.filter(
+      (m) => isYouth(m, now)
+    )
   })
 
   const youthActiveCount = computed(
-    () => youthMembers.value.filter((m) => m.status === 'Active').length
+    () =>
+      youthMembers.value.filter(
+        (m) => m.status === 'Active'
+      ).length
   )
 
   const youthGirlsCount = computed(
-    () => youthMembers.value.filter((m) => m.gender === 'Female').length
+    () =>
+      youthMembers.value.filter(
+        (m) => m.gender === 'Female'
+      ).length
   )
 
   const youthBoysCount = computed(
-    () => youthMembers.value.filter((m) => m.gender === 'Male').length
+    () =>
+      youthMembers.value.filter(
+        (m) => m.gender === 'Male'
+      ).length
   )
 
-  /**
-   * Store the number as typed but tidied — trimmed, inner spaces collapsed. A blank one is
-   * stored as `''` rather than dropped, so clearing a number releases its reservation instead
-   * of silently leaving the old one in place.
-   */
-  function withNormalisedNumber<T extends { churchNumber?: string }>(input: T): T {
-    if (!('churchNumber' in input)) return input
-    return { ...input, churchNumber: normaliseChurchNumber(input.churchNumber ?? '') }
+  // ─────────────────────────────────────────────
+  // Número de membro
+  // ─────────────────────────────────────────────
+
+  function withNormalisedNumber<
+    T extends { churchNumber?: string }
+  >(input: T): T {
+    if (!('churchNumber' in input)) {
+      return input
+    }
+
+    return {
+      ...input,
+      churchNumber: normaliseChurchNumber(
+        input.churchNumber ?? ''
+      ),
+    }
   }
 
-  function fail(e: unknown, fallback: string): never {
-    error.value = e instanceof Error ? e.message : fallback
+  // ─────────────────────────────────────────────
+  // Tratamento de erros
+  // ─────────────────────────────────────────────
+
+  function fail(
+    e: unknown,
+    fallback: string
+  ): never {
+    error.value =
+      e instanceof Error
+        ? e.message
+        : fallback
+
     useToast().error(error.value)
+
     throw e
   }
 
-  /** Fetch the roll once per session. Pass `force` after an external change. */
+  // ─────────────────────────────────────────────
+  // Carregar membros
+  // ─────────────────────────────────────────────
+
   async function load(force = false) {
     if (loaded.value && !force) return
+
     const repo = useMembersRepository()
+
     loading.value = true
     error.value = null
+
     try {
-      members.value = await repo.fetchMembers()
+      members.value =
+        await repo.fetchMembers()
+
       loaded.value = true
     } catch (e: unknown) {
-      error.value = e instanceof Error ? e.message : 'Failed to load members'
+      error.value =
+        e instanceof Error
+          ? e.message
+          : 'Erro ao carregar os membros'
+
       useToast().error(error.value)
     } finally {
       loading.value = false
     }
   }
 
-  async function addMember(member: Omit<Member, 'id'>): Promise<Member> {
+  // ─────────────────────────────────────────────
+  // Criar membro
+  // ─────────────────────────────────────────────
+
+  async function addMember(
+    member: Omit<Member, 'id'>
+  ): Promise<Member> {
     const repo = useMembersRepository()
-    member = withNormalisedNumber(member)
+
+    member =
+      withNormalisedNumber(member)
+
     saving.value = true
     error.value = null
+
     try {
-      const created = await repo.createMember(member)
+      const created =
+        await repo.createMember(member)
+
       members.value.push(created)
+
       recordAudit({
         action: 'member.create',
         targetId: created.id,
         targetLabel: created.name,
       })
-      useToast().success(`${created.name || 'Member'} added`)
+
+      useToast().success(
+        `${created.name || 'Membro'} adicionado com sucesso`
+      )
+
       return created
     } catch (e: unknown) {
-      fail(e, 'Failed to add member')
+      fail(
+        e,
+        'Erro ao adicionar o membro'
+      )
     } finally {
       saving.value = false
     }
   }
 
-  async function updateMember(id: string, updates: Partial<Member>) {
-    const idx = members.value.findIndex((m) => m.id === id)
+  // ─────────────────────────────────────────────
+  // Atualizar membro
+  // ─────────────────────────────────────────────
+
+  async function updateMember(
+    id: string,
+    updates: Partial<Member>
+  ) {
+    const idx =
+      members.value.findIndex(
+        (m) => m.id === id
+      )
+
     if (idx === -1) return
+
     const repo = useMembersRepository()
-    updates = withNormalisedNumber(updates)
+
+    updates =
+      withNormalisedNumber(updates)
+
     saving.value = true
     error.value = null
+
     try {
-      await repo.updateMember(id, updates)
-      members.value[idx] = { ...members.value[idx], ...updates } as Member
+      await repo.updateMember(
+        id,
+        updates
+      )
+
+      members.value[idx] = {
+        ...members.value[idx],
+        ...updates,
+      } as Member
+
       recordAudit({
         action: 'member.update',
         targetId: id,
-        targetLabel: members.value[idx]!.name,
+        targetLabel:
+          members.value[idx]!.name,
       })
-      useToast().success(`${members.value[idx]!.name} updated`)
+
+      useToast().success(
+        `${members.value[idx]!.name} atualizado com sucesso`
+      )
     } catch (e: unknown) {
-      fail(e, 'Failed to update member')
+      fail(
+        e,
+        'Erro ao atualizar o membro'
+      )
     } finally {
       saving.value = false
     }
   }
 
-  /**
-   * Apply the `Active` / `Inactive` labels the Sunday register implies.
-   *
-   * Called after attendance is saved, which is the only moment the answer can change. Writes each
-   * affected member individually — the repository has no batch API — but reports once: a dozen
-   * "X updated" toasts for something the user did not ask for would bury the register they did
-   * save. Each change still gets its own audit entry, so the log shows exactly who was relabelled
-   * and that the app rather than a person did it.
-   *
-   * Failures are swallowed deliberately. This is bookkeeping that follows a successful save, and
-   * it must not turn a saved register into an error.
-   */
-  async function syncAttendanceStatuses(records: AttendanceRecord[]): Promise<StatusUpdate[]> {
-    const updates = statusUpdatesForRoll(members.value, records)
+  // ─────────────────────────────────────────────
+  // Sincronização automática de presença
+  // ─────────────────────────────────────────────
+
+  async function syncAttendanceStatuses(
+    records: AttendanceRecord[]
+  ): Promise<StatusUpdate[]> {
+    const updates =
+      statusUpdatesForRoll(
+        members.value,
+        records
+      )
+
     if (!updates.length) return []
 
     const repo = useMembersRepository()
+
     const applied: StatusUpdate[] = []
 
     for (const update of updates) {
       try {
-        await repo.updateMember(update.id, { status: update.to })
-        const idx = members.value.findIndex((m) => m.id === update.id)
-        if (idx !== -1) members.value[idx] = { ...members.value[idx], status: update.to } as Member
+        await repo.updateMember(
+          update.id,
+          {
+            status: update.to,
+          }
+        )
+
+        const idx =
+          members.value.findIndex(
+            (m) =>
+              m.id === update.id
+          )
+
+        if (idx !== -1) {
+          members.value[idx] = {
+            ...members.value[idx],
+            status: update.to,
+          } as Member
+        }
+
         applied.push(update)
+
         recordAudit({
           action: 'member.autoStatus',
           targetId: update.id,
-          targetLabel: `${update.name}: ${update.from} → ${update.to}`,
+          targetLabel:
+            `${update.name}: ${update.from} → ${update.to}`,
         })
       } catch {
-        // Leave the member as they were and carry on with the rest of the roll.
+        // Se um membro falhar, continua com os restantes.
       }
     }
 
-    if (applied.length) useToast().info(summariseStatusUpdates(applied))
+    if (applied.length) {
+      useToast().info(
+        summariseStatusUpdates(
+          applied
+        )
+      )
+    }
+
     return applied
   }
 
-  async function deleteMember(id: string) {
-    const name = members.value.find((m) => m.id === id)?.name
-    const repo = useMembersRepository()
+  // ─────────────────────────────────────────────
+  // Eliminar membro
+  // ─────────────────────────────────────────────
+
+  async function deleteMember(
+    id: string
+  ) {
+    const member =
+      members.value.find(
+        (m) => m.id === id
+      )
+
+    const name = member?.name
+
+    const repo =
+      useMembersRepository()
+
     saving.value = true
     error.value = null
+
     try {
       await repo.deleteMember(id)
-      members.value = members.value.filter((m) => m.id !== id)
-      recordAudit({ action: 'member.delete', targetId: id, targetLabel: name })
-      if (name) useToast().success(`${name} deleted`)
+
+      members.value =
+        members.value.filter(
+          (m) => m.id !== id
+        )
+
+      recordAudit({
+        action: 'member.delete',
+        targetId: id,
+        targetLabel: name,
+      })
+
+      if (name) {
+        useToast().success(
+          `${name} eliminado com sucesso`
+        )
+      }
     } catch (e: unknown) {
-      fail(e, 'Failed to delete member')
+      fail(
+        e,
+        'Erro ao eliminar o membro'
+      )
     } finally {
       saving.value = false
     }
   }
 
-  function setFilter(partial: Partial<MemberFilters>) {
-    filters.value = { ...filters.value, ...partial }
+  // ─────────────────────────────────────────────
+  // Filtros
+  // ─────────────────────────────────────────────
+
+  function setFilter(
+    partial: Partial<MemberFilters>
+  ) {
+    filters.value = {
+      ...filters.value,
+      ...partial,
+    }
   }
 
   return {
     members,
+
     loading,
     saving,
     error,
     loaded,
+
     filters,
     filteredMembers,
+
     churchNumberHolder,
+
     activeCount,
     sisterCount,
     brotherCount,
     weakCount,
+
     youthMembers,
     youthActiveCount,
     youthGirlsCount,
     youthBoysCount,
+
     load,
     addMember,
     updateMember,

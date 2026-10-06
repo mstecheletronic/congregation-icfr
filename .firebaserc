@@ -1,7 +1,9 @@
 {
   "projects": {
-    "default": "coc-abadina-staging",
+    "default": "icfr-familia-redimida",
     "staging": "coc-abadina-staging",
     "production": "coc-abadina"
-  }
+  },
+  "targets": {},
+  "etags": {}
 }

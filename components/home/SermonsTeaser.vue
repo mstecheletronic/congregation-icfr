@@ -11,15 +11,15 @@ const { el: sectionRef, isVisible } = useScrollReveal()
       <!-- Header row -->
       <div :class="['mb-10 flex items-end justify-between', 'reveal', isVisible && 'is-visible']">
         <SectionHeader
-          title="Sermons & Teachings"
+          title="Sermões e Ensinamentos"
           subtitle="Biblical preaching for every season of life."
         />
         <NuxtLink
           to="/teachings/sermons"
           class="hidden shrink-0 items-center gap-1 text-sm font-medium text-[#2563EB] hover:underline sm:flex"
-          aria-label="View all sermons"
+          aria-label="Ver todos os sermões"
         >
-          View All Sermons
+          Ver Todos os Sermões
           <Icon icon="heroicons:arrow-right" class="h-4 w-4" />
         </NuxtLink>
       </div>
@@ -27,8 +27,8 @@ const { el: sectionRef, isVisible } = useScrollReveal()
       <EmptyState
         v-if="!featured.length"
         icon="mdi:microphone-outline"
-        title="No sermons published yet"
-        description="Recent sermons will be featured here once they are uploaded."
+        title="Ainda não existem sermões publicados"
+        description="Os sermões recentes aparecerão aqui depois de serem publicados."
       />
 
       <!-- 3-column grid -->
@@ -55,9 +55,9 @@ const { el: sectionRef, isVisible } = useScrollReveal()
         <NuxtLink
           to="/teachings/sermons"
           class="inline-flex items-center gap-1 text-sm font-medium text-[#2563EB] hover:underline"
-          aria-label="View all sermons"
+          aria-label="Ver todos os sermões"
         >
-          View All Sermons
+          Ver Todos os Sermões
           <Icon icon="heroicons:arrow-right" class="h-4 w-4" />
         </NuxtLink>
       </div>

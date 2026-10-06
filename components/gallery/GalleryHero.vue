@@ -32,17 +32,17 @@ defineProps<{
     <!-- Breadcrumb -->
     <nav class="relative z-20 px-8 pt-4" aria-label="Breadcrumb">
       <ol class="flex flex-wrap items-center gap-1 text-[13px] text-white/60">
-        <li><NuxtLink to="/" class="hover:text-white/90 transition-colors">Home</NuxtLink></li>
+        <li><NuxtLink to="/" class="hover:text-white/90 transition-colors">Início</NuxtLink></li>
         <li class="select-none">/</li>
         <li>
           <NuxtLink to="/events" class="hover:text-white/90 transition-colors"
-            >Past Events</NuxtLink
+            >Eventos Passados</NuxtLink
           >
         </li>
         <li class="select-none">/</li>
         <li>
           <NuxtLink to="/gallery/sunday-service" class="hover:text-white/90 transition-colors"
-            >Photo Gallery</NuxtLink
+            >Galeria de Fotos</NuxtLink
           >
         </li>
         <li class="select-none">/</li>
@@ -55,7 +55,7 @@ defineProps<{
       class="relative z-20 px-8 pb-5 pt-3 text-[32px] font-bold text-white"
       style="font-family: 'Playfair Display', Georgia, serif"
     >
-      Photo Gallery
+      Galeria de Fotos
     </h1>
   </div>
 </template>

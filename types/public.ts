@@ -6,6 +6,9 @@ export interface LiveStream {
   viewerCount: number
   thumbnailSrc: string
   startedAt: string
+  videoUrl: string
+  serviceType: string
+  preacher: string
 }
 
 export interface RecordedStream {
@@ -18,8 +21,9 @@ export interface RecordedStream {
   views: number
   thumbnailSrc: string
   slug: string
-  /** Playable recording. Absent until the service video has been published. */
   videoSrc?: string
+  congregation?: string
+  city?: string
 }
 
 export interface PublicSermon {

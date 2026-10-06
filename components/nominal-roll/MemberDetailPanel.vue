@@ -60,7 +60,7 @@ async function onAvatarPicked(event: Event) {
 
 // ─── Edit form state ─────────────────────────────────────────────────────────
 const ef = reactive<
-  Partial<Member> & { ecName: string; ecRelationship: string; ecPhone: string; ecAddress: string }
+  Partial<Member> & { ecNome: string; ecRelationship: string; ecPhone: string; ecAddress: string }
 >({
   name: '',
   gender: 'Male',
@@ -68,6 +68,7 @@ const ef = reactive<
   email: '',
   dob: '',
   churchNumber: '',
+  congregation: '',
   status: 'Active',
   maritalStatus: '',
   dateOfBaptism: '',
@@ -89,7 +90,7 @@ const ef = reactive<
   yearOfEntry: '',
   yearOfExit: '',
   comment: '',
-  ecName: '',
+  ecNome: '',
   ecRelationship: '',
   ecPhone: '',
   ecAddress: '',
@@ -105,6 +106,7 @@ function startEdit() {
     email: m.email ?? '',
     dob: m.dob ?? '',
     churchNumber: m.churchNumber ?? '',
+    congregation: m.congregation ?? '',
     status: m.status ?? 'Active',
     maritalStatus: m.maritalStatus ?? '',
     dateOfBaptism: m.dateOfBaptism ?? '',
@@ -126,7 +128,7 @@ function startEdit() {
     yearOfEntry: m.yearOfEntry ?? '',
     yearOfExit: m.yearOfExit ?? '',
     comment: m.comment ?? '',
-    ecName: m.emergencyContact?.name ?? '',
+    ecNome: m.emergencyContact?.name ?? '',
     ecRelationship: m.emergencyContact?.relationship ?? '',
     ecPhone: m.emergencyContact?.phone ?? '',
     ecAddress: m.emergencyContact?.address ?? '',
@@ -179,6 +181,7 @@ async function saveEdit() {
       email: ef.email,
       dob: ef.dob,
       churchNumber: ef.churchNumber,
+      congregation: ef.congregation,
       status: ef.status,
       maritalStatus: ef.maritalStatus,
       dateOfBaptism: ef.dateOfBaptism,
@@ -209,7 +212,7 @@ async function saveEdit() {
           }
         : {}),
       emergencyContact: {
-        name: ef.ecName ?? '',
+        name: ef.ecNome ?? '',
         relationship: ef.ecRelationship ?? '',
         phone: ef.ecPhone ?? '',
         address: ef.ecAddress ?? '',
@@ -260,15 +263,15 @@ function fmt(d?: string) {
 }
 
 const statusConfig = {
-  Active: { variant: 'success', label: 'Active Member' },
-  Inactive: { variant: 'neutral', label: 'Inactive' },
-  Backslider: { variant: 'danger', label: 'Backslider' },
-  Weak: { variant: 'warning', label: 'Weak Brethren' },
-  Distant: { variant: 'info', label: 'Distant Member' },
-  Withdrawal: { variant: 'neutral', label: 'Withdrawal' },
-  Disfellowshipped: { variant: 'danger', label: 'Disfellowshipped' },
-  Transfer: { variant: 'info', label: 'Transfer' },
-  Late: { variant: 'warning', label: 'Late Brethren' },
+  Active: { variant: 'success', label: 'Membro Ativo' },
+  Inactive: { variant: 'neutral', label: 'Inativo' },
+  Backslider: { variant: 'danger', label: 'Desviado' },
+  Weak: { variant: 'warning', label: 'Membros em Acompanhamento' },
+  Distant: { variant: 'info', label: 'Membro Distante' },
+  Withdrawal: { variant: 'neutral', label: 'Afastamento' },
+  Disfellowshipped: { variant: 'danger', label: 'Desligados' },
+  Transfer: { variant: 'info', label: 'Transferidos' },
+  Late: { variant: 'warning', label: 'Afastados' },
 } as const
 
 const memberStatus = computed(
@@ -298,7 +301,7 @@ watch([() => props.modelValue, () => props.member], () => {
   optionsOpen.value = false
 })
 
-// Gender options for edit form select
+// Sexo options for edit form select
 const genderOptions = [
   { label: 'Male', value: 'Male' },
   { label: 'Female', value: 'Female' },
@@ -385,7 +388,7 @@ const initials = computed(() =>
                   @click="deleteFromMenu"
                 >
                   <Icon icon="mdi:trash-can-outline" />
-                  Delete member
+                  Eliminar membro
                 </button>
               </div>
             </div>
@@ -432,7 +435,7 @@ const initials = computed(() =>
                   />
                 </div>
                 <p class="text-[#717680] text-base font-normal leading-6">
-                  Church Number:
+                  Código de Membro:
                   <span class="text-[#717680] text-base font-semibold leading-[145%]">{{
                     member.churchNumber ?? '—'
                   }}</span>
@@ -444,33 +447,42 @@ const initials = computed(() =>
               </div>
             </div>
 
-            <!-- Members Information -->
+            <!-- Informações do Membro -->
             <div class="bg-white rounded-2xl p-4 border-[#7CD4FD] border">
-              <h3 class="text-xs font-bold text-gray-700 mb-3">Members Information</h3>
+              <h3 class="text-xs font-bold text-gray-700 mb-3">Informações do Membro</h3>
               <div class="grid grid-cols-2 gap-x-3 gap-y-3">
-                <InfoField icon="mdi:account-outline" label="Name" :value="member.name" />
-                <InfoField icon="mdi:email-outline" label="Email Address" :value="member.email" />
-                <InfoField icon="mdi:phone-outline" label="Phone Number" :value="member.phone" />
-                <InfoField icon="mdi:gender-male-female" label="Gender" :value="member.gender" />
+                <InfoField icon="mdi:account-outline" label="Nome" :value="member.name" />
+                <InfoField icon="mdi:email-outline" label="Email" :value="member.email" />
+                <InfoField icon="mdi:phone-outline" label="Telefone" :value="member.phone" />
+                <InfoField
+                  icon="mdi:church-outline"
+                  label="Congregação Atual"
+                  :value="member.congregation ?? '—'"
+                />
+                <InfoField
+                  icon="mdi:gender-male-female"
+                  label="Sexo"
+                  :value="member.gender === 'Male' ? 'Masculino' : 'Feminino'"
+                />
                 <InfoField
                   icon="mdi:ring"
-                  label="Marital Status"
+                  label="Estado Civil"
                   :value="member.maritalStatus ?? '—'"
                 />
                 <InfoField
                   icon="mdi:water-outline"
-                  label="Date of Baptism"
+                  label="Data do Batismo"
                   :value="fmt(member.dateOfBaptism)"
                 />
                 <InfoField
                   icon="mdi:calendar-account-outline"
-                  label="Date Joined"
+                  label="Data de Registo"
                   :value="fmt(member.dateJoined)"
                 />
                 <InfoField
                   v-if="member.dob"
                   icon="mdi:cake-variant-outline"
-                  label="Date of Birth"
+                  label="Data de Nascimento"
                   :value="fmt(member.dob)"
                 />
               </div>
@@ -478,42 +490,42 @@ const initials = computed(() =>
 
             <!-- Place of Origin -->
             <div class="bg-white rounded-2xl p-4 border-[#7CD4FD] border">
-              <h3 class="text-xs font-bold text-gray-700 mb-3">Place of Origin</h3>
+              <h3 class="text-xs font-bold text-gray-700 mb-3">Local de Origem</h3>
               <div class="grid grid-cols-2 gap-x-3 gap-y-3">
-                <InfoField icon="mdi:earth" label="Country" :value="member.country ?? '—'" />
+                <InfoField icon="mdi:earth" label="País" :value="member.country ?? '—'" />
                 <InfoField
                   icon="mdi:map-marker-outline"
-                  label="State"
+                  label="Província"
                   :value="member.state ?? '—'"
                 />
                 <InfoField
                   icon="mdi:city-variant-outline"
-                  label="Local Government"
+                  label="Distrito"
                   :value="member.localGovernment ?? '—'"
                 />
-                <InfoField icon="mdi:home-outline" label="Village" :value="member.village ?? '—'" />
+                <InfoField icon="mdi:home-outline" label="Localidade" :value="member.village ?? '—'" />
               </div>
             </div>
 
             <!-- Place of Residence -->
             <div class="bg-white rounded-2xl p-4 border-[#7CD4FD] border">
-              <h3 class="text-xs font-bold text-gray-700 mb-3">Place of Residence</h3>
+              <h3 class="text-xs font-bold text-gray-700 mb-3">Local de Residência</h3>
               <div class="grid grid-cols-2 gap-x-3 gap-y-3">
-                <InfoField icon="mdi:earth" label="Country" :value="member.country ?? '—'" />
+                <InfoField icon="mdi:earth" label="País" :value="member.country ?? '—'" />
                 <InfoField
                   icon="mdi:map-marker-outline"
-                  label="State"
+                  label="Província"
                   :value="member.state ?? '—'"
                 />
                 <InfoField
                   icon="mdi:map-marker-radius-outline"
-                  label="Address"
+                  label="Endereço"
                   :value="member.address ?? '—'"
                   class="col-span-2"
                 />
                 <InfoField
                   icon="mdi:briefcase-outline"
-                  label="Occupation"
+                  label="Ocupação"
                   :value="member.occupation ?? '—'"
                 />
               </div>
@@ -523,7 +535,7 @@ const initials = computed(() =>
             <div v-if="showSchooling" class="bg-white rounded-2xl p-4 border-[#7CD4FD] border">
               <h3 class="text-xs font-bold text-gray-700 mb-3">School &amp; Education</h3>
               <div class="grid grid-cols-2 gap-x-3 gap-y-3">
-                <InfoField icon="mdi:school-outline" label="School" :value="member.school ?? '—'" />
+                <InfoField icon="mdi:school-outline" label="Escola" :value="member.school ?? '—'" />
                 <InfoField
                   icon="mdi:office-building-outline"
                   label="Department"
@@ -539,7 +551,7 @@ const initials = computed(() =>
                   label="Programme"
                   :value="member.program ?? '—'"
                 />
-                <InfoField icon="mdi:stairs-up" label="Level" :value="member.level ?? '—'" />
+                <InfoField icon="mdi:stairs-up" label="Nível" :value="member.level ?? '—'" />
                 <InfoField
                   icon="mdi:bed-outline"
                   label="Hall of Residence"
@@ -594,7 +606,7 @@ const initials = computed(() =>
               <div class="grid grid-cols-2 gap-x-3 gap-y-3">
                 <InfoField
                   icon="mdi:account-outline"
-                  label="Name"
+                  label="Nome"
                   :value="member.emergencyContact.name"
                   variant="warning"
                 />
@@ -606,13 +618,13 @@ const initials = computed(() =>
                 />
                 <InfoField
                   icon="mdi:phone-outline"
-                  label="Phone Number"
+                  label="Telefone"
                   :value="member.emergencyContact.phone"
                   variant="warning"
                 />
                 <InfoField
                   icon="mdi:map-marker-radius-outline"
-                  label="Address"
+                  label="Endereço"
                   :value="member.emergencyContact.address"
                   class="col-span-2"
                   variant="warning"
@@ -659,9 +671,9 @@ const initials = computed(() =>
               </button>
               <div>
                 <h2 class="text-base font-bold text-gray-900 leading-tight">
-                  Edit Members Information
+                  Edit Informações do Membro
                 </h2>
-                <p class="text-xs text-gray-400 mt-0.5">Update the member information below.</p>
+                <p class="text-xs text-gray-400 mt-0.5">Atualize abaixo as informações do membro.</p>
               </div>
             </div>
             <button
@@ -679,12 +691,12 @@ const initials = computed(() =>
             <section>
               <h3 class="text-base font-bold text-gray-900 mb-4">Personal Information</h3>
               <div class="space-y-4">
-                <!-- Name | Email -->
+                <!-- Nome | Email -->
                 <div class="grid grid-cols-2 gap-3">
-                  <EditField label="Name">
+                  <EditField label="Nome">
                     <input v-model="ef.name" type="text" placeholder="Full name" />
                   </EditField>
-                  <EditField label="Email Address">
+                  <EditField label="Email">
                     <input v-model="ef.email" type="email" placeholder="email@example.com" />
                   </EditField>
                 </div>
@@ -692,7 +704,7 @@ const initials = computed(() =>
                 <!-- Church Number | Date of Baptism -->
                 <div class="grid grid-cols-2 gap-3">
                   <EditField
-                    label="Church Number"
+                    label="Código de Membro"
                     :error="churchNumberError"
                     hint="Must be unique. Leave blank if none has been assigned."
                   >
@@ -703,7 +715,7 @@ const initials = computed(() =>
                       :aria-invalid="Boolean(churchNumberError)"
                     />
                   </EditField>
-                  <EditField label="Date of Baptism">
+                  <EditField label="Data do Batismo">
                     <input v-model="ef.dateOfBaptism" type="date" />
                   </EditField>
                 </div>
@@ -715,33 +727,33 @@ const initials = computed(() =>
                   </EditField>
                 </div>
 
-                <!-- Phone | Gender | Marital Status -->
+                <!-- Phone | Sexo | Marital Status -->
                 <div class="grid grid-cols-4 gap-3">
-                  <EditField label="Phone Number" class="col-span-2">
-                    <input v-model="ef.phone" type="tel" placeholder="+234 800 000 0000" />
+                  <EditField label="Telefone" class="col-span-2">
+                    <input v-model="ef.phone" type="tel" placeholder="+258 84 000 0000" />
                   </EditField>
-                  <EditField label="Gender" class="col-span-1">
+                  <EditField label="Sexo" class="col-span-1">
                     <select v-model="ef.gender">
                       <option v-for="o in genderOptions" :key="o.value" :value="o.value">
                         {{ o.label }}
                       </option>
                     </select>
                   </EditField>
-                  <EditField label="Marital Status" class="col-span-1">
+                  <EditField label="Estado Civil" class="col-span-1">
                     <input v-model="ef.maritalStatus" type="text" placeholder="Single" />
                   </EditField>
                 </div>
 
                 <!-- Status | Occupation (bonus fields) -->
                 <div class="grid grid-cols-2 gap-3">
-                  <EditField label="Member Status">
+                  <EditField label="Estado do Membro">
                     <select v-model="ef.status">
                       <option v-for="o in statusOptions" :key="o.value" :value="o.value">
                         {{ o.label }}
                       </option>
                     </select>
                   </EditField>
-                  <EditField label="Occupation">
+                  <EditField label="Ocupação">
                     <input v-model="ef.occupation" type="text" placeholder="e.g. Teacher" />
                   </EditField>
                 </div>
@@ -750,11 +762,11 @@ const initials = computed(() =>
 
             <!-- ── Place of Origin ─────────────────────────── -->
             <section>
-              <h3 class="text-base font-bold text-gray-900 mb-4">Place of Origin</h3>
+              <h3 class="text-base font-bold text-gray-900 mb-4">Local de Origem</h3>
               <div class="space-y-4">
                 <div class="grid grid-cols-2 gap-3">
-                  <EditField label="Country">
-                    <input v-model="ef.country" type="text" placeholder="Nigeria" />
+                  <EditField label="País">
+                    <input v-model="ef.country" type="text" placeholder="Moçambique" />
                   </EditField>
                   <EditField label="State of Origin">
                     <input v-model="ef.state" type="text" placeholder="Akwa Ibom State" />
@@ -764,7 +776,7 @@ const initials = computed(() =>
                   <EditField label="Local Government Area">
                     <input v-model="ef.localGovernment" type="text" placeholder="Ibiono Ibom" />
                   </EditField>
-                  <EditField label="Village">
+                  <EditField label="Localidade">
                     <input v-model="ef.village" type="text" placeholder="Ikot Oku" />
                   </EditField>
                 </div>
@@ -773,21 +785,21 @@ const initials = computed(() =>
 
             <!-- ── Residential Address ─────────────────────── -->
             <section>
-              <h3 class="text-base font-bold text-gray-900 mb-4">Residential Address</h3>
+              <h3 class="text-base font-bold text-gray-900 mb-4">Endereço Residencial</h3>
               <div class="space-y-4">
                 <div class="grid grid-cols-2 gap-3">
-                  <EditField label="Country">
-                    <input v-model="ef.country" type="text" placeholder="Nigeria" />
+                  <EditField label="País">
+                    <input v-model="ef.country" type="text" placeholder="Moçambique" />
                   </EditField>
-                  <EditField label="State">
+                  <EditField label="Província">
                     <input v-model="ef.state" type="text" placeholder="Akwa Ibom State" />
                   </EditField>
                 </div>
-                <EditField label="Address">
+                <EditField label="Endereço">
                   <input
                     v-model="ef.address"
                     type="text"
-                    placeholder="No. 8 Convent Road, Ikot Ekpene"
+                    placeholder="Ex.: Munhava, Beira"
                   />
                 </EditField>
               </div>
@@ -821,7 +833,7 @@ const initials = computed(() =>
                   </EditField>
                 </div>
                 <div class="grid grid-cols-2 gap-3">
-                  <EditField label="Level">
+                  <EditField label="Nível">
                     <select v-model="ef.level">
                       <option value="">— Select —</option>
                       <option v-for="l in YOUTH_LEVELS" :key="l" :value="l">{{ l }}</option>
@@ -865,7 +877,7 @@ const initials = computed(() =>
                     v-model="ef.comment"
                     rows="3"
                     maxlength="2000"
-                    placeholder="Anything else worth recording about this member"
+                    placeholder="Outras informações importantes sobre o membro"
                   ></textarea>
                 </EditField>
               </div>
@@ -879,14 +891,14 @@ const initials = computed(() =>
                   <input
                     v-model="ef.previousCongregation"
                     type="text"
-                    placeholder="e.g. Church of Christ, Uyo"
+                    placeholder="Ex.: Congregação Central"
                   />
                 </EditField>
-                <EditField label="Minister / Preacher's Phone">
+                <EditField label="Telefone do Pastor / Ministro">
                   <input
                     v-model="ef.previousMinisterPhone"
                     type="tel"
-                    placeholder="+234 803 333 4444"
+                    placeholder="+258 84 000 0000"
                   />
                 </EditField>
               </div>
@@ -900,7 +912,7 @@ const initials = computed(() =>
                 @click="saveEdit"
               >
                 <Icon v-if="membersStore.saving" icon="mdi:loading" class="animate-spin" />
-                {{ membersStore.saving ? 'Saving…' : 'Save Changes' }}
+                {{ membersStore.saving ? 'A guardar…' : 'Guardar Alterações' }}
               </button>
               <button
                 class="px-5 border border-gray-300 text-gray-700 text-sm font-semibold py-2.5 rounded-xl hover:bg-gray-50 transition-colors"
@@ -915,19 +927,19 @@ const initials = computed(() =>
               <h3 class="text-base font-bold text-gray-900 mb-4">Emergency Contact</h3>
               <div class="space-y-4">
                 <div class="grid grid-cols-2 gap-3">
-                  <EditField label="Name">
-                    <input v-model="ef.ecName" type="text" placeholder="Brother John Adebayo" />
+                  <EditField label="Nome">
+                    <input v-model="ef.ecNome" type="text" placeholder="Nome do contacto" />
                   </EditField>
                   <EditField label="Relationship">
-                    <input v-model="ef.ecRelationship" type="text" placeholder="Brother" />
+                    <input v-model="ef.ecRelationship" type="text" placeholder="Parentesco" />
                   </EditField>
                 </div>
                 <div class="grid grid-cols-2 gap-3">
-                  <EditField label="Phone Number">
-                    <input v-model="ef.ecPhone" type="tel" placeholder="+234 803 333 4444" />
+                  <EditField label="Telefone">
+                    <input v-model="ef.ecPhone" type="tel" placeholder="+258 84 000 0000" />
                   </EditField>
-                  <EditField label="Address">
-                    <input v-model="ef.ecAddress" type="text" placeholder="Full address" />
+                  <EditField label="Endereço">
+                    <input v-model="ef.ecAddress" type="text" placeholder="Endereço completo" />
                   </EditField>
                 </div>
               </div>

@@ -12,7 +12,7 @@ const { el: sectionRef, isVisible } = useScrollReveal()
 </script>
 
 <template>
-  <section ref="sectionRef" class="teaser-section" aria-label="Live worship stream">
+  <section ref="sectionRef" class="teaser-section" aria-label="Transmissão de culto ao vivo">
     <div class="teaser-container">
       <!-- Heading -->
       <h2 :class="['teaser-heading', 'reveal', isVisible && 'is-visible']">
@@ -30,7 +30,7 @@ const { el: sectionRef, isVisible } = useScrollReveal()
           <div
             class="live-preview"
             :aria-label="
-              isLive && stream ? `Current live stream: ${stream.title}` : 'No live stream active'
+              isLive && stream ? `Current live stream: ${stream.title}` : 'Nenhuma transmissão ao vivo ativa'
             "
           >
             <!-- Background image -->
@@ -108,22 +108,22 @@ const { el: sectionRef, isVisible } = useScrollReveal()
                 />
               </svg>
 
-              <!-- LIVE NOW badge or offline -->
-              <div v-if="isLive" class="live-badge" aria-label="This stream is currently live">
+              <!-- AO VIVO badge or offline -->
+              <div v-if="isLive" class="live-badge" aria-label="Esta transmissão está ao vivo">
                 <span class="live-dot"></span>
-                LIVE NOW
+                AO VIVO
               </div>
 
               <!-- Stream title -->
-              <p v-if="isLive" class="live-title">Worship With Us Now</p>
-              <p v-else class="live-title">No Live Stream Currently</p>
+              <p v-if="isLive" class="live-title">Cultue Connosco Agora</p>
+              <p v-else class="live-title">Nenhuma Transmissão ao Vivo</p>
 
               <!-- Location / offline sub -->
               <p v-if="isLive" class="live-location">
-                {{ stream?.city ?? 'Ekot Ekpene' }}, Nigeria
+                {{ stream?.city ?? 'Beira' }}, Moçambique
               </p>
               <p v-else class="live-location" style="opacity: 0.7">
-                Check back on Sundays at 9:00 AM
+                Próximo culto: quinta 17:30 ou domingo 09:30
               </p>
 
               <!-- Viewer count -->
@@ -144,7 +144,7 @@ const { el: sectionRef, isVisible } = useScrollReveal()
                   <path d="M23 21v-2a4 4 0 0 0-3-3.87" />
                   <path d="M16 3.13a4 4 0 0 1 0 7.75" />
                 </svg>
-                <span>{{ (stream?.viewerCount ?? 0).toLocaleString() }} watching</span>
+                <span>{{ (stream?.viewerCount ?? 0).toLocaleString() }} assistindo</span>
               </div>
             </div>
           </div>
@@ -156,7 +156,7 @@ const { el: sectionRef, isVisible } = useScrollReveal()
               <p class="live-moderator">{{ lw.moderatorLabel }}</p>
             </div>
             <div v-else>
-              <p class="live-stream-name">Next: {{ lw.nextTitle }}</p>
+              <p class="live-stream-name">Próximo: {{ lw.nextTitle }}</p>
               <p class="live-moderator">{{ lw.nextSchedule }}</p>
             </div>
 
@@ -164,7 +164,7 @@ const { el: sectionRef, isVisible } = useScrollReveal()
               v-if="isLive"
               to="/live-streams"
               class="watch-btn"
-              :aria-label="`Watch ${stream?.title ?? 'live stream'} live now`"
+              :aria-label="`Assistir ${stream?.title ?? 'transmissão ao vivo'} agora`"
             >
               {{ lw.watchCtaLabel }}
             </NuxtLink>
@@ -189,16 +189,16 @@ const { el: sectionRef, isVisible } = useScrollReveal()
             :to="`/live-streams`"
             :class="['recent-row', isVisible && 'is-visible']"
             :style="{ transitionDelay: isVisible ? `${350 + i * 75}ms` : '0ms' }"
-            :aria-label="`${rs.title}, ${rs.date}, ${rs.views} views`"
+            :aria-label="`${rs.title}, ${rs.date}, ${rs.views} visualizações`"
           >
             <p class="recent-meta">
-              {{ rs.date }}&nbsp;&nbsp;&bull;&nbsp;&nbsp;{{ rs.views.toLocaleString() }} views
+              {{ rs.date }}&nbsp;&nbsp;&bull;&nbsp;&nbsp;{{ rs.views.toLocaleString() }} visualizações
             </p>
             <p class="recent-title">{{ rs.title }}</p>
           </NuxtLink>
 
           <p v-if="!recentStreams.length" class="recent-empty">
-            No past streams have been published yet.
+            Ainda não existem transmissões anteriores publicadas.
           </p>
         </div>
       </div>

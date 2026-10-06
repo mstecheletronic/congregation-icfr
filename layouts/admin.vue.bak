@@ -7,6 +7,10 @@ const settingsStore = useChurchSettingsStore()
 const messagesStore = useMessagesStore()
 const { title, subtitle } = usePageHeader()
 
+// Carrega os dados principais usados no painel administrativo.
+// A lista de membros alimenta o painel, jovens, presenças e funções.
+// As configurações carregam o nome/endereço da igreja.
+// As mensagens alimentam o contador de mensagens não lidas.
 onMounted(() => {
   membersStore.load()
   settingsStore.load()
@@ -88,7 +92,7 @@ async function logout() {
 
 <template>
   <div class="flex h-screen bg-gray-50 overflow-hidden">
-    <!-- Fundo escuro no menu mobile -->
+    <!-- Overlay do menu no celular -->
     <div
       v-if="uiStore.mobileSidebarOpen"
       class="fixed inset-0 bg-black/40 z-20 lg:hidden"
@@ -104,7 +108,7 @@ async function logout() {
           : '-translate-x-full lg:translate-x-0',
       ]"
     >
-      <!-- Identificação da igreja -->
+      <!-- Identidade da igreja -->
       <div class="px-4 pt-5 pb-4 border-b border-gray-100">
         <div class="flex items-center gap-2.5">
           <div
@@ -142,7 +146,7 @@ async function logout() {
         </div>
       </div>
 
-      <!-- Navegação -->
+      <!-- Navegação principal -->
       <nav
         class="flex-1 px-3 py-4 space-y-0.5 sidebar-scroll overflow-y-auto"
       >
@@ -165,6 +169,7 @@ async function logout() {
 
           {{ item.label }}
 
+          <!-- Contador de mensagens não lidas -->
           <span
             v-if="item.badge === 'messages' && messagesStore.unreadCount"
             class="ml-auto rounded-full bg-blue-600 px-2 py-0.5 text-[11px] font-semibold text-white"
@@ -175,7 +180,7 @@ async function logout() {
         </NuxtLink>
       </nav>
 
-      <!-- Parte inferior -->
+      <!-- Área inferior -->
       <div class="border-t border-gray-100 px-3 py-4">
         <p
           class="text-[10px] font-medium text-gray-400 uppercase tracking-wide px-3 mb-2"
@@ -219,9 +224,10 @@ async function logout() {
       <header
         class="sticky top-0 z-10 bg-white border-b border-gray-200"
       >
+        <!-- Ambiente atual -->
         <EnvironmentBanner />
 
-        <!-- Aviso caso a conta não tenha função -->
+        <!-- Aviso de conta sem função -->
         <div
           v-if="
             authStore.roleLoaded &&
@@ -246,7 +252,7 @@ async function logout() {
         <div
           class="px-4 lg:px-6 py-4 flex items-start gap-3"
         >
-          <!-- Botão do menu mobile -->
+          <!-- Menu mobile -->
           <button
             class="lg:hidden mt-1 p-1.5 rounded-md hover:bg-gray-100 text-gray-500 shrink-0"
             aria-label="Abrir menu"
@@ -258,7 +264,7 @@ async function logout() {
             />
           </button>
 
-          <!-- Título -->
+          <!-- Título da página -->
           <div class="min-w-0 flex-1">
             <h1
               class="font-serif text-xl sm:text-2xl font-bold text-gray-900 leading-tight"
@@ -274,7 +280,7 @@ async function logout() {
             </p>
           </div>
 
-          <!-- Ações das páginas -->
+          <!-- Ações específicas da página -->
           <div
             id="admin-header-actions"
             class="shrink-0 self-center"

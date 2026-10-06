@@ -16,7 +16,7 @@ const membersStore = useMembersStore()
 
 // ─── State ────────────────────────────────────────────────────────────────────
 const step = ref<'upload' | 'preview'>('upload')
-const fileName = ref('')
+const fileNome = ref('')
 const parsedHeaders = ref<string[]>([])
 const parsedRows = ref<ParsedRow[]>([])
 const isDragging = ref(false)
@@ -50,7 +50,7 @@ async function handleFile(file: File) {
     }
     parsedHeaders.value = headers
     parsedRows.value = rows
-    fileName.value = file.name
+    fileNome.value = file.name
     step.value = 'preview'
   } catch {
     fileError.value = 'Failed to read the file. Please try again.'
@@ -105,7 +105,7 @@ function back() {
   step.value = 'upload'
   parsedRows.value = []
   parsedHeaders.value = []
-  fileName.value = ''
+  fileNome.value = ''
   fileError.value = ''
 }
 
@@ -127,12 +127,12 @@ watch(
 // ─── Template helpers ─────────────────────────────────────────────────────────
 // Columns to show in preview (subset of mapped fields)
 const previewCols: Array<{ key: keyof ParsedRow; label: string }> = [
-  { key: 'name', label: 'Name' },
-  { key: 'gender', label: 'Gender' },
-  { key: 'phone', label: 'Phone' },
+  { key: 'name', label: 'Nome' },
+  { key: 'gender', label: 'Sexo' },
+  { key: 'phone', label: 'Telefone' },
   { key: 'email', label: 'Email' },
   { key: 'dob', label: 'DOB' },
-  { key: 'status', label: 'Status' },
+  { key: 'status', label: 'Estado' },
 ]
 
 function isDuplicate(row: ParsedRow) {
@@ -147,7 +147,7 @@ const fileInputRef = ref<HTMLInputElement | null>(null)
 <template>
   <Modal
     :model-value="modelValue"
-    title="Import Members from CSV"
+    title="Importar Membros por CSV"
     size="xl"
     @update:model-value="close"
   >
@@ -187,20 +187,20 @@ const fileInputRef = ref<HTMLInputElement | null>(null)
         <div class="flex flex-wrap gap-1.5">
           <span
             v-for="col in [
-              'Name *',
-              'Phone *',
+              'Nome *',
+              'Telefone *',
               'Email',
-              'Gender',
+              'Sexo',
               'Date of Birth',
-              'Status',
-              'Marital Status',
+              'Estado',
+              'Estado Civil',
               'Date of Baptism',
               'Date of Registration',
               'Country',
               'State',
               'LGA',
               'Village',
-              'Address',
+              'Endereço',
               'Occupation',
             ]"
             :key="col"
@@ -256,7 +256,7 @@ const fileInputRef = ref<HTMLInputElement | null>(null)
       <div class="flex items-center justify-between flex-wrap gap-2">
         <div class="flex items-center gap-2 text-sm text-gray-500">
           <Icon icon="mdi:file-delimited-outline" class="text-blue-500" />
-          <span class="font-medium text-gray-700">{{ fileName }}</span>
+          <span class="font-medium text-gray-700">{{ fileNome }}</span>
         </div>
         <label class="flex items-center gap-2 text-xs text-gray-600 cursor-pointer select-none">
           <span class="relative inline-block w-8 h-4">
@@ -285,7 +285,7 @@ const fileInputRef = ref<HTMLInputElement | null>(null)
               >
                 {{ col.label }}
               </th>
-              <th class="px-3 py-2.5 text-left font-medium text-gray-500">Status</th>
+              <th class="px-3 py-2.5 text-left font-medium text-gray-500">Estado</th>
             </tr>
           </thead>
           <tbody>
@@ -340,7 +340,7 @@ const fileInputRef = ref<HTMLInputElement | null>(null)
 
       <p class="text-xs text-gray-400">
         {{ rowsToImport.length }} row{{ rowsToImport.length !== 1 ? 's' : '' }} will be imported.
-        Duplicates will still be added — remove them from the CSV to skip.
+        Os duplicados também serão adicionados — remova-os do CSV para ignorá-los.
       </p>
     </div>
 
@@ -352,7 +352,7 @@ const fileInputRef = ref<HTMLInputElement | null>(null)
         </Button>
         <div v-else></div>
         <div class="flex gap-2">
-          <Button variant="secondary" @click="close">Cancel</Button>
+          <Button variant="secondary" @click="close">Cancelar</Button>
           <Button
             v-if="step === 'preview'"
             :disabled="rowsToImport.length === 0"

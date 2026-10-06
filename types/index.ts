@@ -37,6 +37,12 @@ export interface Member {
   avatar?: string
   // Extended profile
   churchNumber?: string
+
+  /**
+   * Congregação atual do membro na ICFR Família Redimida.
+   */
+  congregation?: string
+
   maritalStatus?: string
   dateOfBaptism?: string
   dateJoined?: string
@@ -255,11 +261,44 @@ export type ExpenseCategory =
   | 'Media'
   | 'Others'
 
+export type FinanceIncomeType =
+  | 'Tithe'
+  | 'Offering'
+  | 'Contribution'
+  | 'Special Offering'
+  | 'Other'
+
+export type FinancePaymentMethod =
+  | 'Cash'
+  | 'M-Pesa'
+  | 'E-Mola'
+  | 'Bank'
+  | 'Other'
+
 export interface FinanceCollection {
   id: string
   date: string
   amount: number
+
+  /** Nome do membro ou pessoa que entregou o valor. */
+  memberName?: string
+
+  /** Código do membro, quando estiver ligado ao cadastro da igreja. */
+  memberId?: string
+
+  /** Tipo de entrada: dízimo, oferta, contribuição, etc. */
+  type?: FinanceIncomeType
+
+  /** Congregação onde a entrada foi recebida. */
+  congregation?: string
+
+  /** Forma de pagamento. */
+  paymentMethod?: FinancePaymentMethod
+
+  /** Observação adicional. */
   description?: string
+
+  /** Nome de quem registou/recebeu o valor. */
   collector?: string
 }
 
@@ -408,6 +447,7 @@ export interface RoleAssignment {
 export interface MemberFilters {
   search: string
   gender: string
+  congregation: string
   status: string
   tab:
     | 'all'

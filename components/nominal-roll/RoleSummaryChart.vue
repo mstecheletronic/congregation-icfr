@@ -11,7 +11,7 @@ const currentYear = new Date().getFullYear()
 
 /**
  * Built from `MEMBER_STATUSES` so a status can never be silently missing — the hand-written
- * bucket list this replaces omitted Disfellowshipped, which meant those members were absent
+ * bucket list this replaces omitted Desligados, which meant those members were absent
  * from the chart *and* from the total beneath it.
  */
 const STATUS_COLORS: Record<string, string> = {
@@ -21,7 +21,7 @@ const STATUS_COLORS: Record<string, string> = {
   Weak: '#0284c7',
   Distant: '#38bdf8',
   Withdrawal: '#0ea5e9',
-  Disfellowshipped: '#075985',
+  Desligados: '#075985',
   Transfer: '#0369a1',
   Late: '#38bdf8',
 }
@@ -80,7 +80,7 @@ const arcs = computed(() => {
     class="relative overflow-hidden rounded-2xl p-6 text-white"
     style="background: linear-gradient(135deg, #0f172a 0%, #1e293b 60%, #0f3a5f 100%)"
   >
-    <h3 class="text-lg font-semibold leading-snug mb-5">{{ currentYear }} Nominal Role Summary</h3>
+    <h3 class="text-lg font-semibold leading-snug mb-5">{{ currentYear }} Resumo de Membros</h3>
 
     <div class="flex items-center gap-6">
       <!-- Legend -->
@@ -96,7 +96,7 @@ const arcs = computed(() => {
           <span class="text-white/90">{{ s.label }}</span>
           <span class="ml-auto pl-3 font-medium text-white/60">{{ s.value }}</span>
         </li>
-        <li v-if="!presentSlices.length" class="text-white/60">No members yet</li>
+        <li v-if="!presentSlices.length" class="text-white/60">Ainda não existem membros</li>
       </ul>
 
       <!-- Pie -->
@@ -131,7 +131,7 @@ const arcs = computed(() => {
           <g v-else>
             <circle cx="100" cy="100" r="90" fill="#1e293b" stroke="#334155" stroke-width="1" />
             <text x="100" y="100" text-anchor="middle" dominant-baseline="central" fill="#94a3b8">
-              No data
+              Sem dados
             </text>
           </g>
         </svg>

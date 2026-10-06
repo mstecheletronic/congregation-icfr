@@ -39,7 +39,7 @@ const { el: sectionRef, isVisible } = useScrollReveal()
       <div :class="['reveal', isVisible && 'is-visible']">
         <SectionHeader
           title="Find a Congregation Near You"
-          subtitle="Search for a Church of Christ congregation in your city or state."
+          subtitle="Encontre uma congregação da ICFR Família Redimida na sua região."
           centered
         />
       </div>
@@ -57,9 +57,9 @@ const { el: sectionRef, isVisible } = useScrollReveal()
         <input
           v-model="query"
           type="text"
-          placeholder="Search for a congregation near you…"
+          placeholder="Pesquisar congregação por nome, cidade ou endereço..."
           class="flex-1 bg-transparent text-sm text-gray-700 placeholder:text-gray-400 outline-none"
-          aria-label="Search for a congregation"
+          aria-label="Pesquisar congregação"
         />
         <button
           class="rounded-lg bg-[#2563EB] px-4 py-1.5 text-xs font-semibold text-white hover:bg-blue-700 transition-colors"
@@ -95,7 +95,7 @@ const { el: sectionRef, isVisible } = useScrollReveal()
               target="_blank"
               rel="noopener noreferrer"
               class="mt-auto w-full rounded-lg bg-[#1E3A5F] py-2 text-center text-xs font-semibold text-white hover:bg-[#2563EB] transition-colors"
-              :aria-label="`Get directions to ${cg.name}`"
+              :aria-label="`Obter direções para ${cg.name}`"
             >
               Get Directions
             </a>
@@ -103,18 +103,18 @@ const { el: sectionRef, isVisible } = useScrollReveal()
         </div>
       </div>
 
-      <LoadingState v-else-if="settingsStore.loading" title="Loading congregations…" />
+      <LoadingState v-else-if="settingsStore.loading" title="Carregando congregações..." />
       <EmptyState
         v-else-if="query"
         icon="heroicons:building-library"
-        title="No congregations found"
-        :description="`Nothing matched &quot;${query}&quot;. Try a different city or name.`"
+        title="Nenhuma congregação encontrada"
+        :description="`Nenhum resultado para &quot;${query}&quot;. Tente outro nome ou localidade.`"
       />
       <EmptyState
         v-else
         icon="heroicons:building-library"
-        title="No congregations listed yet"
-        description="Sister congregations are added from Settings → Congregations."
+        title="Ainda não existem congregações cadastradas"
+        description="As congregações são adicionadas em Definições → Congregações."
       />
     </div>
   </section>

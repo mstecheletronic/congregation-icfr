@@ -67,7 +67,7 @@ function formatViews(n: number): string {
         </div>
         <div class="flex items-center gap-1.5">
           <Icon icon="heroicons:eye" class="h-3.5 w-3.5 shrink-0" />
-          {{ formatViews(stream.views) }} views
+          {{ formatViews(stream.views) }} visualizações
         </div>
       </div>
 
@@ -75,10 +75,10 @@ function formatViews(n: number): string {
       <button
         v-if="stream.videoSrc"
         class="mt-auto w-full rounded-lg bg-[#2563EB] py-2.5 text-sm font-semibold text-white hover:bg-blue-700 transition-colors"
-        :aria-label="`Watch the replay of ${stream.title}`"
+        :aria-label="`Assistir gravação de ${stream.title}`"
         @click="emit('watch', stream)"
       >
-        Watch Replay
+        Assistir Gravação
       </button>
       <p
         v-else

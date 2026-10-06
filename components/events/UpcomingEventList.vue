@@ -74,7 +74,7 @@ function isSelected(event: UpcomingEvent) {
     <EmptyState
       v-if="events.length === 0"
       icon="mdi:calendar-blank-outline"
-      title="No upcoming events"
+      title="Nenhum evento próximo"
       description="Check back soon — new gatherings are announced here."
     />
   </div>

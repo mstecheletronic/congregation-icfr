@@ -32,7 +32,7 @@ const sermons = computed(() => teachingsStore.recentSermons)
       v-else
       icon="mdi:video-outline"
       size="sm"
-      title="No videos yet"
+      title="Ainda não existem vídeos"
       description="Recorded services you publish will appear here."
     />
   </Card>

@@ -37,7 +37,7 @@ function onDocChange(e: Event) {
   const file = (e.target as HTMLInputElement).files?.[0]
   if (file) {
     if (file.size > 20 * 1024 * 1024) {
-      alert('Document must be under 20MB')
+      alert('O documento deve ter menos de 20 MB')
       return
     }
     documentFile.value = file
@@ -49,7 +49,7 @@ function onDocDrop(e: DragEvent) {
   const file = e.dataTransfer?.files[0]
   if (file) {
     if (file.size > 20 * 1024 * 1024) {
-      alert('Document must be under 20MB')
+      alert('O documento deve ter menos de 20 MB')
       return
     }
     documentFile.value = file
@@ -57,9 +57,9 @@ function onDocDrop(e: DragEvent) {
 }
 
 async function submit() {
-  errors.type = form.type ? '' : 'Upload type is required'
-  errors.preacher = form.preacher ? '' : 'Preacher name is required'
-  errors.description = form.description ? '' : 'Description is required'
+  errors.type = form.type ? '' : 'O tipo de conteúdo é obrigatório'
+  errors.preacher = form.preacher ? '' : 'O nome do pregador é obrigatório'
+  errors.description = form.description ? '' : 'A descrição é obrigatória'
 
   if (!isValid.value) return
 
@@ -96,42 +96,42 @@ async function submit() {
         class="bg-green-50 border border-green-200 rounded-lg px-4 py-3 flex items-center gap-2 text-green-700 text-sm"
       >
         <Icon icon="mdi:check-circle-outline" />
-        Sermon uploaded successfully!
+        Ensinamento carregado com sucesso!
       </div>
     </Transition>
 
     <!-- Upload Type -->
     <Select
       v-model="form.type"
-      label="Upload Type"
+      label="Tipo de Conteúdo"
       :options="typeOptions"
-      placeholder="Select Upload type"
+      placeholder="Selecione o tipo de conteúdo"
       required
       :error="errors.type"
     />
 
     <!-- Sermon Date -->
     <div class="flex flex-col gap-1">
-      <label class="text-sm font-medium text-gray-700">Sermon</label>
+      <label class="text-sm font-medium text-gray-700">Sermão</label>
       <input
         v-model="form.date"
         type="date"
         class="w-full rounded-lg border border-gray-300 text-sm px-3 py-2 outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500"
-        aria-label="Sermon date"
+        aria-label="Data do sermão"
       />
     </div>
 
     <!-- Preacher -->
     <Input
       v-model="form.preacher"
-      label="Preacher"
-      placeholder="Enter Preacher's name"
+      label="Pregador"
+      placeholder="Digite o nome do pregador"
       required
       :error="errors.preacher"
     />
 
     <!-- Topic -->
-    <Input v-model="form.topic" label="Topic" placeholder="Enter the topic of the Sermon" />
+    <Input v-model="form.topic" label="Tema" placeholder="Digite o tema do sermão" />
 
     <!-- Scripture -->
     <Input v-model="form.scripture" label="Scripture Reference" placeholder="e.g. 1 Timothy 3:6" />
@@ -139,17 +139,17 @@ async function submit() {
     <!-- Description -->
     <div class="flex flex-col gap-1">
       <label class="text-sm font-medium text-gray-700">
-        Brief Description<span class="text-red-500 ml-0.5">*</span>
+        Descrição Breve<span class="text-red-500 ml-0.5">*</span>
       </label>
       <textarea
         v-model="form.description"
         rows="3"
-        placeholder="Enter a brief description of the topic you are uploading..."
+        placeholder="Digite uma breve descrição do conteúdo..."
         :class="[
           'w-full rounded-lg border text-sm px-3 py-2 outline-none resize-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all',
           errors.description ? 'border-red-400' : 'border-gray-300',
         ]"
-        aria-label="Brief description"
+        aria-label="Descrição breve"
       ></textarea>
       <p v-if="errors.description" class="text-xs text-red-500">{{ errors.description }}</p>
     </div>
@@ -172,12 +172,12 @@ async function submit() {
       @click="submit"
     >
       <template #icon-left><Icon icon="mdi:upload" /></template>
-      {{ teachingsStore.uploading ? 'Uploading…' : 'Upload Sermon' }}
+      {{ teachingsStore.uploading ? 'Carregando…' : 'Publicar Ensinamento' }}
     </Button>
 
     <!-- Document Upload -->
     <div>
-      <label class="text-sm font-medium text-gray-700 block mb-1.5">Upload Document File</label>
+      <label class="text-sm font-medium text-gray-700 block mb-1.5">Carregar Documento</label>
       <div
         :class="[
           'border-2 border-dashed rounded-xl p-6 text-center transition-colors cursor-pointer',
@@ -190,7 +190,7 @@ async function submit() {
         <Icon icon="mdi:file-upload-outline" class="text-3xl text-gray-400 mb-2 block mx-auto" />
         <p v-if="documentFile" class="text-sm text-gray-700 font-medium">{{ documentFile.name }}</p>
         <p v-else class="text-sm text-gray-500">
-          <span class="text-blue-600 font-medium">Click to upload</span> or drag and drop
+          <span class="text-blue-600 font-medium">Clique para carregar</span> ou arraste e solte
         </p>
         <p class="text-xs text-gray-400 mt-1">Supported formats: PDF, DOC, DOCX (max 20MB)</p>
       </div>

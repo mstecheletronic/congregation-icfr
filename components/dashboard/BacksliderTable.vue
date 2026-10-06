@@ -127,7 +127,7 @@ function doExport() {
           </tr>
           <tr v-if="membersStore.loading && !paginated.length">
             <td colspan="5" class="px-4">
-              <LoadingState :rows="4" size="sm" title="Loading members…" />
+              <LoadingState :rows="4" size="sm" title="Carregando membros..." />
             </td>
           </tr>
           <tr v-else-if="!paginated.length">
@@ -135,7 +135,7 @@ function doExport() {
               <EmptyState
                 icon="mdi:account-check-outline"
                 size="sm"
-                title="No members needing follow-up"
+                title="Nenhum membro precisa de acompanhamento"
                 description="Members with three or more absences are listed here."
               />
             </td>

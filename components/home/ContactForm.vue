@@ -25,7 +25,7 @@ async function handleSubmit() {
     Object.assign(form, { name: '', email: '', phone: '', message: '' })
   } catch {
     error.value =
-      messagesStore.error ?? 'Your message could not be sent. Please try again, or call us.'
+      messagesStore.error ?? 'A sua mensagem não pôde ser enviada. Tente novamente ou contacte-nos por telefone.'
   }
 }
 
@@ -61,7 +61,7 @@ onMounted(() => settingsStore.load())
 
           <!-- Worship with us label -->
           <div>
-            <p class="text-[13px] text-blue-200">Worship with us at</p>
+            <p class="text-[13px] text-blue-200">Cultue connosco em</p>
             <p class="mt-1 text-[18px] font-bold leading-snug text-white">
               {{ settingsStore.settings.name }}
             </p>
@@ -93,7 +93,7 @@ onMounted(() => settingsStore.load())
                 </svg>
               </div>
               <div>
-                <p class="text-[12px] font-semibold text-white">Address</p>
+                <p class="text-[12px] font-semibold text-white">Endereço</p>
                 <p class="text-[12px] leading-snug text-blue-200">
                   {{ settingsStore.settings.address }}
                 </p>
@@ -119,7 +119,7 @@ onMounted(() => settingsStore.load())
                 </svg>
               </div>
               <div>
-                <p class="text-[12px] font-semibold text-white">Phone Number</p>
+                <p class="text-[12px] font-semibold text-white">Telefone</p>
                 <p class="text-[12px] text-blue-200">{{ settingsStore.settings.phone }}</p>
               </div>
             </div>
@@ -186,7 +186,7 @@ onMounted(() => settingsStore.load())
             <form v-else @submit.prevent="handleSubmit">
               <h2 class="mb-1 text-[22px] font-bold text-gray-900">Send Us A Message</h2>
               <p class="mb-6 text-[13px] leading-snug text-gray-500">
-                Have questions? Need counselling? Want to learn more about God's word? We'd love to
+                Tem alguma dúvida? Precisa de aconselhamento ou deseja aprender mais sobre a Palavra de Deus? Teremos prazer em
                 hear from you.
               </p>
 
@@ -194,14 +194,14 @@ onMounted(() => settingsStore.load())
                 <!-- Name -->
                 <div>
                   <label class="mb-1.5 block text-[13px] font-medium text-gray-700" for="cf-name"
-                    >Name</label
+                    >Nome</label
                   >
                   <input
                     id="cf-name"
                     v-model="form.name"
                     type="text"
                     required
-                    placeholder="Your full name"
+                    placeholder="Seu nome completo"
                     class="w-full rounded-lg border border-gray-200 px-4 py-2.5 text-[14px] text-gray-900 placeholder:text-gray-400 outline-none transition focus:border-accent focus:ring-2 focus:ring-accent/20"
                   />
                 </div>
@@ -224,7 +224,7 @@ onMounted(() => settingsStore.load())
                 <!-- Phone -->
                 <div>
                   <label class="mb-1.5 block text-[13px] font-medium text-gray-700" for="cf-phone"
-                    >Phone Number</label
+                    >Telefone</label
                   >
                   <input
                     id="cf-phone"

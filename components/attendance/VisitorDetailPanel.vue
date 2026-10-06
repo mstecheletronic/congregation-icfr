@@ -35,7 +35,7 @@ async function onDelete() {
   if (!props.visitor) return
   const visitor = props.visitor
   const ok = await confirmDelete(visitor.name, {
-    message: `Their visit on ${formatDate(visitor.date, 'full')} will be removed from the record.`,
+    message: `A visita em ${formatDate(visitor.date, 'full')} será removida do registo.`,
   })
   if (!ok) return
   await visitorsStore.deleteVisitor(visitor.id).catch(() => {})
@@ -101,7 +101,7 @@ onMounted(() => {
       <aside
         v-if="modelValue && visitor"
         class="fixed top-0 right-0 h-full w-full sm:w-[520px] bg-white z-50 flex flex-col shadow-2xl overflow-hidden"
-        :aria-label="`${visitor.name} — visitor record`"
+        :aria-label="`${visitor.name} — registo de visitante`"
       >
         <!-- Top bar -->
         <div class="flex items-center justify-between px-4 py-3 bg-gray-100 shrink-0">
@@ -112,7 +112,7 @@ onMounted(() => {
           >
             <Icon icon="mdi:close" class="text-lg" />
           </button>
-          <span class="text-xs font-medium text-gray-500">Visitor</span>
+          <span class="text-xs font-medium text-gray-500">Visitante</span>
         </div>
 
         <div class="flex-1 overflow-y-auto px-4 pb-6 pt-4 space-y-3 sidebar-scroll bg-white">
@@ -142,22 +142,22 @@ onMounted(() => {
           <div class="bg-white rounded-2xl p-4 border-[#7CD4FD] border">
             <h3 class="text-xs font-bold text-gray-700 mb-3">Contact Details</h3>
             <div class="grid grid-cols-2 gap-x-3 gap-y-3">
-              <InfoField icon="mdi:account-outline" label="Name" :value="visitor.name" />
+              <InfoField icon="mdi:account-outline" label="Nome" :value="visitor.name" />
               <InfoField
                 icon="mdi:phone-outline"
-                label="Phone Number"
-                :value="visitor.phone || 'Not given'"
+                label="Telefone"
+                :value="visitor.phone || 'Não informado'"
               />
               <InfoField
                 icon="mdi:email-outline"
-                label="Email Address"
-                :value="visitor.email || 'Not given'"
+                label="Email"
+                :value="visitor.email || 'Não informado'"
               />
-              <InfoField icon="mdi:church" label="Church" :value="visitor.church || 'Not given'" />
+              <InfoField icon="mdi:church" label="Igreja / Congregação" :value="visitor.church || 'Não informado'" />
               <InfoField
                 icon="mdi:map-marker-radius-outline"
-                label="Address"
-                :value="visitor.address || 'Not given'"
+                label="Endereço"
+                :value="visitor.address || 'Não informado'"
                 class="col-span-2"
               />
             </div>
@@ -170,7 +170,7 @@ onMounted(() => {
               v-if="visitor.phone"
               :href="`tel:${visitor.phone}`"
               class="flex-1 flex items-center justify-center gap-2 bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium py-2.5 rounded-xl transition-colors"
-              :aria-label="`Call ${visitor.name}`"
+              :aria-label="`Ligar para ${visitor.name}`"
             >
               <Icon icon="mdi:phone-outline" class="text-base" />
               Call
@@ -179,7 +179,7 @@ onMounted(() => {
               v-if="visitor.email"
               :href="`mailto:${visitor.email}`"
               class="flex-1 flex items-center justify-center gap-2 border border-blue-600 text-blue-600 hover:bg-blue-50 text-sm font-medium py-2.5 rounded-xl transition-colors"
-              :aria-label="`Email ${visitor.name}`"
+              :aria-label="`Enviar email para ${visitor.name}`"
             >
               <Icon icon="mdi:email-outline" class="text-base" />
               Email
@@ -190,12 +190,12 @@ onMounted(() => {
           <div class="bg-white rounded-2xl p-4 border-[#7CD4FD] border">
             <h3 class="text-xs font-bold text-gray-700 mb-3">Other Visits</h3>
             <p v-if="!otherVisits.length" class="text-xs text-gray-400">
-              No other services recorded under this name.
+              Não existem outros cultos registados com este nome.
             </p>
             <template v-else>
               <p class="text-xs text-gray-500 mb-2">
                 {{ otherVisits.length }} other
-                {{ otherVisits.length === 1 ? 'service' : 'services' }} recorded under the same
+                {{ otherVisits.length === 1 ? 'culto' : 'cultos' }} registados com o mesmo
                 name.
               </p>
               <ul class="space-y-1.5">
@@ -213,7 +213,7 @@ onMounted(() => {
 
           <!-- Recorded-at, when the write has been acknowledged by the server -->
           <p v-if="visitor.createdAt" class="px-1 text-[11px] text-gray-400">
-            Recorded {{ formatRelative(visitor.createdAt) }}
+            Registado {{ formatRelative(visitor.createdAt) }}
           </p>
 
           <!-- Actions -->
@@ -223,7 +223,7 @@ onMounted(() => {
               @click="onEdit"
             >
               <Icon icon="mdi:pencil-outline" class="text-base" />
-              Edit Details
+              Editar Dados
             </button>
             <button
               class="flex items-center justify-center gap-1.5 border border-red-500 text-red-500 hover:bg-red-50 text-sm font-medium px-4 py-2.5 rounded-xl transition-colors disabled:opacity-60"

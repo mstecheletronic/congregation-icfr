@@ -78,7 +78,7 @@ const pendingMark = ref<{
 const showWorshipModal = ref(false)
 
 function memberName(memberId: string) {
-  return membersStore.members.find((m) => m.id === memberId)?.name ?? 'This member'
+  return membersStore.members.find((m) => m.id === memberId)?.name ?? 'Este membro'
 }
 
 function toggle(memberId: string, date: string, event: Event) {
@@ -138,7 +138,7 @@ function worshippedElsewhere(memberId: string, date: string) {
 function elsewhereTitle(memberId: string, date: string) {
   const record = recordFor(memberId, date)
   if (!record) return ''
-  const where = record.congregation || 'another congregation'
+  const where = record.congregation || 'outra congregação'
   const certificate = record.certificate
     ? 'certificate of worship produced'
     : 'certificate not yet produced'
@@ -232,15 +232,15 @@ function doExport() {
         // Names the congregation in the cell, so an exported register still shows which ticks were
         // earned elsewhere — a bare "Present" would flatten the two back together.
         if (!isPresent(m.id, d)) {
-          row[d] = 'Absent'
+          row[d] = 'Ausente'
           return
         }
         const record = recordFor(m.id, d)
         if (record?.place !== 'elsewhere') {
-          row[d] = 'Present'
+          row[d] = 'Presente'
           return
         }
-        const where = record.congregation || 'another congregation'
+        const where = record.congregation || 'outra congregação'
         row[d] = `Present (${where}${record.certificate ? '' : ', certificate pending'})`
       })
       return row
@@ -262,9 +262,9 @@ function doExport() {
         <input
           v-model="searchQuery"
           type="search"
-          placeholder="Search members..."
+          placeholder="Pesquisar membros..."
           class="w-full pl-9 pr-3 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500"
-          aria-label="Search attendance"
+          aria-label="Pesquisar presenças"
         />
       </div>
       <div class="flex gap-2">
@@ -297,7 +297,7 @@ function doExport() {
                 scope="col"
                 class="text-left px-3 py-2.5 text-xs font-medium text-gray-500 min-w-[140px]"
               >
-                Member Monthly Summary
+                Resumo Mensal do Membro
               </th>
               <th
                 v-for="date in sundaysInMonth"
@@ -367,7 +367,7 @@ function doExport() {
               <td class="px-2 py-2.5 relative">
                 <button
                   class="text-gray-400 hover:text-gray-600 p-0.5"
-                  :aria-label="`More actions for ${member.name}`"
+                  :aria-label="`Mais ações para ${member.name}`"
                   :aria-expanded="openRowMenu === member.id"
                   @click.stop="openRowMenu = openRowMenu === member.id ? null : member.id"
                 >
@@ -383,29 +383,29 @@ function doExport() {
                     @click="markMonth(member.id, true)"
                   >
                     <Icon icon="mdi:check-all" class="text-green-600" />
-                    Mark all present
+                    Marcar todos como presentes
                   </button>
                   <button
                     class="flex w-full items-center gap-2 px-3 py-2 text-left text-xs text-gray-700 hover:bg-gray-50"
                     @click="markMonth(member.id, false)"
                   >
                     <Icon icon="mdi:close-box-multiple-outline" class="text-red-500" />
-                    Mark all absent
+                    Marcar todos como ausentes
                   </button>
                 </div>
               </td>
             </tr>
             <tr v-if="membersStore.loading && !pagedMembers.length">
               <td :colspan="4 + sundaysInMonth.length" class="px-4">
-                <LoadingState :rows="6" title="Loading register…" />
+                <LoadingState :rows="6" title="Carregando registo..." />
               </td>
             </tr>
             <tr v-else-if="!pagedMembers.length">
               <td :colspan="4 + sundaysInMonth.length" class="px-4">
                 <EmptyState
                   icon="mdi:calendar-check-outline"
-                  title="No members to mark"
-                  description="Attendance can be recorded once members are on the nominal roll."
+                  title="Nenhum membro para marcar"
+                  description="As presenças poderão ser registadas quando existirem membros cadastrados."
                 />
               </td>
             </tr>
@@ -418,7 +418,7 @@ function doExport() {
         :total="attTotal"
         :range-start="attFrom"
         :range-end="attTo"
-        label="members"
+        label="membros"
       />
     </Card>
 
@@ -428,8 +428,8 @@ function doExport() {
         v-if="hasChanged"
         class="sticky bottom-4 flex justify-end gap-2 mt-4 bg-white rounded-xl shadow-lg border border-gray-200 p-3"
       >
-        <Button :loading="attendanceStore.saving" @click="save">Save Changes</Button>
-        <Button variant="secondary" @click="cancel">Cancel</Button>
+        <Button :loading="attendanceStore.saving" @click="save">Guardar Alterações</Button>
+        <Button variant="secondary" @click="cancel">Cancelar</Button>
       </div>
     </Transition>
 

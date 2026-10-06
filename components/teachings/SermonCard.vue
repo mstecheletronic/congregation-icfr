@@ -31,8 +31,8 @@ const { confirmDelete } = useConfirm()
 
 async function deleteSermon(id: string) {
   showMenu.value = false
-  const ok = await confirmDelete(props.sermon.topic || 'this teaching', {
-    message: 'The teaching and its uploaded files will no longer appear on the site.',
+  const ok = await confirmDelete(props.sermon.topic || 'este ensinamento', {
+    message: 'O ensinamento e os ficheiros associados deixarão de aparecer no site.',
   })
   if (!ok) return
   await run(id, () => teachingsStore.deleteSermon(id).catch(() => {}))
@@ -80,7 +80,7 @@ async function deleteSermon(id: string) {
           {{ sermon.scripture }}
         </p>
         <p class="text-xs leading-relaxed text-gray-600">
-          {{ sermon.description || 'No description was provided for this teaching.' }}
+          {{ sermon.description || 'Nenhuma descrição foi fornecida para este ensinamento.' }}
         </p>
         <a
           v-if="sermon.documentFile"
@@ -90,7 +90,7 @@ async function deleteSermon(id: string) {
           class="inline-flex items-center gap-1 text-xs font-medium text-blue-600 hover:underline"
         >
           <Icon icon="mdi:file-document-outline" />
-          Open attached document
+          Abrir documento anexado
         </a>
       </div>
     </div>
@@ -111,7 +111,7 @@ async function deleteSermon(id: string) {
       <div class="relative">
         <button
           class="p-1 rounded hover:bg-gray-100 text-gray-400"
-          :aria-label="`Actions for ${sermon.topic}`"
+          :aria-label="`Ações para ${sermon.topic}`"
           @click.stop="showMenu = !showMenu"
         >
           <Icon icon="mdi:dots-vertical" />

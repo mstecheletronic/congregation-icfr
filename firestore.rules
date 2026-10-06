@@ -244,6 +244,14 @@ service cloud.firestore {
       allow write: if canEditPublishedContent();
     }
 
+    // ── Live streams ───────────────────────────────────────────────────────
+    // As transmissões são públicas, mas apenas utilizadores autorizados
+    // podem criar, editar, encerrar ou eliminar uma transmissão.
+    match /liveStreams/{streamId} {
+      allow read: if true;
+      allow write: if canEditPublishedContent();
+    }
+
     // ── Contact messages ───────────────────────────────────────────────────
     // The public "Send Us A Message" form writes here while signed out, which makes this the
     // one collection anonymous callers can add to. Create-only for them, and nothing else:
@@ -348,7 +356,7 @@ service cloud.firestore {
       function allowedFields() {
         return [
           'name', 'gender', 'phone', 'email', 'dob', 'status', 'absenceCount',
-          'avatar', 'churchNumber', 'maritalStatus', 'dateOfBaptism',
+          'avatar', 'churchNumber', 'congregation', 'maritalStatus', 'dateOfBaptism',
           'dateJoined', 'country', 'state', 'localGovernment', 'village',
           'address', 'occupation', 'previousCongregation',
           'previousMinisterPhone', 'emergencyContact', 'createdAt', 'updatedAt',

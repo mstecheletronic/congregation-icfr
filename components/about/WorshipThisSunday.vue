@@ -62,7 +62,7 @@ const cfg = computed(() => s.settings.worshipThisSunday)
                   font-family="serif"
                   letter-spacing="0.5"
                 >
-                  CHURCH OF CHRIST
+                  ICFR FAMÍLIA REDIMIDA
                 </text>
               </svg>
             </div>

@@ -28,11 +28,11 @@ function onImgError(e: Event) {
         <h2 class="mt-2 font-serif text-3xl font-bold text-gray-900">Our Church Leaders</h2>
       </div>
 
-      <LoadingState v-if="s.loading" title="Loading leaders…" />
+      <LoadingState v-if="s.loading" title="Carregando liderança..." />
       <EmptyState
         v-else-if="!leaders.length"
         icon="mdi:account-tie-outline"
-        title="No leaders listed yet"
+        title="Ainda não existem líderes cadastrados"
         description="Elders, deacons and ministers appear here once they are added in Settings → Leaders."
       />
 

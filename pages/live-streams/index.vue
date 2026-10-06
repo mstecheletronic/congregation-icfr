@@ -1,10 +1,19 @@
 <script setup lang="ts">
 import type { RecordedStream } from '~/types/public'
 
-definePageMeta({ layout: 'default' })
+definePageMeta({
+  layout: 'default',
+})
 
 const store = usePublicLiveStreamStore()
-const { isLive, currentStream, filteredRecorded, activeTab, setTab } = useLiveStreams()
+
+const {
+  isLive,
+  currentStream,
+  filteredRecorded,
+  activeTab,
+  setTab,
+} = useLiveStreams()
 
 const searchQuery = ref('')
 const activityFilter = ref('All Church Activities')
@@ -17,22 +26,44 @@ const activityOptions = [
   'Evangelism',
 ]
 
-watch(searchQuery, (v) => store.setSearch(v))
-watch(activityFilter, (v) => store.setFilter(v))
+const activityLabels: Record<string, string> = {
+  'All Church Activities': 'Todas as Atividades',
+  'Sunday Worship': 'Culto de Celebração',
+  'Bible Class': 'Culto de Ensino',
+  'Sunday School': 'Escola Dominical',
+  Evangelism: 'Evangelismo',
+}
+
+watch(searchQuery, (v) => {
+  store.setSearch(v)
+})
+
+watch(activityFilter, (v) => {
+  store.setFilter(v)
+})
 
 function onWatchRecorded() {
   setTab('recorded')
+
   nextTick(() => {
-    document.getElementById('streams-grid')?.scrollIntoView({ behavior: 'smooth' })
+    document
+      .getElementById('streams-grid')
+      ?.scrollIntoView({
+        behavior: 'smooth',
+      })
   })
 }
 
-// ─── Replay player ───────────────────────────────────────────────────────────
+// Player das gravações
 const playing = ref<RecordedStream | null>(null)
+
 const playerOpen = computed({
   get: () => playing.value !== null,
+
   set: (open: boolean) => {
-    if (!open) playing.value = null
+    if (!open) {
+      playing.value = null
+    }
   },
 })
 
@@ -52,30 +83,36 @@ function watchReplay(stream: RecordedStream) {
 const howToSteps = [
   {
     number: 1,
-    title: 'Find a Congregation',
+    title: 'Escolha a transmissão',
     description:
-      'Search for your nearest Church of Christ congregation to find local worship services and live streams.',
+      'Quando houver um culto em direto, ele aparecerá automaticamente nesta página.',
   },
   {
     number: 2,
-    title: 'Click to Join',
+    title: 'Clique para assistir',
     description:
-      'Click the Watch Live Now button when a service is active. Our streams run every Sunday at 9:00 AM.',
+      'Use o botão Assistir Agora para entrar na transmissão do culto.',
   },
   {
     number: 3,
-    title: 'Worship Together',
+    title: 'Participe connosco',
     description:
-      'Participate in the service, follow along with the message, and fellowship with believers worldwide.',
+      'Acompanhe a mensagem, louvor, oração e comunhão da ICFR Família Redimida.',
   },
 ]
 
 useSeoMeta({
-  title: 'Live Streams — Church of Christ',
+  title: 'Cultos ao Vivo — ICFR Família Redimida',
+
   description:
-    'Watch live Sunday worship services and recorded Bible classes from Church of Christ congregations. Join thousands of believers worshipping online.',
-  ogTitle: 'Live Streams — Church of Christ',
-  ogDescription: 'Watch live and recorded worship services from the Church of Christ, worldwide.',
+    'Assista aos cultos ao vivo e às transmissões gravadas da ICFR Família Redimida.',
+
+  ogTitle:
+    'Cultos ao Vivo — ICFR Família Redimida',
+
+  ogDescription:
+    'Acompanhe os cultos, ensinamentos e transmissões da ICFR Família Redimida — Resgatando vidas para Cristo.',
+
   ogImage: '/images/heroImg.png',
 })
 </script>
@@ -83,61 +120,128 @@ useSeoMeta({
 <template>
   <div class="pt-16">
     <!-- Banner -->
-    <section class="relative bg-[#1E3A5F] py-20 overflow-hidden">
+    <section
+      class="relative bg-[#1E3A5F] py-20 overflow-hidden"
+    >
       <img
-        src="https://picsum.photos/seed/livestream-banner/1920/600"
-        alt="Live streams banner"
-        class="absolute inset-0 h-full w-full object-cover opacity-20"
-        loading="lazy"
-      />
-      <div class="relative z-10 mx-auto max-w-4xl px-6 text-center text-white">
+  src="/images/icfr-logo.png"
+  alt="Logo da ICFR Família Redimida"
+  class="absolute inset-0 h-full w-full object-contain opacity-20 p-6"
+  loading="lazy"
+       />
+
+      <div
+        class="relative z-10 mx-auto max-w-4xl px-6 text-center text-white"
+      >
         <div
           class="mb-4 inline-flex items-center gap-2 rounded-full bg-[#EF4444]/20 px-4 py-1.5 border border-[#EF4444]/30"
         >
-          <span class="relative flex h-2.5 w-2.5">
+          <span
+            class="relative flex h-2.5 w-2.5"
+          >
             <span
               class="absolute inline-flex h-full w-full rounded-full bg-[#EF4444] opacity-75 animate-ping"
             ></span>
-            <span class="relative inline-flex h-2.5 w-2.5 rounded-full bg-[#EF4444]"></span>
+
+            <span
+              class="relative inline-flex h-2.5 w-2.5 rounded-full bg-[#EF4444]"
+            ></span>
           </span>
-          <span class="text-xs font-bold text-[#EF4444] tracking-widest uppercase"
-            >Live Streams</span
+
+          <span
+            class="text-xs font-bold text-[#EF4444] tracking-widest uppercase"
           >
+            Cultos ao Vivo
+          </span>
         </div>
-        <h1 class="font-serif text-5xl font-bold drop-shadow-lg md:text-6xl">Live Streams</h1>
-        <p class="mt-4 text-white/70 text-lg max-w-2xl mx-auto">
-          Watch live Sunday worship services or browse our library of recorded Bible classes,
-          sermons, and special services.
+
+        <h1
+          class="font-serif text-5xl font-bold drop-shadow-lg md:text-6xl"
+        >
+          Cultos ao Vivo
+        </h1>
+
+        <p
+          class="mt-4 text-white/70 text-lg max-w-2xl mx-auto"
+        >
+          Acompanhe os cultos da ICFR Família Redimida ao vivo
+          ou assista às transmissões gravadas.
         </p>
+
+        <!-- Horários -->
+        <div
+          class="mt-8 flex flex-col items-center justify-center gap-3 sm:flex-row"
+        >
+          <div
+            class="rounded-xl border border-white/20 bg-white/10 px-5 py-3 backdrop-blur"
+          >
+            <p class="text-sm font-semibold">
+              Culto de Ensino
+            </p>
+
+            <p class="text-xs text-white/70">
+              Quinta-feira · 17:30 – 19:30
+            </p>
+          </div>
+
+          <div
+            class="rounded-xl border border-white/20 bg-white/10 px-5 py-3 backdrop-blur"
+          >
+            <p class="text-sm font-semibold">
+              Culto de Celebração
+            </p>
+
+            <p class="text-xs text-white/70">
+              Domingo · 09:30 – 12:00
+            </p>
+          </div>
+        </div>
       </div>
     </section>
 
-    <div class="mx-auto max-w-7xl px-4 py-10 sm:px-6 lg:px-8">
-      <!-- Search + filter bar -->
-      <div class="mb-8 flex flex-col gap-4 sm:flex-row sm:items-center">
+    <div
+      class="mx-auto max-w-7xl px-4 py-10 sm:px-6 lg:px-8"
+    >
+      <!-- Pesquisa e filtro -->
+      <div
+        class="mb-8 flex flex-col gap-4 sm:flex-row sm:items-center"
+      >
         <div
           class="flex flex-1 items-center gap-3 rounded-xl border border-gray-200 bg-white px-4 py-3 shadow-sm"
         >
-          <Icon icon="heroicons:magnifying-glass" class="h-5 w-5 shrink-0 text-gray-400" />
+          <Icon
+            icon="heroicons:magnifying-glass"
+            class="h-5 w-5 shrink-0 text-gray-400"
+          />
+
           <input
             v-model="searchQuery"
             type="text"
-            placeholder="Search for dates and day of church service…"
+            placeholder="Pesquisar transmissões..."
             class="flex-1 bg-transparent text-sm text-gray-700 placeholder:text-gray-400 outline-none"
-            aria-label="Search streams"
+            aria-label="Pesquisar transmissões"
           />
         </div>
+
         <select
           v-model="activityFilter"
           class="rounded-xl border border-gray-200 bg-white px-4 py-3 text-sm text-gray-700 shadow-sm outline-none focus:border-[#2563EB] focus:ring-1 focus:ring-[#2563EB]"
-          aria-label="Filter by activity"
+          aria-label="Filtrar por atividade"
         >
-          <option v-for="opt in activityOptions" :key="opt" :value="opt">{{ opt }}</option>
+          <option
+            v-for="opt in activityOptions"
+            :key="opt"
+            :value="opt"
+          >
+            {{ activityLabels[opt] ?? opt }}
+          </option>
         </select>
       </div>
 
-      <!-- Tabs -->
-      <div class="mb-8 flex gap-1 rounded-xl bg-gray-100 p-1 w-fit">
+      <!-- Abas -->
+      <div
+        class="mb-8 flex gap-1 rounded-xl bg-gray-100 p-1 w-fit"
+      >
         <button
           :class="[
             'rounded-lg px-6 py-2.5 text-sm font-semibold transition-all',
@@ -145,19 +249,29 @@ useSeoMeta({
               ? 'bg-white text-[#1E3A5F] shadow-sm'
               : 'text-gray-500 hover:text-gray-700',
           ]"
-          aria-label="Live Now tab"
+          aria-label="Ao vivo agora"
           @click="setTab('live')"
         >
-          <span class="flex items-center gap-2">
-            <span v-if="isLive" class="relative flex h-2 w-2">
+          <span
+            class="flex items-center gap-2"
+          >
+            <span
+              v-if="isLive"
+              class="relative flex h-2 w-2"
+            >
               <span
                 class="absolute inline-flex h-full w-full rounded-full bg-[#EF4444] opacity-75 animate-ping"
               ></span>
-              <span class="relative inline-flex h-2 w-2 rounded-full bg-[#EF4444]"></span>
+
+              <span
+                class="relative inline-flex h-2 w-2 rounded-full bg-[#EF4444]"
+              ></span>
             </span>
-            Live Now
+
+            Ao Vivo
           </span>
         </button>
+
         <button
           :class="[
             'rounded-lg px-6 py-2.5 text-sm font-semibold transition-all',
@@ -165,58 +279,105 @@ useSeoMeta({
               ? 'bg-white text-[#1E3A5F] shadow-sm'
               : 'text-gray-500 hover:text-gray-700',
           ]"
-          aria-label="Recorded tab"
+          aria-label="Gravações"
           @click="setTab('recorded')"
         >
-          Recorded
+          Gravações
         </button>
       </div>
 
-      <!-- Live tab -->
-      <div v-if="activeTab === 'live'">
-        <!-- Active stream -->
-        <div v-if="isLive && currentStream">
-          <LiveNowCard :stream="currentStream" />
+      <!-- Ao vivo -->
+      <div
+        v-if="activeTab === 'live'"
+      >
+        <div
+          v-if="
+            isLive &&
+            currentStream
+          "
+        >
+          <LiveNowCard
+            :stream="currentStream"
+          />
 
-          <!-- Stream info row -->
-          <div class="mt-6 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+          <div
+            class="mt-6 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between"
+          >
             <div>
-              <h2 class="font-serif text-xl font-bold text-[#1E3A5F]">{{ currentStream.title }}</h2>
-              <div class="mt-1 flex items-center gap-3 text-sm text-gray-500">
-                <span class="flex items-center gap-1">
-                  <Icon icon="heroicons:calendar" class="h-4 w-4" />
-                  {{ formatDate(new Date(), 'full') }}
+              <h2
+                class="font-serif text-xl font-bold text-[#1E3A5F]"
+              >
+                {{ currentStream.title }}
+              </h2>
+
+              <div
+                class="mt-1 flex items-center gap-3 text-sm text-gray-500"
+              >
+                <span
+                  class="flex items-center gap-1"
+                >
+                  <Icon
+                    icon="heroicons:calendar"
+                    class="h-4 w-4"
+                  />
+
+                  {{
+                    formatDate(
+                      new Date(),
+                      'full'
+                    )
+                  }}
                 </span>
               </div>
             </div>
+
             <a
               href="#"
               target="_blank"
               rel="noopener"
               class="shrink-0 inline-flex items-center gap-2 rounded-full bg-[#2563EB] px-6 py-2.5 text-sm font-semibold text-white hover:bg-blue-700 transition-colors"
-              aria-label="Watch live stream now"
+              aria-label="Assistir transmissão agora"
             >
-              Watch Live Now
-              <Icon icon="heroicons:arrow-top-right-on-square" class="h-4 w-4" />
+              Assistir Agora
+
+              <Icon
+                icon="heroicons:arrow-top-right-on-square"
+                class="h-4 w-4"
+              />
             </a>
           </div>
 
-          <!-- How to join -->
+          <!-- Como assistir -->
           <div class="mt-12">
-            <h2 class="font-serif text-2xl font-bold text-[#1E3A5F] mb-8 text-center">
-              How to Join a Live Stream
+            <h2
+              class="font-serif text-2xl font-bold text-[#1E3A5F] mb-8 text-center"
+            >
+              Como Participar de um Culto ao Vivo
             </h2>
-            <HowToSteps :steps="howToSteps" />
+
+            <HowToSteps
+              :steps="howToSteps"
+            />
           </div>
         </div>
 
-        <!-- No active stream -->
-        <EmptyStreamState v-else @watch-recorded="onWatchRecorded" />
+        <EmptyStreamState
+          v-else
+          @watch-recorded="onWatchRecorded"
+        />
       </div>
 
-      <!-- Recorded tab -->
-      <div v-if="activeTab === 'recorded'" id="streams-grid">
-        <div v-if="pagedStreams.length" class="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+      <!-- Gravações -->
+      <div
+        v-if="
+          activeTab === 'recorded'
+        "
+        id="streams-grid"
+      >
+        <div
+          v-if="pagedStreams.length"
+          class="grid gap-6 sm:grid-cols-2 lg:grid-cols-3"
+        >
           <StreamCard
             v-for="stream in pagedStreams"
             :key="stream.id"
@@ -224,6 +385,7 @@ useSeoMeta({
             @watch="watchReplay"
           />
         </div>
+
         <Pagination
           v-if="pagedStreams.length"
           v-model:page="streamPage"
@@ -231,34 +393,55 @@ useSeoMeta({
           :total="streamTotal"
           :range-start="streamFrom"
           :range-end="streamTo"
-          label="streams"
+          label="transmissões"
         />
 
         <EmptyState
-          v-else-if="store.recordedStreams.length"
+          v-else-if="
+            store.recordedStreams.length
+          "
           icon="heroicons:video-camera-slash"
-          title="No streams match your search"
-          description="Try a different search term or activity filter."
+          title="Nenhuma transmissão encontrada"
+          description="Tente pesquisar outro termo ou alterar o filtro."
         />
+
         <EmptyState
           v-else
           icon="heroicons:video-camera-slash"
-          title="No recorded streams yet"
-          description="Past services will be available to watch here once they are published."
+          title="Ainda não existem transmissões gravadas"
+          description="Os cultos gravados aparecerão aqui depois de serem publicados."
         />
       </div>
     </div>
 
-    <!-- Replay player -->
-    <Modal v-model="playerOpen" :title="playing?.title" size="xl">
+    <!-- Player -->
+    <Modal
+      v-model="playerOpen"
+      :title="playing?.title"
+      size="xl"
+    >
       <VideoPlayer
         v-if="playing?.videoSrc"
         :src="playing.videoSrc"
-        :thumbnail="playing.thumbnailSrc"
+        :thumbnail="
+          playing.thumbnailSrc
+        "
         :title="playing.title"
       />
-      <p class="mt-3 text-xs text-gray-500">
-        {{ playing?.serviceType }} · {{ playing?.preacher }} · {{ playing?.duration }}
+
+      <p
+        class="mt-3 text-xs text-gray-500"
+      >
+        {{
+          activityLabels[
+            playing?.serviceType ?? ''
+          ] ??
+          playing?.serviceType
+        }}
+        ·
+        {{ playing?.preacher }}
+        ·
+        {{ playing?.duration }}
       </p>
     </Modal>
   </div>

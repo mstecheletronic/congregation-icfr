@@ -60,7 +60,7 @@ const serviceSlug = computed(
 const hasRecordsForSelection = computed(() => monthlyData.value.some((m) => m.total > 0))
 
 const headerText = computed(
-  () => `Showing 12 months of ${selectedService.value} attendance for ${selectedYear.value}`
+  () => `Mostrando 12 meses de presenças de ${selectedService.value} em ${selectedYear.value}`
 )
 </script>
 
@@ -72,14 +72,14 @@ const headerText = computed(
         <select
           v-model="selectedService"
           class="border border-gray-300 rounded-lg px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/20"
-          aria-label="Select service"
+          aria-label="Selecionar culto"
         >
           <option v-for="s in serviceOptions" :key="s" :value="s">{{ s }}</option>
         </select>
         <select
           v-model="selectedYear"
           class="border border-gray-300 rounded-lg px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/20"
-          aria-label="Select year"
+          aria-label="Selecionar ano"
         >
           <option v-for="y in yearOptions" :key="y" :value="y">{{ y }}</option>
         </select>
@@ -92,7 +92,7 @@ const headerText = computed(
     >
       <Icon icon="mdi:information-outline" class="mt-0.5 shrink-0" />
       <span>
-        Nothing recorded for {{ selectedService }} in {{ selectedYear }} yet. Open any month below
+        Ainda não existem registos de {{ selectedService }} em {{ selectedYear }}. Abra um mês abaixo
         to mark its register — the summaries here fill in as you do.
       </span>
     </p>
@@ -128,7 +128,7 @@ const headerText = computed(
             <p class="mt-1 text-lg font-bold text-gray-900">{{ month.sessions }}</p>
           </div>
           <div class="rounded-xl bg-blue-50/60 p-3">
-            <p class="text-xs text-gray-500">Present</p>
+            <p class="text-xs text-gray-500">Presentes</p>
             <p class="mt-1 text-lg font-bold text-gray-900">{{ month.present }}</p>
           </div>
         </div>
@@ -137,7 +137,7 @@ const headerText = computed(
         <NuxtLink
           :to="`/admin/attendance/${serviceSlug}?month=${month.month}`"
           class="view-details-btn mt-auto inline-flex items-center justify-center gap-2 rounded-xl border px-4 py-2.5 text-sm font-medium transition-colors"
-          :aria-label="`${month.sessions ? 'View' : 'Mark'} ${selectedService} attendance for ${month.label} ${selectedYear}`"
+          :aria-label="`${month.sessions ? 'Ver' : 'Marcar'} ${selectedService} presenças de ${month.label} ${selectedYear}`"
         >
           {{ month.sessions ? 'View details' : 'Mark register' }}
           <Icon icon="mdi:arrow-right" class="text-base" />

@@ -5,21 +5,29 @@ const membersStore = useMembersStore()
 const { exportCSV } = useExportCSV()
 
 const tabs = [
-  { label: 'All Members', value: 'all' },
-  { label: 'Brothers', value: 'brothers' },
-  { label: 'Sisters', value: 'sisters' },
-  { label: 'Active', value: 'active' },
-  { label: 'Inactive', value: 'inactive' },
-  { label: 'Disfellowshipped', value: 'disfellowshipped' },
-  { label: 'Transfer', value: 'transfer' },
-  { label: 'Weak', value: 'weak' },
-  { label: 'Late Brethren', value: 'late' },
+  { label: 'Todos os Membros', value: 'all' },
+  { label: 'Irmãos', value: 'brothers' },
+  { label: 'Irmãs', value: 'sisters' },
+  { label: 'Ativos', value: 'active' },
+  { label: 'Inativos', value: 'inactive' },
+  { label: 'Desligados', value: 'disfellowshipped' },
+  { label: 'Transferidos', value: 'transfer' },
+  { label: 'Em Acompanhamento', value: 'weak' },
+  { label: 'Afastados', value: 'late' },
 ]
 
 const activeTab = computed({
   get: () => membersStore.filters.tab,
   set: (v) => membersStore.setFilter({ tab: v as typeof membersStore.filters.tab }),
 })
+
+const congregations = [
+  'Muchatazina Sede',
+  'Cerâmica',
+  'Crespim',
+  'Chimoio',
+  'Tete',
+]
 
 const showImport = ref(false)
 
@@ -34,23 +42,24 @@ async function onImport(members: Omit<Member, 'id' | 'absenceCount'>[]) {
 function doExport() {
   exportCSV(
     membersStore.filteredMembers.map((m) => ({
-      Name: m.name,
-      Gender: m.gender,
-      Phone: m.phone,
+      Nome: m.name,
+      Sexo: m.gender,
+      Telefone: m.phone,
       Email: m.email,
+      Congregação: m.congregation ?? '',
       'Date of Birth': m.dob ?? '',
-      Status: m.status,
-      'Marital Status': m.maritalStatus ?? '',
+      Estado: m.status,
+      'Estado Civil': m.maritalStatus ?? '',
       'Date of Baptism': m.dateOfBaptism ?? '',
       'Date of Registration': m.dateJoined ?? '',
       Country: m.country ?? '',
       State: m.state ?? '',
       LGA: m.localGovernment ?? '',
       Village: m.village ?? '',
-      Address: m.address ?? '',
+      'Endereço': m.address ?? '',
       Occupation: m.occupation ?? '',
     })),
-    'members'
+    'membros-icfr'
   )
 }
 </script>
@@ -62,11 +71,11 @@ function doExport() {
       <div class="flex gap-2 shrink-0">
         <Button variant="secondary" size="sm" @click="doExport">
           <template #icon-left><Icon icon="mdi:upload-outline" class="text-base" /></template>
-          Export CSV
+          Exportar CSV
         </Button>
         <Button variant="secondary" size="sm" @click="showImport = true">
           <template #icon-left><Icon icon="mdi:download-outline" class="text-base" /></template>
-          Import CSV
+          Importar CSV
         </Button>
       </div>
     </div>
@@ -80,16 +89,30 @@ function doExport() {
         <input
           :value="membersStore.filters.search"
           type="search"
-          placeholder="Search here..."
+          placeholder="Pesquisar membro..."
           class="w-full pl-9 pr-3 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500"
-          aria-label="Search members"
+          aria-label="Pesquisar membros"
           @input="membersStore.setFilter({ search: ($event.target as any).value })"
         />
       </div>
-      <Button variant="secondary" size="sm">
-        <template #icon-left><Icon icon="mdi:filter-outline" class="text-base" /></template>
-        Filter
-      </Button>
+      <div class="w-full sm:w-64">
+        <select
+          :value="membersStore.filters.congregation"
+          class="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg bg-white focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500"
+          aria-label="Filtrar por congregação"
+          @change="membersStore.setFilter({ congregation: ($event.target as HTMLSelectElement).value })"
+        >
+          <option value="">Todas as Congregações</option>
+
+          <option
+            v-for="congregation in congregations"
+            :key="congregation"
+            :value="congregation"
+          >
+            {{ congregation }}
+          </option>
+        </select>
+      </div>
     </div>
 
     <ImportCsvModal v-model="showImport" @import="onImport" />

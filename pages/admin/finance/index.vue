@@ -3,7 +3,7 @@ import type { ChartData } from 'chart.js'
 import type { FinanceCollection, FinanceExpense, ExpenseCategory } from '~/types'
 
 definePageMeta({ layout: 'admin', middleware: ['auth'] })
-useSeoMeta({ title: 'Finance', description: 'Church finance and accounting management.' })
+useSeoMeta({ title: 'Finanças — ICFR Família Redimida', description: 'Gestão financeira da ICFR Família Redimida.' })
 
 const { setHeader } = usePageHeader()
 const financeStore = useFinanceStore()
@@ -13,17 +13,17 @@ const { download: downloadFinancePdf } = useFinancePdf()
 const toast = useToast()
 
 onMounted(() => {
-  setHeader('Finance & Accounting', 'Track income, expenses and financial reports')
+  setHeader('Finanças e Tesouraria', 'Gestão de dízimos, ofertas, contribuições, despesas e relatórios financeiros')
   financeStore.load()
 })
 
 // ─── Active report period ─────────────────────────────────────────────────────
 const activePeriod = ref<'weekly' | 'monthly' | 'quarterly' | 'yearly'>('monthly')
 const periodTabs = [
-  { label: 'Weekly', value: 'weekly' },
-  { label: 'Monthly', value: 'monthly' },
-  { label: 'Quarterly', value: 'quarterly' },
-  { label: 'Yearly', value: 'yearly' },
+  { label: 'Semanal', value: 'weekly' },
+  { label: 'Mensal', value: 'monthly' },
+  { label: 'Trimestral', value: 'quarterly' },
+  { label: 'Anual', value: 'yearly' },
 ]
 
 // ─── Chart data (income vs expenses by period) ────────────────────────────────
@@ -78,13 +78,13 @@ const chartData = computed<ChartData<'bar'>>(() => {
     labels: labels.map((l) => labelFor(l, activePeriod.value)),
     datasets: [
       {
-        label: 'Income',
+        label: 'Entrada',
         data: labels.map((l) => incMap[l] ?? 0),
         backgroundColor: '#3b82f6',
         borderRadius: 6,
       },
       {
-        label: 'Expenses',
+        label: 'Despesas',
         data: labels.map((l) => expMap[l] ?? 0),
         backgroundColor: '#f87171',
         borderRadius: 6,
@@ -94,6 +94,18 @@ const chartData = computed<ChartData<'bar'>>(() => {
 })
 
 // ─── Donut chart (expenses by category this month) ───────────────────────────
+const expenseCategoryLabels: Record<ExpenseCategory, string> = {
+  Building: 'Construção',
+  Evangelism: 'Evangelismo',
+  Welfare: 'Assistência Social',
+  Technical: 'Técnica',
+  Youth: 'Jovens',
+  Preacher: 'Pregador',
+  Edification: 'Edificação',
+  Media: 'Mídia',
+  Others: 'Outros',
+}
+
 const categoryColors: Record<ExpenseCategory, string> = {
   Building: '#3b82f6',
   Evangelism: '#a855f7',
@@ -136,15 +148,24 @@ const recentActivity = computed(() => {
     id: c.id,
     date: c.date,
     type: 'income' as const,
-    description: c.description ?? 'Collection',
+    description: c.description ?? '',
     amount: c.amount,
+    memberName: c.memberName ?? '—',
+    incomeType: c.type ?? 'Other',
+    congregation: c.congregation ?? '—',
+    paymentMethod: c.paymentMethod ?? '—',
   }))
+
   const exps = financeStore.expenses.map((e) => ({
     id: e.id,
     date: e.date,
     type: 'expense' as const,
     description: `${e.category} – ${e.description}`,
     amount: e.amount,
+    memberName: '—',
+    incomeType: '',
+    congregation: '—',
+    paymentMethod: '—',
   }))
   // No slice: the table pages instead, so older entries stay reachable.
   return [...cols, ...exps].sort((a, b) => b.date.localeCompare(a.date))
@@ -152,16 +173,16 @@ const recentActivity = computed(() => {
 
 const {
   page: txPage,
-  total: txTotal,
-  totalPages: txTotalPages,
+  total: txAtétal,
+  totalPages: txAtétalPages,
   paginated: pagedActivity,
-  rangeStart: txFrom,
-  rangeEnd: txTo,
+  rangeStart: txDe,
+  rangeEnd: txAté,
 } = usePagination(recentActivity, 10)
 
 // ─── Format helpers ───────────────────────────────────────────────────────────
 function fmt(n: number) {
-  return '₦' + n.toLocaleString('en-NG', { minimumFractionDigits: 0 })
+  return `${n.toLocaleString('pt-MZ', { minimumFractionDigits: 0 })} MT`
 }
 
 function fmtDate(d: string) {
@@ -179,20 +200,20 @@ const oneYearAgo = new Date(new Date().setFullYear(new Date().getFullYear() - 1)
 const exportRange = reactive({ from: oneYearAgo, to: today })
 const exportRangeErrors = reactive({ from: '', to: '' })
 
-const exportPreviewIncome = computed(() => {
+const exportPreviewEntrada = computed(() => {
   if (!exportRange.from || !exportRange.to) return 0
   return financeStore.collections.filter(
     (c) => c.date >= exportRange.from && c.date <= exportRange.to
   ).length
 })
 
-const exportPreviewExpenses = computed(() => {
+const exportPreviewDespesas = computed(() => {
   if (!exportRange.from || !exportRange.to) return 0
   return financeStore.expenses.filter((e) => e.date >= exportRange.from && e.date <= exportRange.to)
     .length
 })
 
-const exportPreviewCount = computed(() => exportPreviewIncome.value + exportPreviewExpenses.value)
+const exportPreviewCount = computed(() => exportPreviewEntrada.value + exportPreviewDespesas.value)
 
 function setPreset(preset: 'week' | 'month' | 'quarter' | 'year' | '6months' | 'all') {
   const now = new Date()
@@ -242,11 +263,11 @@ function doExport() {
     .filter((c) => c.date >= from && c.date <= to)
     .sort((a, b) => a.date.localeCompare(b.date))
     .map((c) => ({
-      Date: c.date,
-      Type: 'Income',
-      Category: 'Collection',
-      Description: c.description ?? 'Collection',
-      'Amount (₦)': c.amount,
+      Data: c.date,
+      Type: 'Entrada',
+      Categoria: 'Collection',
+      Descrição: c.description ?? 'Collection',
+      'Valor (MT)': c.amount,
       Collector: c.collector ?? '',
     }))
 
@@ -254,63 +275,63 @@ function doExport() {
     .filter((e) => e.date >= from && e.date <= to)
     .sort((a, b) => a.date.localeCompare(b.date))
     .map((e) => ({
-      Date: e.date,
-      Type: 'Expense',
-      Category: e.category,
-      Description: e.description,
-      'Amount (₦)': e.amount,
+      Data: e.date,
+      Type: 'Despesa',
+      Categoria: e.category,
+      Descrição: e.description,
+      'Valor (MT)': e.amount,
       Collector: '',
     }))
 
   // All rows sorted by date
-  const allRows = [...incomeRows, ...expenseRows].sort((a, b) => a.Date.localeCompare(b.Date))
+  const allRows = [...incomeRows, ...expenseRows].sort((a, b) => a.Data.localeCompare(b.Data))
 
   // Compute running balance
   let balance = 0
   const withBalance = allRows.map((r) => {
-    balance += r.Type === 'Income' ? r['Amount (₦)'] : -r['Amount (₦)']
+    balance += r.Type === 'Entrada' ? r['Valor (MT)'] : -r['Valor (MT)']
     return { ...r, 'Running Balance (₦)': balance }
   })
 
   // Summary footer rows
-  const totalIncome = incomeRows.reduce((s, r) => s + r['Amount (₦)'], 0)
-  const totalExpenses = expenseRows.reduce((s, r) => s + r['Amount (₦)'], 0)
+  const totalIncome = incomeRows.reduce((s, r) => s + r['Valor (MT)'], 0)
+  const totalExpenses = expenseRows.reduce((s, r) => s + r['Valor (MT)'], 0)
 
   const rows: Record<string, unknown>[] = [
     ...withBalance,
     {
-      Date: '',
+      Data: '',
       Type: '',
-      Category: '',
-      Description: '',
-      'Amount (₦)': '',
+      Categoria: '',
+      Descrição: '',
+      'Valor (MT)': '',
       Collector: '',
       'Running Balance (₦)': '',
     },
     {
-      Date: 'SUMMARY',
+      Data: 'SUMMARY',
       Type: '',
-      Category: '',
-      Description: 'Total Income',
-      'Amount (₦)': totalIncome,
+      Categoria: '',
+      Descrição: 'Total de Entradas',
+      'Valor (MT)': totalIncome,
       Collector: '',
       'Running Balance (₦)': '',
     },
     {
-      Date: '',
+      Data: '',
       Type: '',
-      Category: '',
-      Description: 'Total Expenses',
-      'Amount (₦)': totalExpenses,
+      Categoria: '',
+      Descrição: 'Atétal de Despesas',
+      'Valor (MT)': totalExpenses,
       Collector: '',
       'Running Balance (₦)': '',
     },
     {
-      Date: '',
+      Data: '',
       Type: '',
-      Category: '',
-      Description: 'Net Balance',
-      'Amount (₦)': totalIncome - totalExpenses,
+      Categoria: '',
+      Descrição: 'Saldo Atual',
+      'Valor (MT)': totalIncome - totalExpenses,
       Collector: '',
       'Running Balance (₦)': '',
     },
@@ -335,13 +356,13 @@ function doExportPdf() {
   const expensesInRange = financeStore.expenses.filter((e) => e.date >= from && e.date <= to)
 
   // Carry-forward: net of all entries strictly before the start of the range.
-  const priorIncome = financeStore.collections
+  const priorEntrada = financeStore.collections
     .filter((c) => c.date < from)
     .reduce((s, c) => s + c.amount, 0)
-  const priorExpenses = financeStore.expenses
+  const priorDespesas = financeStore.expenses
     .filter((e) => e.date < from)
     .reduce((s, e) => s + e.amount, 0)
-  const balanceBroughtForward = priorIncome - priorExpenses
+  const balanceBroughtForward = priorEntrada - priorDespesas
 
   downloadFinancePdf(
     {
@@ -359,14 +380,42 @@ function doExportPdf() {
   showExport.value = false
 }
 
-// ─── Add Collection modal ─────────────────────────────────────────────────────
+
+const incomeTypeLabels: Record<string, string> = {
+  Tithe: 'Dízimo',
+  Offering: 'Oferta',
+  Contribution: 'Contribuição',
+  'Special Offering': 'Oferta Especial',
+  Other: 'Outro',
+}
+
+const paymentMethodLabels: Record<string, string> = {
+  Cash: 'Dinheiro',
+  'M-Pesa': 'M-Pesa',
+  'E-Mola': 'E-Mola',
+  Bank: 'Banco',
+  Other: 'Outro',
+}
+
+// ─── Registar Entrada modal ─────────────────────────────────────────────────────
 const showAddCollection = ref(false)
 const newCollection = reactive<Omit<FinanceCollection, 'id'>>({
-  date: '',
+  date: new Date().toISOString().slice(0, 10),
   amount: 0,
+  memberName: '',
+  type: 'Tithe',
+  congregation: 'Beira Sede',
+  paymentMethod: 'Cash',
   description: '',
+  collector: '',
 })
-const collectionErrors = reactive({ date: '', amount: '' })
+
+const collectionErrors = reactive({
+  date: '',
+  amount: '',
+  memberName: '',
+  congregation: '',
+})
 
 const { isPending, run } = usePendingAction()
 
@@ -385,7 +434,7 @@ async function removeEntry(tx: {
     // line is the kind of mistake that only shows up when the figures stop reconciling.
     message: [
       tx.description,
-      typeof tx.amount === 'number' ? `₦${tx.amount.toLocaleString('en-NG')}` : null,
+      typeof tx.amount === 'number' ? `₦${tx.amount.toLocaleString('pt-MZ')}` : null,
     ]
       .filter(Boolean)
       .join(' — ')
@@ -402,20 +451,64 @@ async function removeEntry(tx: {
 }
 
 async function saveCollection() {
-  collectionErrors.date = newCollection.date ? '' : 'Date is required'
-  collectionErrors.amount = newCollection.amount > 0 ? '' : 'Amount must be > 0'
-  if (collectionErrors.date || collectionErrors.amount) return
-  try {
-    await financeStore.addCollection({ ...newCollection })
-  } catch {
-    return // Store already surfaced the reason; keep the entry on screen.
+  collectionErrors.date =
+    newCollection.date ? '' : 'A data é obrigatória'
+
+  collectionErrors.amount =
+    newCollection.amount > 0 ? '' : 'Informe um valor válido'
+
+  collectionErrors.memberName =
+    newCollection.memberName?.trim()
+      ? ''
+      : 'Informe o nome do membro'
+
+  collectionErrors.congregation =
+    newCollection.congregation?.trim()
+      ? ''
+      : 'Selecione a congregação'
+
+  if (
+    collectionErrors.date ||
+    collectionErrors.amount ||
+    collectionErrors.memberName ||
+    collectionErrors.congregation
+  ) {
+    return
   }
+
+  try {
+    await financeStore.addCollection({
+      ...newCollection,
+      memberName: newCollection.memberName?.trim(),
+      description: newCollection.description?.trim(),
+      collector: newCollection.collector?.trim(),
+    })
+  } catch {
+    return
+  }
+
   showAddCollection.value = false
-  Object.assign(newCollection, { date: '', amount: 0, description: '' })
-  Object.assign(collectionErrors, { date: '', amount: '' })
+
+  Object.assign(newCollection, {
+    date: new Date().toISOString().slice(0, 10),
+    amount: 0,
+    memberName: '',
+    type: 'Tithe',
+    congregation: 'Beira Sede',
+    paymentMethod: 'Cash',
+    description: '',
+    collector: '',
+  })
+
+  Object.assign(collectionErrors, {
+    date: '',
+    amount: '',
+    memberName: '',
+    congregation: '',
+  })
 }
 
-// ─── Add Expense modal ────────────────────────────────────────────────────────
+// ─── Add Despesa modal ────────────────────────────────────────────────────────
 const showAddExpense = ref(false)
 const newExpense = reactive<Omit<FinanceExpense, 'id'>>({
   date: '',
@@ -425,22 +518,22 @@ const newExpense = reactive<Omit<FinanceExpense, 'id'>>({
 })
 const expenseErrors = reactive({ date: '', amount: '', description: '' })
 
-const expenseCategoryOptions = [
-  { label: 'Building', value: 'Building' },
-  { label: 'Evangelism', value: 'Evangelism' },
-  { label: 'Welfare', value: 'Welfare' },
-  { label: 'Technical', value: 'Technical' },
-  { label: 'Youth', value: 'Youth' },
-  { label: 'Preacher', value: 'Preacher' },
-  { label: 'Edification', value: 'Edification' },
-  { label: 'Media', value: 'Media' },
-  { label: 'Others', value: 'Others' },
+const expenseCategoriaOptions = [
+  { label: 'Construção', value: 'Construção' },
+  { label: 'Evangelismo', value: 'Evangelismo' },
+  { label: 'Assistência Social', value: 'Assistência Social' },
+  { label: 'Técnica', value: 'Técnica' },
+  { label: 'Jovens', value: 'Jovens' },
+  { label: 'Pregador', value: 'Pregador' },
+  { label: 'Edificação', value: 'Edificação' },
+  { label: 'Mídia', value: 'Mídia' },
+  { label: 'Outros', value: 'Outros' },
 ]
 
-async function saveExpense() {
-  expenseErrors.date = newExpense.date ? '' : 'Date is required'
-  expenseErrors.amount = newExpense.amount > 0 ? '' : 'Amount must be > 0'
-  expenseErrors.description = newExpense.description.trim() ? '' : 'Description is required'
+async function saveDespesa() {
+  expenseErrors.date = newExpense.date ? '' : 'Data is required'
+  expenseErrors.amount = newExpense.amount > 0 ? '' : 'Valor must be > 0'
+  expenseErrors.description = newExpense.description.trim() ? '' : 'Descrição is required'
   if (expenseErrors.date || expenseErrors.amount || expenseErrors.description) return
   try {
     await financeStore.addExpense({ ...newExpense })
@@ -461,23 +554,23 @@ async function saveExpense() {
       <div class="flex gap-2">
         <Button variant="secondary" @click="showAddExpense = true">
           <template #icon-left><Icon icon="mdi:minus-circle-outline" /></template>
-          Record Expense
+          Registar Despesa
         </Button>
         <Button @click="showAddCollection = true">
           <template #icon-left><Icon icon="mdi:plus-circle-outline" /></template>
-          Add Collection
+          Registar Entrada
         </Button>
       </div>
     </div>
 
-    <!-- Top stat cards -->
+    <!-- Atép stat cards -->
     <div class="grid grid-cols-2 xl:grid-cols-4 gap-4">
       <Card>
         <div class="flex items-start justify-between">
           <div>
-            <p class="text-xs text-gray-500 font-medium">Total Income</p>
+            <p class="text-xs text-gray-500 font-medium">Total de Entradas</p>
             <p class="text-2xl font-bold text-gray-900 mt-1">{{ fmt(financeStore.totalIncome) }}</p>
-            <p class="text-xs text-gray-400 mt-1">All time</p>
+            <p class="text-xs text-gray-400 mt-1">Desde o início</p>
           </div>
           <div
             class="w-9 h-9 rounded-xl bg-blue-100 flex items-center justify-center flex-shrink-0"
@@ -490,11 +583,11 @@ async function saveExpense() {
       <Card>
         <div class="flex items-start justify-between">
           <div>
-            <p class="text-xs text-gray-500 font-medium">Total Expenses</p>
+            <p class="text-xs text-gray-500 font-medium">Atétal de Despesas</p>
             <p class="text-2xl font-bold text-gray-900 mt-1">
               {{ fmt(financeStore.totalExpenses) }}
             </p>
-            <p class="text-xs text-gray-400 mt-1">All time</p>
+            <p class="text-xs text-gray-400 mt-1">Desde o início</p>
           </div>
           <div class="w-9 h-9 rounded-xl bg-red-100 flex items-center justify-center flex-shrink-0">
             <Icon icon="mdi:trending-down" class="text-red-500 text-lg" />
@@ -505,14 +598,14 @@ async function saveExpense() {
       <Card>
         <div class="flex items-start justify-between">
           <div>
-            <p class="text-xs text-gray-500 font-medium">Net Balance</p>
+            <p class="text-xs text-gray-500 font-medium">Saldo Atual</p>
             <p
               class="text-2xl font-bold mt-1"
               :class="financeStore.netBalance >= 0 ? 'text-green-600' : 'text-red-500'"
             >
               {{ fmt(financeStore.netBalance) }}
             </p>
-            <p class="text-xs text-gray-400 mt-1">All time</p>
+            <p class="text-xs text-gray-400 mt-1">Desde o início</p>
           </div>
           <div
             class="w-9 h-9 rounded-xl flex items-center justify-center flex-shrink-0"
@@ -534,7 +627,7 @@ async function saveExpense() {
       <Card>
         <div class="flex items-start justify-between">
           <div>
-            <p class="text-xs text-gray-500 font-medium">This Month Net</p>
+            <p class="text-xs text-gray-500 font-medium">Saldo deste Mês</p>
             <p
               class="text-2xl font-bold mt-1"
               :class="financeStore.thisMonthNet >= 0 ? 'text-green-600' : 'text-red-500'"
@@ -542,7 +635,7 @@ async function saveExpense() {
               {{ fmt(financeStore.thisMonthNet) }}
             </p>
             <p class="text-xs text-gray-400 mt-1">
-              In: {{ fmt(financeStore.thisMonthIncome) }} / Out:
+              Entradas: {{ fmt(financeStore.thisMonthIncome) }} / Saídas:
               {{ fmt(financeStore.thisMonthExpenses) }}
             </p>
           </div>
@@ -557,10 +650,10 @@ async function saveExpense() {
 
     <!-- Chart + Donut row -->
     <div class="grid grid-cols-1 xl:grid-cols-3 gap-4">
-      <!-- Income vs Expenses bar chart -->
+      <!-- Entradas vs Despesas bar chart -->
       <Card class="xl:col-span-2">
         <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-4">
-          <h3 class="text-sm font-semibold text-gray-800">Income vs Expenses</h3>
+          <h3 class="text-sm font-semibold text-gray-800">Entradas vs Despesas</h3>
           <div class="flex gap-2 flex-wrap">
             <Tabs v-model="activePeriod" :tabs="periodTabs" />
           </div>
@@ -569,22 +662,22 @@ async function saveExpense() {
         <EmptyState
           v-else
           icon="mdi:chart-bar"
-          title="Nothing to chart yet"
-          description="Income and expenses will be compared here once transactions are recorded."
+          title="Ainda não existem dados"
+          description="Entrada and expenses will be compared here once transactions are recorded."
         />
       </Card>
 
-      <!-- Expense category donut -->
+      <!-- Despesa category donut -->
       <div class="bg-slate-800 rounded-xl p-4 flex flex-col">
-        <h3 class="text-sm font-semibold text-white mb-1">Expenses This Month</h3>
-        <p class="text-xs text-slate-400 mb-3">By category</p>
+        <h3 class="text-sm font-semibold text-white mb-1">Despesas deste Mês</h3>
+        <p class="text-xs text-slate-400 mb-3">Por categoria</p>
         <DonutChart
           v-if="Object.keys(financeStore.expenseByCategory).length"
           :data="donutData"
           :height="180"
         />
         <p v-else class="py-10 text-center text-xs text-slate-400">
-          No expenses recorded this month.
+          Nenhuma despesa registada neste mês.
         </p>
         <div class="mt-3 space-y-1.5">
           <div
@@ -597,7 +690,7 @@ async function saveExpense() {
                 class="w-2.5 h-2.5 rounded-full flex-shrink-0"
                 :style="{ backgroundColor: categoryColors[cat as ExpenseCategory] }"
               ></span>
-              <span class="text-xs text-slate-300">{{ cat }}</span>
+              <span class="text-xs text-slate-300">{{ expenseCategoryLabels[cat as ExpenseCategory] ?? cat }}</span>
             </div>
             <span class="text-xs text-white font-medium">{{ fmt(amount as number) }}</span>
           </div>
@@ -605,7 +698,7 @@ async function saveExpense() {
             v-if="!Object.keys(financeStore.expenseByCategory).length"
             class="py-3 text-center text-xs text-slate-400"
           >
-            No expenses recorded this month.
+            Nenhuma despesa registada neste mês.
           </p>
         </div>
       </div>
@@ -623,14 +716,14 @@ async function saveExpense() {
           @click="showExport = true"
         >
           <template #icon-left><Icon icon="mdi:upload-outline" /></template>
-          Export Report
+          Exportar Relatório
         </Button>
       </div>
 
       <EmptyState
         v-if="!hasFinanceData"
         icon="mdi:chart-box-outline"
-        title="No financial records yet"
+        title="Ainda não existem registos financeiros"
         description="Record a collection or an expense and the period report will build itself from there."
       />
 
@@ -639,8 +732,8 @@ async function saveExpense() {
           <thead>
             <tr class="bg-gray-50 border-b border-gray-100">
               <th class="text-left px-4 py-3 text-xs font-medium text-gray-500">Period</th>
-              <th class="text-right px-4 py-3 text-xs font-medium text-gray-500">Income (₦)</th>
-              <th class="text-right px-4 py-3 text-xs font-medium text-gray-500">Expenses (₦)</th>
+              <th class="text-right px-4 py-3 text-xs font-medium text-gray-500">Entrada (₦)</th>
+              <th class="text-right px-4 py-3 text-xs font-medium text-gray-500">Despesas (₦)</th>
               <th class="text-right px-4 py-3 text-xs font-medium text-gray-500">Net (₦)</th>
               <th class="text-right px-4 py-3 text-xs font-medium text-gray-500">Surplus %</th>
             </tr>
@@ -653,16 +746,16 @@ async function saveExpense() {
             >
               <td class="px-4 py-3 font-medium text-gray-700">{{ row.Period }}</td>
               <td class="px-4 py-3 text-right text-gray-600">
-                {{ row.Income.toLocaleString('en-NG') }}
+                {{ row.Income.toLocaleString('pt-MZ') }}
               </td>
               <td class="px-4 py-3 text-right text-gray-600">
-                {{ row.Expenses.toLocaleString('en-NG') }}
+                {{ row.Expenses.toLocaleString('pt-MZ') }}
               </td>
               <td
                 class="px-4 py-3 text-right font-semibold"
                 :class="row.Net >= 0 ? 'text-green-600' : 'text-red-500'"
               >
-                {{ row.Net.toLocaleString('en-NG') }}
+                {{ row.Net.toLocaleString('pt-MZ') }}
               </td>
               <td class="px-4 py-3 text-right">
                 <Badge
@@ -681,16 +774,19 @@ async function saveExpense() {
     <!-- Recent activity -->
     <Card padding="none">
       <div class="px-4 py-3 border-b border-gray-100">
-        <h3 class="text-sm font-semibold text-gray-800">Recent Transactions</h3>
+        <h3 class="text-sm font-semibold text-gray-800">Transações Recentes</h3>
       </div>
       <div class="overflow-x-auto">
         <table class="w-full text-sm" role="table">
           <thead>
             <tr class="bg-gray-50 border-b border-gray-100">
-              <th class="text-left px-4 py-3 text-xs font-medium text-gray-500">Date</th>
-              <th class="text-left px-4 py-3 text-xs font-medium text-gray-500">Type</th>
-              <th class="text-left px-4 py-3 text-xs font-medium text-gray-500">Description</th>
-              <th class="text-right px-4 py-3 text-xs font-medium text-gray-500">Amount (₦)</th>
+              <th class="text-left px-4 py-3 text-xs font-medium text-gray-500">Data</th>
+              <th class="text-left px-4 py-3 text-xs font-medium text-gray-500">Membro</th>
+              <th class="text-left px-4 py-3 text-xs font-medium text-gray-500">Tipo</th>
+              <th class="text-left px-4 py-3 text-xs font-medium text-gray-500">Congregação</th>
+              <th class="text-left px-4 py-3 text-xs font-medium text-gray-500">Pagamento</th>
+              <th class="text-left px-4 py-3 text-xs font-medium text-gray-500">Observação</th>
+              <th class="text-right px-4 py-3 text-xs font-medium text-gray-500">Valor</th>
               <th class="w-10 px-4 py-3"></th>
             </tr>
           </thead>
@@ -700,24 +796,47 @@ async function saveExpense() {
               :key="tx.id"
               class="border-b border-gray-50 hover:bg-gray-50 transition-colors"
             >
-              <td class="px-4 py-3 text-gray-500 whitespace-nowrap">{{ fmtDate(tx.date) }}</td>
+              <td class="px-4 py-3 text-gray-500 whitespace-nowrap">
+                {{ fmtDate(tx.date) }}
+              </td>
+
+              <td class="px-4 py-3 font-medium text-gray-800">
+                {{ tx.memberName }}
+              </td>
+
               <td class="px-4 py-3">
-                <Badge :variant="tx.type === 'income' ? 'success' : 'danger'" size="sm">
-                  <template #icon>
-                    <Icon
-                      :icon="tx.type === 'income' ? 'mdi:arrow-down' : 'mdi:arrow-up'"
-                      class="text-[10px]"
-                    />
-                  </template>
-                  {{ tx.type === 'income' ? 'Income' : 'Expense' }}
+                <Badge
+                  :variant="tx.type === 'income' ? 'success' : 'danger'"
+                  size="sm"
+                >
+                  {{
+                    tx.type === 'income'
+                      ? (incomeTypeLabels[tx.incomeType] ?? tx.incomeType)
+                      : 'Despesa'
+                  }}
                 </Badge>
               </td>
-              <td class="px-4 py-3 text-gray-700">{{ tx.description }}</td>
+
+              <td class="px-4 py-3 text-gray-600">
+                {{ tx.congregation }}
+              </td>
+
+              <td class="px-4 py-3 text-gray-600">
+                {{
+                  tx.type === 'income'
+                    ? (paymentMethodLabels[tx.paymentMethod] ?? tx.paymentMethod)
+                    : '—'
+                }}
+              </td>
+
+              <td class="px-4 py-3 text-gray-700">
+                {{ tx.description || '—' }}
+              </td>
               <td
                 class="px-4 py-3 text-right font-medium"
                 :class="tx.type === 'income' ? 'text-green-600' : 'text-red-500'"
               >
-                {{ tx.type === 'income' ? '+' : '−' }}{{ tx.amount.toLocaleString('en-NG') }}
+                {{ tx.type === 'income' ? '+' : '−' }}{{ fmt(tx.amount) }}
               </td>
               <td class="px-4 py-3 text-right">
                 <button
@@ -734,10 +853,10 @@ async function saveExpense() {
               </td>
             </tr>
             <tr v-if="!pagedActivity.length">
-              <td colspan="5" class="px-4">
+              <td colspan="8" class="px-4">
                 <EmptyState
                   icon="mdi:cash-multiple"
-                  title="No transactions recorded yet"
+                  title="Ainda não existem transações registadas"
                   description="Collections and expenses you record will appear here."
                 />
               </td>
@@ -747,72 +866,147 @@ async function saveExpense() {
       </div>
       <Pagination
         v-model:page="txPage"
-        :total-pages="txTotalPages"
-        :total="txTotal"
-        :range-start="txFrom"
-        :range-end="txTo"
+        :total-pages="txAtétalPages"
+        :total="txAtétal"
+        :range-start="txDe"
+        :range-end="txAté"
         label="transactions"
       />
     </Card>
 
-    <!-- ── Add Collection modal ─────────────────────────────────────────────── -->
-    <Modal v-model="showAddCollection" title="Record Weekly Collection" size="md">
+    <!-- ── Registar Entrada modal ─────────────────────────────────────────────── -->
+    <Modal v-model="showAddCollection" title="Registar Entrada" size="lg">
       <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+
         <div class="flex flex-col gap-1">
-          <label class="text-sm font-medium text-gray-700"
-            >Date<span class="text-red-500 ml-0.5">*</span></label
-          >
+          <label class="text-sm font-medium text-gray-700">
+            Nome do membro <span class="text-red-500">*</span>
+          </label>
           <input
-            v-model="newCollection.date"
-            type="date"
-            class="w-full rounded-lg border border-gray-300 text-sm px-3 py-2 outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500"
+            v-model="newCollection.memberName"
+            type="text"
+            placeholder="Ex.: João Manuel"
+            class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm"
           />
-          <p v-if="collectionErrors.date" class="text-xs text-red-500">
-            {{ collectionErrors.date }}
+          <p v-if="collectionErrors.memberName" class="text-xs text-red-500">
+            {{ collectionErrors.memberName }}
           </p>
         </div>
+
         <div class="flex flex-col gap-1">
-          <label class="text-sm font-medium text-gray-700"
-            >Amount (₦)<span class="text-red-500 ml-0.5">*</span></label
+          <label class="text-sm font-medium text-gray-700">Tipo de entrada</label>
+          <select
+            v-model="newCollection.type"
+            class="w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm"
           >
+            <option value="Tithe">Dízimo</option>
+            <option value="Offering">Oferta</option>
+            <option value="Contribution">Contribuição</option>
+            <option value="Special Offering">Oferta Especial</option>
+            <option value="Other">Outro</option>
+          </select>
+        </div>
+
+        <div class="flex flex-col gap-1">
+          <label class="text-sm font-medium text-gray-700">
+            Valor (MT) <span class="text-red-500">*</span>
+          </label>
           <input
             v-model.number="newCollection.amount"
             type="number"
-            min="0"
-            placeholder="e.g. 75000"
-            class="w-full rounded-lg border border-gray-300 text-sm px-3 py-2 outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500"
+            min="1"
+            placeholder="Ex.: 1500"
+            class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm"
           />
           <p v-if="collectionErrors.amount" class="text-xs text-red-500">
             {{ collectionErrors.amount }}
           </p>
         </div>
-        <div class="sm:col-span-2 flex flex-col gap-1">
-          <label class="text-sm font-medium text-gray-700">Description</label>
+
+        <div class="flex flex-col gap-1">
+          <label class="text-sm font-medium text-gray-700">
+            Data <span class="text-red-500">*</span>
+          </label>
           <input
-            v-model="newCollection.description"
-            type="text"
-            placeholder="e.g. Sunday Collection, Special offering..."
-            class="w-full rounded-lg border border-gray-300 text-sm px-3 py-2 outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500"
+            v-model="newCollection.date"
+            type="date"
+            class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm"
           />
         </div>
+
+        <div class="flex flex-col gap-1">
+          <label class="text-sm font-medium text-gray-700">Congregação</label>
+          <select
+            v-model="newCollection.congregation"
+            class="w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm"
+          >
+            <option value="Beira Sede">Beira Sede</option>
+            <option value="Muchatazina">Muchatazina</option>
+            <option value="Cerâmica">Cerâmica</option>
+            <option value="Crespim">Crespim</option>
+            <option value="Chimoio">Chimoio</option>
+            <option value="Tete">Tete</option>
+          </select>
+        </div>
+
+        <div class="flex flex-col gap-1">
+          <label class="text-sm font-medium text-gray-700">Método de pagamento</label>
+          <select
+            v-model="newCollection.paymentMethod"
+            class="w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm"
+          >
+            <option value="Cash">Dinheiro</option>
+            <option value="M-Pesa">M-Pesa</option>
+            <option value="E-Mola">E-Mola</option>
+            <option value="Bank">Banco</option>
+            <option value="Other">Outro</option>
+          </select>
+        </div>
+
+        <div class="flex flex-col gap-1">
+          <label class="text-sm font-medium text-gray-700">Registado por</label>
+          <input
+            v-model="newCollection.collector"
+            type="text"
+            placeholder="Ex.: Tesoureiro João"
+            class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm"
+          />
+        </div>
+
+        <div class="sm:col-span-2 flex flex-col gap-1">
+          <label class="text-sm font-medium text-gray-700">Observação</label>
+          <textarea
+            v-model="newCollection.description"
+            rows="3"
+            placeholder="Ex.: Dízimo referente ao mês de outubro"
+            class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm"
+          ></textarea>
+        </div>
+
       </div>
+
       <template #footer>
-        <div class="flex gap-2 justify-end">
-          <Button variant="secondary" @click="showAddCollection = false">Cancel</Button>
-          <Button :loading="financeStore.saving" @click="saveCollection">
-            <template #icon-left><Icon icon="mdi:check" /></template>
-            Save Collection
+        <div class="flex justify-end gap-2">
+          <Button variant="secondary" @click="showAddCollection = false">
+            Cancelar
+          </Button>
+
+          <Button
+            :loading="financeStore.saving"
+            @click="saveCollection"
+          >
+            Guardar Entrada
           </Button>
         </div>
       </template>
     </Modal>
 
-    <!-- ── Add Expense modal ────────────────────────────────────────────────── -->
-    <Modal v-model="showAddExpense" title="Record Expense" size="md">
+    <!-- ── Add Despesa modal ────────────────────────────────────────────────── -->
+    <Modal v-model="showAddExpense" title="Registar Despesa" size="md">
       <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
         <div class="flex flex-col gap-1">
           <label class="text-sm font-medium text-gray-700"
-            >Date<span class="text-red-500 ml-0.5">*</span></label
+            >Data<span class="text-red-500 ml-0.5">*</span></label
           >
           <input
             v-model="newExpense.date"
@@ -823,7 +1017,7 @@ async function saveExpense() {
         </div>
         <div class="flex flex-col gap-1">
           <label class="text-sm font-medium text-gray-700"
-            >Amount (₦)<span class="text-red-500 ml-0.5">*</span></label
+            >Valor (MT)<span class="text-red-500 ml-0.5">*</span></label
           >
           <input
             v-model.number="newExpense.amount"
@@ -836,25 +1030,25 @@ async function saveExpense() {
         </div>
         <div class="flex flex-col gap-1">
           <label class="text-sm font-medium text-gray-700"
-            >Category<span class="text-red-500 ml-0.5">*</span></label
+            >Categoria<span class="text-red-500 ml-0.5">*</span></label
           >
           <select
             v-model="newExpense.category"
             class="w-full rounded-lg border border-gray-300 text-sm px-3 py-2 outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 bg-white"
           >
-            <option v-for="opt in expenseCategoryOptions" :key="opt.value" :value="opt.value">
+            <option v-for="opt in expenseCategoriaOptions" :key="opt.value" :value="opt.value">
               {{ opt.label }}
             </option>
           </select>
         </div>
         <div class="flex flex-col gap-1">
           <label class="text-sm font-medium text-gray-700"
-            >Description<span class="text-red-500 ml-0.5">*</span></label
+            >Descrição<span class="text-red-500 ml-0.5">*</span></label
           >
           <input
             v-model="newExpense.description"
             type="text"
-            placeholder="Brief description"
+            placeholder="Breve descrição"
             class="w-full rounded-lg border border-gray-300 text-sm px-3 py-2 outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500"
           />
           <p v-if="expenseErrors.description" class="text-xs text-red-500">
@@ -864,24 +1058,24 @@ async function saveExpense() {
       </div>
       <template #footer>
         <div class="flex gap-2 justify-end">
-          <Button variant="secondary" @click="showAddExpense = false">Cancel</Button>
-          <Button :loading="financeStore.saving" @click="saveExpense">
+          <Button variant="secondary" @click="showAddExpense = false">Cancelar</Button>
+          <Button :loading="financeStore.saving" @click="saveDespesa">
             <template #icon-left><Icon icon="mdi:check" /></template>
-            Save Expense
+            Save Despesa
           </Button>
         </div>
       </template>
     </Modal>
 
     <!-- ── Export modal ─────────────────────────────────────────────────────── -->
-    <Modal v-model="showExport" title="Export Financial Report" size="lg">
+    <Modal v-model="showExport" title="Export Relatório Financeiro" size="lg">
       <div class="flex flex-col gap-5">
-        <!-- Date range -->
+        <!-- Data range -->
         <div>
-          <p class="text-sm font-medium text-gray-700 mb-3">Select Date Range</p>
+          <p class="text-sm font-medium text-gray-700 mb-3">Select Data Range</p>
           <div class="grid grid-cols-2 gap-3">
             <div class="flex flex-col gap-1">
-              <label class="text-xs font-medium text-gray-500">From</label>
+              <label class="text-xs font-medium text-gray-500">De</label>
               <input
                 v-model="exportRange.from"
                 type="date"
@@ -892,7 +1086,7 @@ async function saveExpense() {
               </p>
             </div>
             <div class="flex flex-col gap-1">
-              <label class="text-xs font-medium text-gray-500">To</label>
+              <label class="text-xs font-medium text-gray-500">Até</label>
               <input
                 v-model="exportRange.to"
                 type="date"
@@ -932,20 +1126,20 @@ async function saveExpense() {
           <p class="text-xs font-medium text-gray-500 mb-2">Export Preview</p>
           <div class="grid grid-cols-3 gap-3 text-center">
             <div>
-              <p class="text-lg font-bold text-blue-600">{{ exportPreviewIncome }}</p>
-              <p class="text-xs text-gray-400 mt-0.5">Income entries</p>
+              <p class="text-lg font-bold text-blue-600">{{ exportPreviewEntrada }}</p>
+              <p class="text-xs text-gray-400 mt-0.5">Entrada entries</p>
             </div>
             <div>
-              <p class="text-lg font-bold text-red-500">{{ exportPreviewExpenses }}</p>
-              <p class="text-xs text-gray-400 mt-0.5">Expense entries</p>
+              <p class="text-lg font-bold text-red-500">{{ exportPreviewDespesas }}</p>
+              <p class="text-xs text-gray-400 mt-0.5">Despesa entries</p>
             </div>
             <div>
               <p class="text-lg font-bold text-gray-800">{{ exportPreviewCount }}</p>
-              <p class="text-xs text-gray-400 mt-0.5">Total rows</p>
+              <p class="text-xs text-gray-400 mt-0.5">Atétal rows</p>
             </div>
           </div>
           <p class="text-xs text-gray-400 mt-3 text-center">
-            CSV will include: Date, Type, Category, Description, Amount, Running Balance + Summary
+            CSV will include: Data, Type, Categoria, Descrição, Valor, Running Balance + Summary
             footer
           </p>
         </div>
@@ -953,7 +1147,7 @@ async function saveExpense() {
 
       <template #footer>
         <div class="flex gap-2 justify-end">
-          <Button variant="secondary" @click="showExport = false">Cancel</Button>
+          <Button variant="secondary" @click="showExport = false">Cancelar</Button>
           <Button variant="secondary" :disabled="exportPreviewCount === 0" @click="doExportPdf">
             <template #icon-left><Icon icon="mdi:file-pdf-box" /></template>
             Export PDF

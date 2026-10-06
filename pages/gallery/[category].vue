@@ -1,7 +1,10 @@
 <script setup lang="ts">
 definePageMeta({
   layout: 'default',
-  pageTransition: { name: 'fade', mode: 'out-in' },
+  pageTransition: {
+    name: 'fade',
+    mode: 'out-in',
+  },
 })
 
 const route = useRoute()
@@ -9,22 +12,24 @@ const slug = computed(() => route.params.category as string)
 
 const { gallery } = useGalleryData(slug.value)
 
-// An unknown slug used to redirect to /404, but no such route (or error.vue)
-// exists, so the page hung on a navigation that never resolved. Render the
-// not-found state below instead — same outcome for the reader, no dead end.
-
 useSeoMeta({
-  title: `${gallery?.title ?? 'Gallery'} — Church of Christ`,
-  description: `Browse the ${gallery?.title} gallery at Church of Christ, Ikot Ekpene.`,
+  title: `${gallery?.title ?? 'Galeria'} — ICFR Família Redimida`,
+  description:
+    `Veja a galeria ${gallery?.title ?? ''} da ICFR Família Redimida.`,
 })
 
-// Preview thumbnails for hero (first 2 images)
-const previewImages = computed(() => (gallery?.images ?? []).slice(0, 2).map((i) => i.src))
+const previewImages = computed(() =>
+  (gallery?.images ?? [])
+    .slice(0, 2)
+    .map((i) => i.src)
+)
 
-// Lightbox
 const lightboxOpen = ref(false)
 const lightboxIndex = ref(0)
-const lightboxImages = computed(() => (gallery?.images ?? []).map((i) => i.src))
+
+const lightboxImages = computed(() =>
+  (gallery?.images ?? []).map((i) => i.src)
+)
 
 function openLightbox(index: number) {
   lightboxIndex.value = index
@@ -33,33 +38,51 @@ function openLightbox(index: number) {
 </script>
 
 <template>
-  <div v-if="gallery" class="w-full bg-white">
-    <!-- 1. Hero -->
-    <GalleryHero :category-title="gallery.title" :preview-images="previewImages" />
+  <div
+    v-if="gallery"
+    class="w-full bg-white"
+  >
+    <!-- Destaque -->
+    <GalleryHero
+      :category-title="gallery.title"
+      :preview-images="previewImages"
+    />
 
-    <!-- 2. Masonry gallery -->
+    <!-- Galeria -->
     <section class="px-8 py-10">
-      <h2 class="mb-5 text-[20px] font-bold text-gray-900">{{ gallery.title }}</h2>
+      <h2
+        class="mb-5 text-[20px] font-bold text-gray-900"
+      >
+        {{ gallery.title }}
+      </h2>
+
       <EmptyState
         v-if="!gallery.images.length"
         icon="mdi:image-multiple-outline"
-        title="No photos in this gallery yet"
-        description="Photographs from this category will appear here once they are uploaded."
+        title="Ainda não existem fotografias nesta galeria"
+        description="As fotografias desta categoria aparecerão aqui depois de serem carregadas."
       />
-      <MasonryGrid v-else :images="gallery.images" @image-click="openLightbox" />
+
+      <MasonryGrid
+        v-else
+        :images="gallery.images"
+        @image-click="openLightbox"
+      />
     </section>
 
-    <!-- 3. "The End" divider -->
+    <!-- Fim da galeria -->
     <div class="the-end-divider">
       <hr />
-      <span>— The End —</span>
+
+      <span>— Fim —</span>
+
       <hr />
     </div>
 
-    <!-- 4. Explore more -->
+    <!-- Explorar mais -->
     <ExploreMore />
 
-    <!-- Lightbox -->
+    <!-- Visualização da imagem -->
     <GalleryLightbox
       :is-open="lightboxOpen"
       :images="lightboxImages"
@@ -68,17 +91,24 @@ function openLightbox(index: number) {
     />
   </div>
 
-  <!-- Unknown category: navigateTo('/404') is async, so render a placeholder
-       rather than a blank document while the redirect resolves. -->
-  <div v-else class="mx-auto max-w-3xl px-4 py-24">
+  <!-- Categoria inexistente -->
+  <div
+    v-else
+    class="mx-auto max-w-3xl px-4 py-24"
+  >
     <EmptyState
       icon="mdi:image-off-outline"
-      title="Gallery not found"
-      description="That gallery category does not exist."
+      title="Galeria não encontrada"
+      description="Esta categoria de galeria não existe."
     >
       <template #action>
         <NuxtLink to="/">
-          <Button variant="secondary" size="sm">Back to Home</Button>
+          <Button
+            variant="secondary"
+            size="sm"
+          >
+            Voltar ao Início
+          </Button>
         </NuxtLink>
       </template>
     </EmptyState>

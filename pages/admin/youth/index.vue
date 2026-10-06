@@ -291,7 +291,7 @@ async function onImport(members: Omit<Member, 'id' | 'absenceCount'>[]) {
     <Card v-if="!membersStore.youthMembers.length">
       <EmptyState
         icon="mdi:account-star-outline"
-        title="No youth members yet"
+        title="Ainda não existem jovens cadastrados"
         description="Members aged 13–35 appear here automatically once their date of birth is recorded."
       >
         <template #action>
@@ -311,7 +311,7 @@ async function onImport(members: Omit<Member, 'id' | 'absenceCount'>[]) {
 
     <AddMemberModal
       v-model="showAddModal"
-      title="Add Youth Member"
+      title="Adicionar Jovem"
       :youth-mode="true"
       @save="onMemberSaved"
     />

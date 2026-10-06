@@ -66,13 +66,13 @@ function fmt(n: number) {
   <Card>
     <div class="flex items-center justify-between mb-5">
       <div>
-        <h3 class="text-base font-semibold text-gray-900">Average Annual attendance</h3>
-        <p class="text-xs text-gray-500 mt-0.5">Showing annual attendance summaries by activity</p>
+        <h3 class="text-base font-semibold text-gray-900">Média Anual de Presenças</h3>
+        <p class="text-xs text-gray-500 mt-0.5">Resumo anual de presenças por atividade</p>
       </div>
       <select
         v-model="selectedYear"
         class="border border-gray-300 rounded-lg px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/20"
-        aria-label="Select year"
+        aria-label="Selecionar ano"
       >
         <option v-for="y in yearOptions" :key="y" :value="y">{{ y }}</option>
       </select>
@@ -81,8 +81,8 @@ function fmt(n: number) {
     <EmptyState
       v-if="!attendanceStore.records.length"
       icon="mdi:calendar-check-outline"
-      title="No attendance recorded yet"
-      description="Averages per service appear here once registers have been marked."
+      title="Ainda não existem presenças registadas"
+      description="As médias por culto aparecerão depois de os registos serem preenchidos."
     />
 
     <div v-else class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">

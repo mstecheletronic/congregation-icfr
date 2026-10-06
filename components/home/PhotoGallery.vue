@@ -29,25 +29,25 @@ onMounted(() => {
     <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
       <div :class="['mb-8 flex items-end justify-between', 'reveal', isVisible && 'is-visible']">
         <SectionHeader
-          title="Photo Gallery"
-          subtitle="Moments from our worship, fellowship, and community life."
+          title="Galeria de Fotos"
+          subtitle="Momentos dos nossos cultos, comunhão e atividades da igreja."
         />
         <NuxtLink
           to="/gallery/sunday-service"
           class="hidden shrink-0 items-center gap-1 text-sm font-medium text-accent hover:underline sm:flex"
-          aria-label="View full gallery"
+          aria-label="Ver galeria completa"
         >
-          View Full Gallery
+          Ver Galeria Completa
           <Icon icon="heroicons:arrow-right" class="h-4 w-4" />
         </NuxtLink>
       </div>
 
-      <LoadingState v-if="s.loading" title="Loading photos…" />
+      <LoadingState v-if="s.loading" title="Carregando fotografias..." />
       <EmptyState
         v-else-if="!photos.length"
         icon="mdi:image-multiple-outline"
-        title="No photos yet"
-        description="Photographs added in Settings → Gallery will appear here."
+        title="Ainda não existem fotografias"
+        description="As fotografias adicionadas em Definições → Galeria aparecerão aqui."
       />
 
       <div v-else class="columns-1 gap-4 sm:columns-2 lg:columns-4">
@@ -60,7 +60,7 @@ onMounted(() => {
             isVisible && 'is-visible',
           ]"
           :style="{ transitionDelay: `${100 + Math.min(i, 7) * 60}ms` }"
-          :aria-label="`View image: ${photo.alt}`"
+          :aria-label="`Ver imagem: ${photo.alt}`"
           role="button"
           tabindex="0"
           @click="openLightbox(photo)"

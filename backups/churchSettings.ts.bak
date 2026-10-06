@@ -20,17 +20,16 @@ export const DEFAULT_SETTINGS: ChurchSettings = {
   heroPrimaryCtaHref: '#welcome',
   heroSecondaryCtaLabel: 'Programação',
   heroSecondaryCtaHref: '#events',
-
   activities: [
     {
       name: 'Culto de Celebração',
-      timeRange: '09:30 - 12:00',
+      timeRange: 'Horário a definir',
       frequency: 'Todos os domingos',
     },
     {
-      name: 'Culto de Ensino',
-      timeRange: '17:30 - 19:30',
-      frequency: 'Todas as quintas-feiras',
+      name: 'Estudo Bíblico',
+      timeRange: 'Horário a definir',
+      frequency: 'Semanalmente',
     },
   ],
 
@@ -39,21 +38,16 @@ export const DEFAULT_SETTINGS: ChurchSettings = {
   ministerTitle: 'Líder Geral',
   ministerPhoto: '',
   congregationPhotos: [],
-
   ministerLetterHeading: 'Mensagem da Liderança',
   ministerLetterGreeting: 'Graça e paz!',
-
   ministerLetterP1:
     'É com grande alegria que damos as boas-vindas à plataforma oficial da ICFR Família Redimida.',
-
   ministerLetterP2:
-    'Somos uma igreja comprometida com a Palavra de Deus, com a oração, o louvor, o ensino, a comunhão e a transformação de vidas através do Evangelho de Jesus Cristo.',
-
+    'Somos uma igreja comprometida com a Palavra de Deus, com a comunhão, o crescimento espiritual e a transformação de vidas através do Evangelho de Jesus Cristo.',
   ministerLetterP3:
-    'Aqui poderá acompanhar ensinamentos, cultos, eventos, avisos, atividades das congregações e outras informações importantes da igreja.',
-
+    'Nesta plataforma poderá acompanhar ensinamentos, cultos, eventos, avisos, atividades das congregações e outras informações importantes da igreja.',
   ministerLetterP4:
-    'Convidamos você e sua família a caminhar connosco nesta missão. ICFR Família Redimida — Resgatando vidas para Cristo.',
+    'Convidamos você e sua família a fazerem parte desta caminhada de fé. ICFR Família Redimida — Resgatando vidas para Cristo.',
 
   // Live Worship Teaser
   liveWorship: {
@@ -80,24 +74,18 @@ export const DEFAULT_SETTINGS: ChurchSettings = {
   aboutHistory: {
     eyebrow: 'Nossa História',
     heading: 'ICFR FAMÍLIA REDIMIDA',
-
     openingParagraph:
       'A ICFR Família Redimida é uma igreja cristã comprometida com a proclamação do Evangelho de Jesus Cristo, com o fortalecimento das famílias, o discipulado e a transformação de vidas através da Palavra de Deus.',
-
     foundersHeading: 'Liderança da Igreja:',
-
     founders: [
       {
         id: 'f1',
         name: 'Apóstolo Domingos Ernesto Liva — Líder Geral',
       },
     ],
-
     growthParagraph:
       'A ICFR Família Redimida desenvolve o seu trabalho através de congregações, departamentos e ministérios, promovendo evangelismo, ensino bíblico, louvor, oração, comunhão e acompanhamento espiritual dos membros.',
-
     scheduleHeading: 'Programação Regular:',
-
     schedule: [
       {
         label: 'Culto de Celebração — Domingo',
@@ -116,13 +104,10 @@ export const DEFAULT_SETTINGS: ChurchSettings = {
         time: 'A definir',
       },
     ],
-
     closingParagraph:
       'Seja membro, visitante ou alguém que deseja conhecer mais sobre Jesus Cristo, será sempre bem-vindo à ICFR Família Redimida. Juntos continuamos a missão de resgatar vidas para Cristo.',
-
     signatureName: 'Apóstolo Domingos Ernesto Liva',
     signatureRole: 'Líder Geral — ICFR Família Redimida',
-
     cornerImages: [],
   },
 
@@ -132,7 +117,6 @@ export const DEFAULT_SETTINGS: ChurchSettings = {
     heading: 'Nossa Vida de Adoração',
     subtitle:
       'Vivemos a nossa fé através da oração, louvor, ensino da Palavra, contribuição e comunhão.',
-
     items: [
       {
         id: 'wa1',
@@ -173,7 +157,6 @@ export const DEFAULT_SETTINGS: ChurchSettings = {
     heading: 'Calendário de Atividades',
     subtitle:
       'Os horários e locais podem variar de acordo com cada congregação.',
-
     rows: [
       {
         id: 'ac1',
@@ -232,7 +215,6 @@ export const DEFAULT_SETTINGS: ChurchSettings = {
     heading: 'Venha Cultuar Connosco',
     cardChurchName: 'ICFR Família Redimida',
     cardChurchSubtitle: 'Beira, Sofala, Moçambique',
-
     details: [
       {
         id: 'wts1',
@@ -259,59 +241,21 @@ export const DEFAULT_SETTINGS: ChurchSettings = {
         secondary: 'Contacto oficial da ICFR Família Redimida',
       },
     ],
-
     directionsUrl:
       'https://maps.google.com/maps?q=Beira,+Sofala,+Mozambique',
-
     mapAddress: 'Beira, Sofala, Moçambique',
   },
 
-  // Leaders
+  // Leaders — added from the admin Settings page
   leaders: [],
 
-  // Gallery
+  // Gallery — added from the admin Settings page
   galleryPhotos: [],
 
-  // Congregações da ICFR Família Redimida
-  congregations: [
-    {
-      id: 'muchatazina-sede',
-      name: 'Muchatazina Sede',
-      city: 'Beira',
-      address: 'Muchatazina, Beira, Sofala, Moçambique',
-      serviceTime: 'Domingo, 09:30 - 12:00',
-    },
-    {
-      id: 'ceramica',
-      name: 'Cerâmica',
-      city: 'Beira',
-      address: 'Cerâmica, Beira, Sofala, Moçambique',
-      serviceTime: 'Domingo, 09:30 - 12:00',
-    },
-    {
-      id: 'crespim',
-      name: 'Crespim',
-      city: 'Beira',
-      address: 'Crespim, Beira, Sofala, Moçambique',
-      serviceTime: 'Domingo, 09:30 - 12:00',
-    },
-    {
-      id: 'chimoio',
-      name: 'Chimoio',
-      city: 'Chimoio',
-      address: 'Chimoio, Manica, Moçambique',
-      serviceTime: 'Domingo, 09:30 - 12:00',
-    },
-    {
-      id: 'tete',
-      name: 'Tete',
-      city: 'Tete',
-      address: 'Tete, Moçambique',
-      serviceTime: 'Domingo, 09:30 - 12:00',
-    },
-  ],
+  // Landing page: sister congregations, managed from the admin Settings page
+  congregations: [],
 
-  // Homepage events
+  // Landing page: upcoming events, managed from the admin Settings page
   homepageEvents: [],
 
   // Public navigation
@@ -320,7 +264,11 @@ export const DEFAULT_SETTINGS: ChurchSettings = {
     liveStreams: true,
     teachings: true,
     events: true,
+
+    // Módulo específico do projeto original.
+    // Mantido no código, mas escondido do site da ICFR.
     lectureship: false,
+
     gallery: true,
     aboutUs: true,
     register: true,
@@ -328,144 +276,81 @@ export const DEFAULT_SETTINGS: ChurchSettings = {
   },
 }
 
-export const useChurchSettingsStore = defineStore(
-  'churchSettings',
-  () => {
-    const settings = ref<ChurchSettings>(
-      structuredClone(DEFAULT_SETTINGS)
-    )
+export const useChurchSettingsStore = defineStore('churchSettings', () => {
+  const settings = ref<ChurchSettings>(structuredClone(DEFAULT_SETTINGS))
+  const loading = ref(false)
+  const saving = ref(false)
+  const error = ref<string | null>(null)
+  const loaded = ref(false)
 
-    const loading = ref(false)
-    const saving = ref(false)
-    const error = ref<string | null>(null)
-    const loaded = ref(false)
+  async function load() {
+    if (loaded.value) return
 
-    async function load() {
-      if (loaded.value) return
+    loading.value = true
+    error.value = null
 
-      loading.value = true
-      error.value = null
+    try {
+      const repo = useChurchSettingsRepository()
+      const data = await repo.fetchSettings()
 
-      try {
-        const repo = useChurchSettingsRepository()
-        const data = await repo.fetchSettings()
-
-        if (data) {
-          settings.value = {
-            ...DEFAULT_SETTINGS,
-            ...data,
-
-            name: DEFAULT_SETTINGS.name,
-            address: DEFAULT_SETTINGS.address,
-            phone: DEFAULT_SETTINGS.phone,
-            email: DEFAULT_SETTINGS.email,
-
-            heroEyebrow: DEFAULT_SETTINGS.heroEyebrow,
-            heroTagline: DEFAULT_SETTINGS.heroTagline,
-            heroPrimaryCtaLabel:
-              DEFAULT_SETTINGS.heroPrimaryCtaLabel,
-            heroPrimaryCtaHref:
-              DEFAULT_SETTINGS.heroPrimaryCtaHref,
-            heroSecondaryCtaLabel:
-              DEFAULT_SETTINGS.heroSecondaryCtaLabel,
-            heroSecondaryCtaHref:
-              DEFAULT_SETTINGS.heroSecondaryCtaHref,
-            activities: DEFAULT_SETTINGS.activities,
-
-            ministerName: DEFAULT_SETTINGS.ministerName,
-            ministerTitle: DEFAULT_SETTINGS.ministerTitle,
-            ministerPhoto: DEFAULT_SETTINGS.ministerPhoto,
-            congregationPhotos:
-              DEFAULT_SETTINGS.congregationPhotos,
-            ministerLetterHeading:
-              DEFAULT_SETTINGS.ministerLetterHeading,
-            ministerLetterGreeting:
-              DEFAULT_SETTINGS.ministerLetterGreeting,
-            ministerLetterP1:
-              DEFAULT_SETTINGS.ministerLetterP1,
-            ministerLetterP2:
-              DEFAULT_SETTINGS.ministerLetterP2,
-            ministerLetterP3:
-              DEFAULT_SETTINGS.ministerLetterP3,
-            ministerLetterP4:
-              DEFAULT_SETTINGS.ministerLetterP4,
-
-            liveWorship: DEFAULT_SETTINGS.liveWorship,
-            aboutHero: DEFAULT_SETTINGS.aboutHero,
-            aboutHistory: DEFAULT_SETTINGS.aboutHistory,
-            worshipActivities:
-              DEFAULT_SETTINGS.worshipActivities,
-            activityCalendar:
-              DEFAULT_SETTINGS.activityCalendar,
-            worshipThisSunday:
-              DEFAULT_SETTINGS.worshipThisSunday,
-            navVisibility:
-              DEFAULT_SETTINGS.navVisibility,
-          }
-        } else {
-          settings.value = structuredClone(DEFAULT_SETTINGS)
+      if (data) {
+        settings.value = {
+          ...DEFAULT_SETTINGS,
+          ...data,
         }
-
-        loaded.value = true
-      } catch (e: unknown) {
-        settings.value = structuredClone(DEFAULT_SETTINGS)
-
-        error.value =
-          e instanceof Error
-            ? e.message
-            : 'Erro ao carregar as configurações da igreja'
-
-        loaded.value = true
-      } finally {
-        loading.value = false
-      }
-    }
-
-    async function save(
-      updates: Partial<ChurchSettings>
-    ) {
-      saving.value = true
-      error.value = null
-
-      settings.value = {
-        ...settings.value,
-        ...updates,
       }
 
-      try {
-        const repo = useChurchSettingsRepository()
-
-        await repo.saveSettings(settings.value)
-
-        recordAudit({
-          action: 'settings.update',
-        })
-
-        useToast().success(
-          'Configurações guardadas'
-        )
-      } catch (e: unknown) {
-        error.value =
-          e instanceof Error
-            ? e.message
-            : 'Erro ao guardar as configurações'
-
-        useToast().error(error.value)
-
-        throw e
-      } finally {
-        saving.value = false
-      }
-    }
-
-    return {
-      settings,
-      loading,
-      saving,
-      error,
-      loaded,
-      load,
-      save,
+      loaded.value = true
+    } catch (e: unknown) {
+      error.value =
+        e instanceof Error
+          ? e.message
+          : 'Erro ao carregar as configurações da igreja'
+    } finally {
+      loading.value = false
     }
   }
-)
+
+  async function save(updates: Partial<ChurchSettings>) {
+    saving.value = true
+    error.value = null
+
+    settings.value = {
+      ...settings.value,
+      ...updates,
+    }
+
+    try {
+      const repo = useChurchSettingsRepository()
+
+      await repo.saveSettings(settings.value)
+
+      recordAudit({
+        action: 'settings.update',
+      })
+
+      useToast().success('Configurações guardadas')
+    } catch (e: unknown) {
+      error.value =
+        e instanceof Error
+          ? e.message
+          : 'Erro ao guardar as configurações'
+
+      useToast().error(error.value)
+
+      throw e
+    } finally {
+      saving.value = false
+    }
+  }
+
+  return {
+    settings,
+    loading,
+    saving,
+    error,
+    loaded,
+    load,
+    save,
+  }
+})

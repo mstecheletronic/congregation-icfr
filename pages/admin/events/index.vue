@@ -147,7 +147,7 @@ function isPast(e: UpcomingEvent | PastEvent): e is PastEvent {
               <th class="text-left px-4 py-2.5 font-medium">Date</th>
               <th class="text-left px-4 py-2.5 font-medium">Time</th>
               <th class="text-left px-4 py-2.5 font-medium">Venue</th>
-              <th class="text-left px-4 py-2.5 font-medium">Gallery</th>
+              <th class="text-left px-4 py-2.5 font-medium">Galeria</th>
               <th class="text-right px-4 py-2.5 font-medium">Actions</th>
             </tr>
           </thead>
@@ -192,7 +192,7 @@ function isPast(e: UpcomingEvent | PastEvent): e is PastEvent {
               <td colspan="6" class="px-4">
                 <EmptyState
                   icon="mdi:calendar-blank-outline"
-                  title="No upcoming events"
+                  title="Nenhum evento próximo"
                   description="Events you schedule will be listed here until their date passes."
                 />
               </td>
@@ -275,7 +275,7 @@ function isPast(e: UpcomingEvent | PastEvent): e is PastEvent {
               <td colspan="7" class="px-4">
                 <EmptyState
                   icon="mdi:calendar-blank-outline"
-                  title="No past events"
+                  title="Nenhum evento passado"
                   description="Events move here automatically once their date has passed."
                 />
               </td>
@@ -295,7 +295,7 @@ function isPast(e: UpcomingEvent | PastEvent): e is PastEvent {
 
     <EventFormModal v-model="formOpen" :event="editTarget" :default-kind="activeTab" />
 
-    <Modal v-model="viewOpen" :title="viewTarget?.title ?? 'Event'" size="xl">
+    <Modal v-model="viewOpen" :title="viewTarget?.title ?? 'Evento'" size="xl">
       <div v-if="viewTarget" class="flex flex-col gap-4">
         <img
           v-if="isPast(viewTarget) && viewTarget.featuredImage"

@@ -134,12 +134,12 @@ function cancel() {
 
       <!-- Only the second answer needs anything else filling in. -->
       <div v-if="place === 'elsewhere'" class="flex flex-col gap-3 border-t border-gray-100 pt-4">
-        <EditField label="Congregation *" :error="congregationError">
+        <EditField label="Congregação *" :error="congregationError">
           <input
             ref="congregationInput"
             v-model="congregation"
             type="text"
-            placeholder="e.g. Church of Christ, Uyo"
+            placeholder="Ex.: ICFR Beira Sede"
             :aria-invalid="Boolean(congregationError)"
             @keyup.enter="submit"
           />
@@ -155,7 +155,7 @@ function cancel() {
           </span>
         </label>
 
-        <EditField label="Certificate reference" hint="Optional — who signed it, or a number.">
+        <EditField label="Referência do comprovativo" hint="Opcional — nome de quem assinou ou número do comprovativo.">
           <input
             v-model="certificateRef"
             type="text"
@@ -184,7 +184,7 @@ function cancel() {
           @click="submit"
         >
           <Icon icon="mdi:check" />
-          Mark Present
+          Marcar Presente
         </button>
       </div>
     </template>

@@ -11,7 +11,7 @@ const { el: sectionRef, isVisible } = useScrollReveal()
     id="welcome"
     ref="sectionRef"
     class="minister-section"
-    aria-label="Welcome letter from our minister"
+    aria-label="Mensagem de boas-vindas da liderança"
   >
     <div class="minister-container">
       <!-- ── Left: stacked photo cards ─────────────────────────────── -->
@@ -35,7 +35,7 @@ const { el: sectionRef, isVisible } = useScrollReveal()
             <div class="photo-pin"></div>
             <img
               :src="displayableImageUrl(cfg.ministerPhoto)"
-              alt="Minister headshot"
+              alt="Foto da liderança"
               loading="eager"
             />
           </div>
@@ -79,7 +79,7 @@ const { el: sectionRef, isVisible } = useScrollReveal()
             <span aria-hidden="true" class="drop-cap">{{
               (cfg.ministerLetterGreeting || 'D').charAt(0)
             }}</span
-            >{{ (cfg.ministerLetterGreeting || 'Dear Friend,').slice(1) }}<br /><br />
+            >{{ (cfg.ministerLetterGreeting || 'Querido irmão,').slice(1) }}<br /><br />
             {{ cfg.ministerLetterP1 }}
           </p>
           <p>{{ cfg.ministerLetterP2 }}</p>

@@ -27,7 +27,7 @@ defineProps<{ stream: LiveStream }>()
           ></span>
           <span class="relative inline-flex h-3 w-3 rounded-full bg-[#EF4444]"></span>
         </span>
-        <span class="text-sm font-bold tracking-widest text-[#EF4444] uppercase">Live Now</span>
+        <span class="text-sm font-bold tracking-widest text-[#EF4444] uppercase">Ao Vivo</span>
       </div>
 
       <h2 class="font-serif text-3xl font-bold mb-3 max-w-2xl md:text-4xl">
@@ -37,7 +37,7 @@ defineProps<{ stream: LiveStream }>()
       <div class="flex items-center gap-2 mb-8">
         <Icon icon="heroicons:eye" class="h-4 w-4 text-white/50" />
         <span class="text-sm text-white/60"
-          >{{ stream.viewerCount.toLocaleString() }} watching</span
+          >{{ stream.viewerCount.toLocaleString() }} assistindo</span
         >
       </div>
 
@@ -46,7 +46,7 @@ defineProps<{ stream: LiveStream }>()
         target="_blank"
         rel="noopener"
         class="inline-flex items-center gap-2 rounded-full bg-[#2563EB] px-8 py-3 text-sm font-semibold text-white shadow-lg hover:bg-blue-700 transition-colors"
-        aria-label="Watch live stream now"
+        aria-label="Assistir transmissão ao vivo agora"
       >
         <span class="relative flex h-2 w-2">
           <span
@@ -54,7 +54,7 @@ defineProps<{ stream: LiveStream }>()
           ></span>
           <span class="relative inline-flex h-2 w-2 rounded-full bg-white"></span>
         </span>
-        Watch Live Now
+        Assistir Agora
       </a>
     </div>
   </div>

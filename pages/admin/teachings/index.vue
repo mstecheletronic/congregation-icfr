@@ -1,13 +1,13 @@
 <script setup lang="ts">
 definePageMeta({ layout: 'admin', middleware: ['auth'] })
-useSeoMeta({ title: 'Teachings', description: 'Browse all sermons and teachings.' })
+useSeoMeta({ title: 'Ensinamentos', description: 'Consulte todos os sermões e estudos bíblicos.' })
 
 const { setHeader } = usePageHeader()
 const teachingsStore = useTeachingsStore()
 
 onMounted(() => {
   teachingsStore.load()
-  setHeader('Teachings Library', 'Browse all sermons and teaching materials')
+  setHeader('Biblioteca de Ensinamentos', 'Consulte sermões e materiais de estudo bíblico')
 })
 
 const filterOptions = [
@@ -59,15 +59,15 @@ const {
           <input
             v-model="teachingsStore.searchQuery"
             type="search"
-            placeholder="Search teachings..."
+            placeholder="Pesquisar ensinamentos..."
             class="w-56 pl-9 pr-3 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500"
-            aria-label="Search teachings"
+            aria-label="Pesquisar ensinamentos"
           />
         </div>
         <NuxtLink to="/admin/teachings/upload">
           <Button>
             <template #icon-left><Icon icon="mdi:plus" /></template>
-            Add Teaching
+            Adicionar Ensinamento
           </Button>
         </NuxtLink>
       </div>
@@ -86,12 +86,12 @@ const {
     <EmptyState
       v-else
       icon="mdi:book-open-page-variant-outline"
-      title="No teachings found"
-      description="Try adjusting your filters, or upload a new sermon or lesson."
+      title="Nenhum ensinamento encontrado"
+      description="Altere os filtros ou publique um novo sermão ou estudo."
     >
       <template #action>
         <NuxtLink to="/admin/teachings/upload">
-          <Button>Upload Teaching</Button>
+          <Button>Publicar Ensinamento</Button>
         </NuxtLink>
       </template>
     </EmptyState>

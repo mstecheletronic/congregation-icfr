@@ -50,7 +50,7 @@ const cfg = computed(() => s.settings.activityCalendar)
                 <EmptyState
                   icon="mdi:calendar-blank-outline"
                   size="sm"
-                  title="No activities scheduled"
+                  title="Nenhuma atividade programada"
                   description="The weekly calendar is set up in Settings → Activity Calendar."
                 />
               </td>

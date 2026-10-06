@@ -14,7 +14,7 @@ interface Props {
 }
 
 const props = withDefaults(defineProps<Props>(), {
-  title: 'Add New Member',
+  title: 'Adicionar Membro',
   youthMode: false,
 })
 
@@ -26,7 +26,7 @@ const emit = defineEmits<{
 // ─── Form state ───────────────────────────────────────────────────────────────
 const form = reactive<
   Omit<Member, 'id' | 'absenceCount'> & {
-    ecName: string
+    ecNome: string
     ecRelationship: string
     ecPhone: string
     ecAddress: string
@@ -39,6 +39,7 @@ const form = reactive<
   email: '',
   dob: '',
   churchNumber: '',
+  congregation: '',
   status: 'Active',
   maritalStatus: '',
   dateOfBaptism: '',
@@ -65,7 +66,7 @@ const form = reactive<
   yearOfExit: '',
   comment: '',
   // Emergency contact (flat)
-  ecName: '',
+  ecNome: '',
   ecRelationship: '',
   ecPhone: '',
   ecAddress: '',
@@ -98,34 +99,57 @@ const churchNumberError = computed(() => {
 })
 
 const genderOptions = [
-  { label: 'Male', value: 'Male' },
-  { label: 'Female', value: 'Female' },
+  { label: 'Masculino', value: 'Male' },
+  { label: 'Feminino', value: 'Female' },
+]
+
+const congregationOptions = [
+  'Muchatazina Sede',
+  'Cerâmica',
+  'Crespim',
+  'Chimoio',
+  'Tete',
 ]
 
 // Derived from MEMBER_STATUSES rather than hand-listed, so adding a status cannot leave it
 // missing from the dropdown that sets it.
-const statusOptions = MEMBER_STATUSES.map((s) => ({ label: s, value: s }))
+const statusLabels: Record<Member['status'], string> = {
+  Active: 'Ativo',
+  Inactive: 'Inativo',
+  Backslider: 'Desviado',
+  Weak: 'Em Acompanhamento',
+  Distant: 'Distante',
+  Withdrawal: 'Afastamento',
+  Disfellowshipped: 'Desligado',
+  Transfer: 'Transferido',
+  Late: 'Afastado',
+}
+
+const statusOptions = MEMBER_STATUSES.map((s) => ({
+  label: statusLabels[s],
+  value: s,
+}))
 
 const maritalOptions = [
-  { label: 'Single', value: 'Single' },
-  { label: 'Married', value: 'Married' },
-  { label: 'Widowed', value: 'Widowed' },
-  { label: 'Divorced', value: 'Divorced' },
+  { label: 'Solteiro(a)', value: 'Single' },
+  { label: 'Casado(a)', value: 'Married' },
+  { label: 'Viúvo(a)', value: 'Widowed' },
+  { label: 'Divorciado(a)', value: 'Divorced' },
 ]
 
 // ─── Save ─────────────────────────────────────────────────────────────────────
 function save() {
-  errors.name = form.name.trim() ? '' : 'Name is required'
-  errors.email = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.email) ? '' : 'Valid email required'
-  errors.phone = form.phone.trim() ? '' : 'Phone is required'
+  errors.name = form.name.trim() ? '' : 'Nome is required'
+  errors.email = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.email) ? '' : 'Informe um email válido'
+  errors.phone = form.phone.trim() ? '' : 'O telefone é obrigatório'
 
   if (errors.name || errors.email || errors.phone || churchNumberError.value) return
   if (yearRangeError.value) return
 
   const emergencyContact: EmergencyContact | undefined =
-    form.ecName || form.ecPhone
+    form.ecNome || form.ecPhone
       ? {
-          name: form.ecName,
+          name: form.ecNome,
           relationship: form.ecRelationship,
           phone: form.ecPhone,
           address: form.ecAddress,
@@ -139,6 +163,7 @@ function save() {
     email: form.email,
     dob: form.dob,
     churchNumber: form.churchNumber,
+    congregation: form.congregation,
     status: form.status,
     maritalStatus: form.maritalStatus,
     dateOfBaptism: form.dateOfBaptism,
@@ -188,6 +213,7 @@ function reset() {
     email: '',
     dob: '',
     churchNumber: '',
+    congregation: '',
     status: 'Active',
     maritalStatus: '',
     dateOfBaptism: '',
@@ -209,7 +235,7 @@ function reset() {
     yearOfEntry: '',
     yearOfExit: '',
     comment: '',
-    ecName: '',
+    ecNome: '',
     ecRelationship: '',
     ecPhone: '',
     ecAddress: '',
@@ -231,24 +257,24 @@ watch(
     <div class="flex flex-col gap-6">
       <!-- ── Personal Information ──────────────────────────────────────────── -->
       <section>
-        <h3 class="text-sm font-semibold text-gray-800 mb-4">Personal Information</h3>
+        <h3 class="text-sm font-semibold text-gray-800 mb-4">Informações Pessoais</h3>
         <div class="space-y-4">
-          <!-- Name | Email -->
+          <!-- Nome | Email -->
           <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
-            <EditField label="Full Name *">
+            <EditField label="Nome Completo *">
               <input
                 v-model="form.name"
                 type="text"
-                placeholder="Enter full name"
+                placeholder="Digite o nome completo"
                 :class="errors.name ? 'border-red-400 focus:border-red-400' : ''"
               />
               <p v-if="errors.name" class="text-xs text-red-500 mt-1">{{ errors.name }}</p>
             </EditField>
-            <EditField label="Email Address *">
+            <EditField label="Email *">
               <input
                 v-model="form.email"
                 type="email"
-                placeholder="member@example.com"
+                placeholder="exemplo@email.com"
                 :class="errors.email ? 'border-red-400 focus:border-red-400' : ''"
               />
               <p v-if="errors.email" class="text-xs text-red-500 mt-1">{{ errors.email }}</p>
@@ -258,32 +284,45 @@ watch(
           <!-- Church Number | Date of Baptism -->
           <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <EditField
-              label="Church Number"
+              label="Código de Membro"
               :error="churchNumberError"
-              hint="Must be unique. Leave blank to assign one later."
+              hint="O código deve ser único. Pode deixar vazio para atribuir depois."
             >
               <input
                 v-model="form.churchNumber"
                 type="text"
-                placeholder="e.g. COC/001"
+                placeholder="Ex.: MEM-0001"
                 :aria-invalid="Boolean(churchNumberError)"
               />
             </EditField>
-            <EditField label="Date of Baptism">
+            <EditField label="Data do Batismo">
               <input v-model="form.dateOfBaptism" type="date" />
             </EditField>
           </div>
 
-          <!-- Date of Registration -->
+          <!-- Data de Registo | Congregação Atual -->
           <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
-            <EditField label="Date of Registration">
+            <EditField label="Data de Registo">
               <input v-model="form.dateJoined" type="date" />
+            </EditField>
+
+            <EditField label="Congregação Atual *">
+              <select v-model="form.congregation">
+                <option value="">— Selecionar congregação —</option>
+                <option
+                  v-for="congregation in congregationOptions"
+                  :key="congregation"
+                  :value="congregation"
+                >
+                  {{ congregation }}
+                </option>
+              </select>
             </EditField>
           </div>
 
-          <!-- Phone (wide) | Gender | Marital Status -->
+          <!-- Phone (wide) | Sexo | Marital Status -->
           <div class="grid grid-cols-4 gap-3">
-            <EditField label="Phone Number *" class="col-span-2">
+            <EditField label="Telefone *" class="col-span-2">
               <input
                 v-model="form.phone"
                 type="tel"
@@ -292,16 +331,16 @@ watch(
               />
               <p v-if="errors.phone" class="text-xs text-red-500 mt-1">{{ errors.phone }}</p>
             </EditField>
-            <EditField label="Gender" class="col-span-1">
+            <EditField label="Sexo" class="col-span-1">
               <select v-model="form.gender">
                 <option v-for="o in genderOptions" :key="o.value" :value="o.value">
                   {{ o.label }}
                 </option>
               </select>
             </EditField>
-            <EditField label="Marital Status" class="col-span-1">
+            <EditField label="Estado Civil" class="col-span-1">
               <select v-model="form.maritalStatus">
-                <option value="">— Select —</option>
+                <option value="">— Selecionar —</option>
                 <option v-for="o in maritalOptions" :key="o.value" :value="o.value">
                   {{ o.label }}
                 </option>
@@ -311,21 +350,21 @@ watch(
 
           <!-- Date of Birth | Status | Occupation -->
           <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
-            <EditField label="Date of Birth">
+            <EditField label="Data de Nascimento">
               <input v-model="form.dob" type="date" />
               <p v-if="youthMode" class="text-xs text-gray-400 mt-1">
-                Must be 13–35 yrs to appear in Youth
+                Deve ter entre 13 e 35 anos para aparecer em Jovens
               </p>
             </EditField>
-            <EditField label="Member Status">
+            <EditField label="Estado do Membro">
               <select v-model="form.status">
                 <option v-for="o in statusOptions" :key="o.value" :value="o.value">
                   {{ o.label }}
                 </option>
               </select>
             </EditField>
-            <EditField label="Occupation">
-              <input v-model="form.occupation" type="text" placeholder="e.g. Teacher" />
+            <EditField label="Ocupação">
+              <input v-model="form.occupation" type="text" placeholder="Ex.: Professor" />
             </EditField>
           </div>
         </div>
@@ -335,19 +374,19 @@ watch(
 
       <!-- ── Place of Origin ───────────────────────────────────────────────── -->
       <section>
-        <h3 class="text-sm font-semibold text-gray-800 mb-4">Place of Origin</h3>
+        <h3 class="text-sm font-semibold text-gray-800 mb-4">Local de Origem</h3>
         <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
-          <EditField label="Country">
-            <input v-model="form.country" type="text" placeholder="Nigeria" />
+          <EditField label="País">
+            <input v-model="form.country" type="text" placeholder="Moçambique" />
           </EditField>
-          <EditField label="State of Origin">
-            <input v-model="form.state" type="text" placeholder="Akwa Ibom State" />
+          <EditField label="Província de Origem">
+            <input v-model="form.state" type="text" placeholder="Ex.: Sofala" />
           </EditField>
-          <EditField label="Local Government Area">
-            <input v-model="form.localGovernment" type="text" placeholder="Ibiono Ibom" />
+          <EditField label="Distrito">
+            <input v-model="form.localGovernment" type="text" placeholder="Ex.: Beira" />
           </EditField>
-          <EditField label="Village">
-            <input v-model="form.village" type="text" placeholder="Ikot Oku" />
+          <EditField label="Localidade">
+            <input v-model="form.village" type="text" placeholder="Ex.: Inhamízua" />
           </EditField>
         </div>
       </section>
@@ -356,19 +395,19 @@ watch(
 
       <!-- ── Residential Address ───────────────────────────────────────────── -->
       <section>
-        <h3 class="text-sm font-semibold text-gray-800 mb-4">Residential Address</h3>
+        <h3 class="text-sm font-semibold text-gray-800 mb-4">Endereço Residencial</h3>
         <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
-          <EditField label="Country">
-            <input v-model="form.country" type="text" placeholder="Nigeria" />
+          <EditField label="País">
+            <input v-model="form.country" type="text" placeholder="Moçambique" />
           </EditField>
           <EditField label="State">
-            <input v-model="form.state" type="text" placeholder="Akwa Ibom State" />
+            <input v-model="form.state" type="text" placeholder="Ex.: Sofala" />
           </EditField>
-          <EditField label="Full Address" class="sm:col-span-2">
+          <EditField label="Endereço Completo" class="sm:col-span-2">
             <input
               v-model="form.address"
               type="text"
-              placeholder="No. 8 Convent Road, Ikot Ekpene"
+              placeholder="Ex.: Munhava, Beira"
             />
           </EditField>
         </div>
@@ -399,13 +438,13 @@ watch(
             </EditField>
             <EditField label="Programme">
               <select v-model="form.program">
-                <option value="">— Select —</option>
+                <option value="">— Selecionar —</option>
                 <option v-for="p in YOUTH_PROGRAMS" :key="p" :value="p">{{ p }}</option>
               </select>
             </EditField>
             <EditField label="Level">
               <select v-model="form.level">
-                <option value="">— Select —</option>
+                <option value="">— Selecionar —</option>
                 <option v-for="l in YOUTH_LEVELS" :key="l" :value="l">{{ l }}</option>
               </select>
             </EditField>
@@ -463,14 +502,14 @@ watch(
             <input
               v-model="form.previousCongregation"
               type="text"
-              placeholder="e.g. Church of Christ, Uyo"
+              placeholder="Ex.: Congregação Central"
             />
           </EditField>
-          <EditField label="Minister / Preacher's Phone">
+          <EditField label="Telefone do Pastor / Ministro">
             <input
               v-model="form.previousMinisterPhone"
               type="tel"
-              placeholder="+234 803 333 4444"
+              placeholder="+258 84 000 0000"
             />
           </EditField>
         </div>
@@ -484,17 +523,17 @@ watch(
           Emergency Contact <span class="text-gray-400 font-normal text-xs">(optional)</span>
         </h3>
         <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
-          <EditField label="Name">
-            <input v-model="form.ecName" type="text" placeholder="Brother John Adebayo" />
+          <EditField label="Nome">
+            <input v-model="form.ecNome" type="text" placeholder="Nome do contacto" />
           </EditField>
           <EditField label="Relationship">
-            <input v-model="form.ecRelationship" type="text" placeholder="Brother" />
+            <input v-model="form.ecRelationship" type="text" placeholder="Parentesco" />
           </EditField>
-          <EditField label="Phone Number">
-            <input v-model="form.ecPhone" type="tel" placeholder="+234 803 333 4444" />
+          <EditField label="Telefone">
+            <input v-model="form.ecPhone" type="tel" placeholder="+258 84 000 0000" />
           </EditField>
-          <EditField label="Address">
-            <input v-model="form.ecAddress" type="text" placeholder="Full address" />
+          <EditField label="Endereço">
+            <input v-model="form.ecAddress" type="text" placeholder="Endereço completo" />
           </EditField>
         </div>
       </section>
@@ -502,7 +541,7 @@ watch(
 
     <template #footer>
       <div class="flex gap-2 justify-end">
-        <Button variant="secondary" @click="close">Cancel</Button>
+        <Button variant="secondary" @click="close">Cancelar</Button>
         <Button
           :loading="membersStore.saving"
           :disabled="Boolean(churchNumberError || yearRangeError)"

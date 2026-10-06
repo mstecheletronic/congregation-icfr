@@ -14,11 +14,22 @@ onMounted(() => {
 
 // ─── Action labels ─────────────────────────────────────────────────────────────
 const actionLabels: Record<AppAction, string> = {
-  view: 'View',
-  add: 'Add',
-  edit: 'Edit',
-  delete: 'Delete',
-  export: 'Export',
+  view: 'Ver',
+  add: 'Adicionar',
+  edit: 'Editar',
+  delete: 'Eliminar',
+  export: 'Exportar',
+}
+
+const pageLabels: Record<AppPage, string> = {
+  Dashboard: 'Painel',
+  'Nominal Roll': 'Membros',
+  Youth: 'Jovens',
+  Attendance: 'Presenças',
+  Teachings: 'Ensinamentos',
+  Events: 'Eventos',
+  Finance: 'Finanças',
+  Settings: 'Definições',
 }
 
 // ─── Role card selection ───────────────────────────────────────────────────────
@@ -27,7 +38,7 @@ const selectedRole = computed(
   () => rolesStore.roles.find((r) => r.id === selectedRoleId.value) ?? null
 )
 
-// Editable copy of the selected role's permissions
+// Editable copy of the selected role's permissões
 const editPerms = ref<RolePermissions>({})
 
 function openRole(role: ChurchRole) {
@@ -142,19 +153,19 @@ function selectMember(m: { id: string; name: string; email?: string }) {
 // The store surfaces the reason via toast on failure. Keep the modal open in that case so
 // nothing the user selected is lost — a rejected write is usually a missing role, not a typo.
 async function doAssign() {
-  assignErrors.memberId = assignForm.memberId ? '' : 'Select a member'
-  assignErrors.roleId = assignForm.roleId ? '' : 'Select a role'
+  assignErrors.memberId = assignForm.memberId ? '' : 'Selecione um membro'
+  assignErrors.roleId = assignForm.roleId ? '' : 'Selecione um cargo'
   assignErrors.inviteEmail = ''
   assignErrors.invitePassword = ''
   if (assignForm.sendInvite) {
     const email = assignForm.inviteEmail.trim()
     assignErrors.inviteEmail = !email
-      ? 'Enter an email address'
+      ? 'Introduza um endereço de email'
       : EMAIL_RE.test(email)
         ? ''
-        : 'Enter a valid email address'
+        : 'Introduza um endereço de email válido'
     assignErrors.invitePassword =
-      assignForm.invitePassword.length >= 6 ? '' : 'Use at least 6 characters'
+      assignForm.invitePassword.length >= 6 ? '' : 'Use pelo menos 6 caracteres'
   }
   if (
     assignErrors.memberId ||
@@ -201,11 +212,11 @@ async function revoke(assignmentId: string) {
   const willLoseAccess = isLastRole && !!account
 
   const ok = await confirm({
-    title: who ? `Revoke ${who}'s role?` : 'Revoke this role?',
+    title: who ? `Remover o cargo de ${who}?` : 'Remover este cargo?',
     message: willLoseAccess
-      ? 'This is their only role, so their dashboard login will be revoked too. They keep their place on the nominal roll, and reassigning a role later can create them a fresh login.'
-      : 'They keep their place on the nominal roll — only the role is removed.',
-    confirmLabel: 'Revoke',
+      ? 'Este é o único cargo desta pessoa, por isso o acesso ao painel também será removido. O membro continuará no registo e poderá receber novo acesso posteriormente.'
+      : 'O membro continuará no registo. Apenas o cargo será removido.',
+    confirmLabel: 'Remover',
   })
   if (!ok) return
 
@@ -232,8 +243,8 @@ const grantForm = reactive({ uid: '', email: '', roleId: '' as ChurchRoleId | ''
 const grantErrors = reactive({ uid: '', roleId: '' })
 
 async function doGrant() {
-  grantErrors.uid = grantForm.uid.trim() ? '' : 'Paste the account UID'
-  grantErrors.roleId = grantForm.roleId ? '' : 'Choose a role'
+  grantErrors.uid = grantForm.uid.trim() ? '' : 'Cole o UID da conta'
+  grantErrors.roleId = grantForm.roleId ? '' : 'Escolha um cargo'
   if (grantErrors.uid || grantErrors.roleId) return
   try {
     await accountsStore.grantRole(grantForm.uid, grantForm.roleId as ChurchRoleId, grantForm.email)
@@ -250,12 +261,12 @@ async function changeAccountRole(uid: string, roleId: string, email?: string) {
 async function doRevokeAccess(uid: string) {
   const account = accountsStore.records.find((a) => a.uid === uid)
   const ok = await confirm({
-    title: `Revoke dashboard access for ${account?.email || 'this account'}?`,
+    title: `Remover acesso ao painel de ${account?.email || 'esta conta'}?`,
     // The consequence worth stating: this is the document Firestore rules read, so revoking it
     // takes effect everywhere at once, not just in this screen.
     message:
-      'They will be able to sign in but not read or change anything until access is granted again.',
-    confirmLabel: 'Revoke access',
+      'A pessoa poderá iniciar sessão, mas não poderá consultar nem alterar dados até receber acesso novamente.',
+    confirmLabel: 'Remover acesso',
   })
   if (!ok) return
   await run(uid, () => accountsStore.revokeAccess(uid).catch(() => {}))
@@ -271,7 +282,7 @@ const memberOptions = computed(() =>
 
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
 
-// ─── Create login with password ────────────────────────────────────────────────
+// ─── Criar acesso com palavra-passe ────────────────────────────────────────────────
 // Sets a password directly for a new account — see `accountsStore.createAccount`.
 const createForm = reactive({
   email: '',
@@ -285,12 +296,12 @@ const showCreatePassword = ref(false)
 async function doCreate() {
   const email = createForm.email.trim()
   createErrors.email = !email
-    ? 'Enter an email address'
+    ? 'Introduza um endereço de email'
     : EMAIL_RE.test(email)
       ? ''
-      : 'Enter a valid email address'
-  createErrors.roleId = createForm.roleId ? '' : 'Choose a role'
-  createErrors.password = createForm.password.length >= 6 ? '' : 'Use at least 6 characters'
+      : 'Introduza um endereço de email válido'
+  createErrors.roleId = createForm.roleId ? '' : 'Escolha um cargo'
+  createErrors.password = createForm.password.length >= 6 ? '' : 'Use pelo menos 6 caracteres'
   if (createErrors.email || createErrors.roleId || createErrors.password) return
   try {
     await accountsStore.createAccount(
@@ -306,7 +317,7 @@ async function doCreate() {
   }
 }
 
-// ─── Custom permissions modal ─────────────────────────────────────────────────
+// ─── Custom permissões modal ─────────────────────────────────────────────────
 const showCustom = ref(false)
 const customAssignmentId = ref('')
 const customPerms = ref<RolePermissions>({})
@@ -381,21 +392,21 @@ function permCount(perms: RolePermissions) {
     <!-- ── Section header ───────────────────────────────────────────────────── -->
     <div class="flex items-center justify-between">
       <div>
-        <h2 class="text-base font-semibold text-gray-900">Roles & Permissions</h2>
+        <h2 class="text-base font-semibold text-gray-900">Cargos e Permissões</h2>
         <p class="text-sm text-gray-500 mt-0.5">
-          Define what each role can access and assign roles to members.
+          Defina o que cada cargo pode aceder e atribua cargos aos membros.
         </p>
       </div>
       <Button @click="openAssign">
         <template #icon-left><Icon icon="mdi:account-plus-outline" /></template>
-        Assign Role
+        Atribuir Cargo
       </Button>
     </div>
 
     <!-- ── Role definitions grid ─────────────────────────────────────────────── -->
     <div>
       <p class="text-xs font-semibold text-gray-400 uppercase tracking-wide mb-3">
-        Role Definitions
+        Definições de Cargos
       </p>
       <div class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-3">
         <button
@@ -415,12 +426,12 @@ function permCount(perms: RolePermissions) {
                 :style="{ color: role.color }"
               />
             </div>
-            <Badge variant="neutral" size="sm">{{ permCount(role.permissions) }} perms</Badge>
+            <Badge variant="neutral" size="sm">{{ permCount(role.permissions) }} permissões</Badge>
           </div>
           <p class="text-sm font-bold text-gray-900 leading-tight">{{ role.name }}</p>
           <p class="text-xs text-gray-400 mt-1 line-clamp-2">{{ role.description }}</p>
           <p class="text-xs text-blue-500 mt-3 font-medium group-hover:underline">
-            Edit permissions →
+            Edit permissões →
           </p>
         </button>
       </div>
@@ -429,17 +440,17 @@ function permCount(perms: RolePermissions) {
     <!-- ── Member assignments table ──────────────────────────────────────────── -->
     <div>
       <p class="text-xs font-semibold text-gray-400 uppercase tracking-wide mb-3">
-        Member Assignments
+        Cargos Atribuídos aos Membros
       </p>
       <Card padding="none">
         <div class="overflow-x-auto">
           <table class="w-full text-sm" role="table">
             <thead>
               <tr class="bg-gray-50 border-b border-gray-100">
-                <th class="text-left px-4 py-3 text-xs font-medium text-gray-500">Member</th>
-                <th class="text-left px-4 py-3 text-xs font-medium text-gray-500">Role</th>
-                <th class="text-left px-4 py-3 text-xs font-medium text-gray-500">Assigned</th>
-                <th class="text-left px-4 py-3 text-xs font-medium text-gray-500">Custom Perms</th>
+                <th class="text-left px-4 py-3 text-xs font-medium text-gray-500">Membro</th>
+                <th class="text-left px-4 py-3 text-xs font-medium text-gray-500">Cargo</th>
+                <th class="text-left px-4 py-3 text-xs font-medium text-gray-500">Atribuído em</th>
+                <th class="text-left px-4 py-3 text-xs font-medium text-gray-500">Permissões Personalizadas</th>
                 <th class="w-24 px-4 py-3"></th>
               </tr>
             </thead>
@@ -479,22 +490,22 @@ function permCount(perms: RolePermissions) {
                     <template #icon><Icon icon="mdi:tune-variant" class="text-[10px]" /></template>
                     Custom
                   </Badge>
-                  <span v-else class="text-xs text-gray-400">Role defaults</span>
+                  <span v-else class="text-xs text-gray-400">Padrão do cargo</span>
                 </td>
                 <td class="px-4 py-3">
                   <div class="flex items-center gap-1 justify-end">
                     <button
                       class="p-1.5 rounded-lg hover:bg-blue-50 text-gray-400 hover:text-blue-600 transition-colors"
-                      aria-label="Customize permissions"
-                      title="Customize permissions"
+                      aria-label="Customize permissões"
+                      title="Customize permissões"
                       @click="openCustom(a.id)"
                     >
                       <Icon icon="mdi:tune-variant" class="text-base" />
                     </button>
                     <button
                       class="p-1.5 rounded-lg hover:bg-red-50 text-gray-400 hover:text-red-500 transition-colors"
-                      aria-label="Revoke role"
-                      title="Revoke role"
+                      aria-label="Remover cargo"
+                      title="Remover cargo"
                       :disabled="isPending(a.id)"
                       @click="revoke(a.id)"
                     >
@@ -508,15 +519,15 @@ function permCount(perms: RolePermissions) {
               </tr>
               <tr v-if="membersStore.loading && !pagedAssignments.length">
                 <td colspan="5" class="px-4">
-                  <LoadingState :rows="4" size="sm" title="Loading assignments…" />
+                  <LoadingState :rows="4" size="sm" title="Carregando atribuições..." />
                 </td>
               </tr>
               <tr v-else-if="!pagedAssignments.length">
                 <td colspan="5" class="px-4">
                   <EmptyState
                     icon="mdi:shield-account-outline"
-                    title="No roles assigned yet"
-                    description="Use the Assign Role button to give a member access to the dashboard."
+                    title="Ainda não existem cargos atribuídos"
+                    description="Use the Atribuir Cargo button to give a member access to the dashboard."
                   />
                 </td>
               </tr>
@@ -529,7 +540,7 @@ function permCount(perms: RolePermissions) {
           :total="assignTotal"
           :range-start="assignFrom"
           :range-end="assignTo"
-          label="assignments"
+          label="atribuições"
         />
       </Card>
     </div>
@@ -537,42 +548,39 @@ function permCount(perms: RolePermissions) {
     <!-- ── Account access ────────────────────────────────────────────────────── -->
     <div>
       <p class="text-xs font-semibold text-gray-400 uppercase tracking-wide mb-3">
-        Dashboard Access
+        Acesso ao Painel
       </p>
 
       <Card>
         <div class="flex items-start gap-2.5 rounded-lg bg-blue-50 p-3 text-xs text-blue-900">
           <Icon icon="mdi:information-outline" class="mt-0.5 shrink-0 text-sm" />
           <p>
-            This is what actually grants access: an account can only read or change church data once
-            it appears here. It is separate from the member assignments above — most people on the
-            nominal roll have no login at all. Create a login with a password below, or grant access
-            to an account that already exists by pasting its UID from the Firebase console.
+            Esta área controla o acesso real ao painel. Uma conta só poderá consultar ou alterar dados da igreja quando aparecer aqui. Isto é separado do registo de membros. Pode criar uma conta com palavra-passe ou conceder acesso a uma conta existente através do UID do Firebase.
           </p>
         </div>
 
-        <!-- Create login with password -->
+        <!-- Criar acesso com palavra-passe -->
         <div v-if="authStore.isSuperAdmin" class="mt-4">
-          <p class="mb-2 text-xs font-semibold text-gray-500">Create login with password</p>
+          <p class="mb-2 text-xs font-semibold text-gray-500">Criar acesso com palavra-passe</p>
           <div class="grid gap-3 sm:grid-cols-2">
             <Input
               v-model="createForm.email"
-              label="Email address"
+              label="Endereço de Email"
               type="email"
               placeholder="person@example.com"
               :error="createErrors.email"
             />
             <Input
               v-model="createForm.password"
-              label="Password"
+              label="Palavra-passe"
               :type="showCreatePassword ? 'text' : 'password'"
-              placeholder="At least 6 characters"
+              placeholder="Pelo menos 6 caracteres"
               :error="createErrors.password"
             >
               <template #icon-right>
                 <button
                   type="button"
-                  :aria-label="showCreatePassword ? 'Hide password' : 'Show password'"
+                  :aria-label="showCreatePassword ? 'Ocultar palavra-passe' : 'Mostrar palavra-passe'"
                   class="pointer-events-auto"
                   @click="showCreatePassword = !showCreatePassword"
                 >
@@ -582,56 +590,55 @@ function permCount(perms: RolePermissions) {
             </Input>
             <Select
               v-model="createForm.roleId"
-              label="Role"
-              placeholder="Choose a role"
+              label="Cargo"
+              placeholder="Escolha um cargo"
               :options="rolesStore.roles.map((r) => ({ label: r.name, value: r.id }))"
               :error="createErrors.roleId"
             />
             <Select
               v-model="createForm.memberId"
-              label="Link to a member (optional)"
-              placeholder="Not linked"
+              label="Associar a um membro (opcional)"
+              placeholder="Não associado"
               :options="memberOptions"
             />
           </div>
           <div class="mt-3 flex items-center justify-between gap-3">
             <Button variant="secondary" size="sm" @click="createForm.password = generatePassword()">
               <template #icon-left><Icon icon="mdi:dice-5-outline" /></template>
-              Generate a password
+              Gerar palavra-passe
             </Button>
             <Button :loading="accountsStore.saving" @click="doCreate">
               <template #icon-left><Icon icon="mdi:account-key-outline" /></template>
-              Create Account
+              Criar Conta
             </Button>
           </div>
           <p class="mt-2 text-xs text-gray-500">
-            Creates their account immediately with this password and grants the role above — share
-            the password with them directly.
+            Cria a conta imediatamente com esta palavra-passe e atribui o cargo selecionado. Partilhe a palavra-passe diretamente com a pessoa.
           </p>
         </div>
 
         <!-- Grant by UID — fallback for an account that already exists -->
         <details v-if="authStore.isSuperAdmin" class="mt-4">
           <summary class="cursor-pointer text-xs font-semibold text-gray-500">
-            Or grant an existing account by UID
+            Ou conceder acesso a uma conta existente pelo UID
           </summary>
           <div class="mt-3 grid gap-3 sm:grid-cols-[1fr_1fr_auto]">
             <Input
               v-model="grantForm.uid"
-              label="Account UID"
-              placeholder="from Authentication → Users"
+              label="UID da Conta"
+              placeholder="em Authentication → Users"
               :error="grantErrors.uid"
             />
             <Input
               v-model="grantForm.email"
-              label="Email (optional)"
-              placeholder="for legibility"
+              label="Email (opcional)"
+              placeholder="para identificação"
             />
             <div class="flex flex-col gap-1">
               <Select
                 v-model="grantForm.roleId"
-                label="Role"
-                placeholder="Choose a role"
+                label="Cargo"
+                placeholder="Escolha um cargo"
                 :options="rolesStore.roles.map((r) => ({ label: r.name, value: r.id }))"
                 :error="grantErrors.roleId"
               />
@@ -639,14 +646,14 @@ function permCount(perms: RolePermissions) {
             <div class="sm:col-span-3 flex justify-end">
               <Button :loading="accountsStore.saving" @click="doGrant">
                 <template #icon-left><Icon icon="mdi:shield-key-outline" /></template>
-                Grant Access
+                Conceder Acesso
               </Button>
             </div>
           </div>
         </details>
 
         <p v-if="!authStore.isSuperAdmin" class="mt-4 text-xs text-gray-500">
-          Only a Super Admin can invite people or change who has access.
+          Apenas o Super Admin pode criar acessos ou alterar quem pode entrar no painel.
         </p>
       </Card>
 
@@ -655,10 +662,10 @@ function permCount(perms: RolePermissions) {
           <table class="w-full text-sm" role="table">
             <thead>
               <tr class="bg-gray-50 border-b border-gray-100">
-                <th class="text-left px-4 py-3 text-xs font-medium text-gray-500">Account</th>
+                <th class="text-left px-4 py-3 text-xs font-medium text-gray-500">Conta</th>
                 <th class="text-left px-4 py-3 text-xs font-medium text-gray-500">UID</th>
-                <th class="text-left px-4 py-3 text-xs font-medium text-gray-500">Member</th>
-                <th class="text-left px-4 py-3 text-xs font-medium text-gray-500">Role</th>
+                <th class="text-left px-4 py-3 text-xs font-medium text-gray-500">Membro</th>
+                <th class="text-left px-4 py-3 text-xs font-medium text-gray-500">Cargo</th>
                 <th class="w-20 px-4 py-3"></th>
               </tr>
             </thead>
@@ -674,7 +681,7 @@ function permCount(perms: RolePermissions) {
                     v-if="account.uid === authStore.user?.uid"
                     class="ml-2 rounded bg-gray-100 px-1.5 py-0.5 text-[10px] text-gray-500"
                   >
-                    you
+                    você
                   </span>
                 </td>
                 <td class="px-4 py-3">
@@ -687,7 +694,7 @@ function permCount(perms: RolePermissions) {
                   <select
                     v-if="authStore.isSuperAdmin"
                     :value="account.roleId"
-                    :aria-label="`Role for ${account.email ?? account.uid}`"
+                    :aria-label="`Cargo de ${account.email ?? account.uid}`"
                     class="rounded-lg border border-gray-300 bg-white px-2 py-1 text-xs"
                     @change="
                       changeAccountRole(
@@ -709,7 +716,7 @@ function permCount(perms: RolePermissions) {
                   <button
                     v-if="authStore.isSuperAdmin && account.uid !== authStore.user?.uid"
                     class="rounded p-1 text-gray-400 hover:bg-red-50 hover:text-red-500"
-                    :aria-label="`Revoke access for ${account.email ?? account.uid}`"
+                    :aria-label="`Remover acesso de ${account.email ?? account.uid}`"
                     :disabled="isPending(account.uid)"
                     @click="doRevokeAccess(account.uid)"
                   >
@@ -728,17 +735,17 @@ function permCount(perms: RolePermissions) {
             v-else-if="!accountsStore.records.length"
             class="px-4 py-6 text-center text-sm text-gray-400"
           >
-            No accounts have been granted access yet.
+            Ainda não existem contas com acesso ao painel.
           </p>
         </div>
       </Card>
     </div>
   </div>
 
-  <!-- ── Edit role permissions modal ──────────────────────────────────────────── -->
+  <!-- ── Edit role permissões modal ──────────────────────────────────────────── -->
   <Modal
     :model-value="!!selectedRoleId"
-    :title="selectedRole ? `Edit Permissions — ${selectedRole.name}` : ''"
+    :title="selectedRole ? `Editar Permissões — ${selectedRole.name}` : ''"
     size="xl"
     @update:model-value="closeRole"
   >
@@ -750,17 +757,17 @@ function permCount(perms: RolePermissions) {
         <table class="w-full text-sm">
           <thead>
             <tr class="bg-gray-50 border-b border-gray-200">
-              <th class="text-left px-4 py-2.5 text-xs font-medium text-gray-500 w-36">Page</th>
+              <th class="text-left px-4 py-2.5 text-xs font-medium text-gray-500 w-36">Página</th>
               <th v-for="action in ALL_ACTIONS" :key="action" class="px-3 py-2.5 text-center">
                 <button
                   class="text-xs font-semibold text-gray-600 hover:text-blue-600 capitalize transition-colors"
-                  :title="`Toggle all ${action}`"
+                  :title="`Alternar todas as permissões de ${action}`"
                   @click="toggleAllForAction(action)"
                 >
                   {{ actionLabels[action] }}
                 </button>
               </th>
-              <th class="px-3 py-2.5 text-center text-xs font-medium text-gray-400">All</th>
+              <th class="px-3 py-2.5 text-center text-xs font-medium text-gray-400">Todas</th>
             </tr>
           </thead>
           <tbody>
@@ -769,7 +776,7 @@ function permCount(perms: RolePermissions) {
               :key="page"
               class="border-b border-gray-100 hover:bg-gray-50 transition-colors"
             >
-              <td class="px-4 py-2.5 font-medium text-gray-700 text-xs">{{ page }}</td>
+              <td class="px-4 py-2.5 font-medium text-gray-700 text-xs">{{ pageLabels[page] ?? page }}</td>
               <td v-for="action in ALL_ACTIONS" :key="action" class="px-3 py-2.5 text-center">
                 <button
                   :class="[
@@ -778,7 +785,7 @@ function permCount(perms: RolePermissions) {
                       ? 'bg-blue-600 border-blue-600'
                       : 'border-gray-300 hover:border-blue-400',
                   ]"
-                  :aria-label="`${editPerms[page]?.[action] ? 'Revoke' : 'Grant'} ${action} on ${page}`"
+                  :aria-label="`${editPerms[page]?.[action] ? 'Remover' : 'Conceder'} ${action} on ${page}`"
                   @click="togglePerm(page, action)"
                 >
                   <Icon
@@ -793,7 +800,7 @@ function permCount(perms: RolePermissions) {
                   class="text-xs text-gray-400 hover:text-blue-600 font-medium transition-colors"
                   @click="toggleAllForPage(page)"
                 >
-                  {{ ALL_ACTIONS.every((a) => editPerms[page]?.[a]) ? 'None' : 'All' }}
+                  {{ ALL_ACTIONS.every((a) => editPerms[page]?.[a]) ? 'Nenhuma' : 'Todas' }}
                 </button>
               </td>
             </tr>
@@ -802,30 +809,28 @@ function permCount(perms: RolePermissions) {
       </div>
 
       <p class="text-xs text-gray-400">
-        Click column headers to toggle all pages for that action. Click "All/None" on a row to
-        toggle all actions for that page. Enabling any action auto-enables View. Disabling View
-        clears all.
+        Clique nos títulos das colunas para alterar essa permissão em todas as páginas. Use "Todas/Nenhuma" para alterar todas as ações de uma página. Ao ativar qualquer ação, a permissão Ver também será ativada.
       </p>
     </div>
 
     <template #footer>
       <div class="flex gap-2 justify-end">
-        <Button variant="secondary" @click="closeRole">Cancel</Button>
+        <Button variant="secondary" @click="closeRole">Cancelar</Button>
         <Button :loading="rolesStore.saving" @click="saveRolePerms">
           <template #icon-left><Icon icon="mdi:content-save-outline" /></template>
-          Save Permissions
+          Guardar Permissões
         </Button>
       </div>
     </template>
   </Modal>
 
   <!-- ── Assign role modal ─────────────────────────────────────────────────── -->
-  <Modal v-model="showAssign" title="Assign Role to Member" size="md">
+  <Modal v-model="showAssign" title="Atribuir Cargo ao Membro" size="md">
     <div class="flex flex-col gap-4">
       <!-- Member search -->
       <div class="flex flex-col gap-1">
         <label class="text-sm font-medium text-gray-700"
-          >Member<span class="text-red-500 ml-0.5">*</span></label
+          >Membro<span class="text-red-500 ml-0.5">*</span></label
         >
         <div class="relative">
           <Icon
@@ -835,7 +840,7 @@ function permCount(perms: RolePermissions) {
           <input
             v-model="memberSearch"
             type="text"
-            placeholder="Search by name or phone..."
+            placeholder="Pesquisar por nome ou telefone..."
             class="w-full pl-9 pr-3 py-2 text-sm border border-gray-300 rounded-lg outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500"
           />
         </div>
@@ -866,7 +871,7 @@ function permCount(perms: RolePermissions) {
             />
           </button>
           <p v-if="!filteredMembers.length" class="text-center py-4 text-xs text-gray-400">
-            No members found
+            Nenhum membro encontrado
           </p>
         </div>
         <p v-if="assignErrors.memberId" class="text-xs text-red-500">{{ assignErrors.memberId }}</p>
@@ -875,7 +880,7 @@ function permCount(perms: RolePermissions) {
       <!-- Role picker -->
       <div class="flex flex-col gap-1">
         <label class="text-sm font-medium text-gray-700"
-          >Role<span class="text-red-500 ml-0.5">*</span></label
+          >Cargo<span class="text-red-500 ml-0.5">*</span></label
         >
         <div class="grid grid-cols-2 gap-2">
           <button
@@ -926,13 +931,13 @@ function permCount(perms: RolePermissions) {
         </p>
         <p>{{ rolesStore.roleById(assignForm.roleId)?.description }}</p>
         <p class="mt-1 text-gray-400">
-          {{ permCount(rolesStore.roleById(assignForm.roleId)?.permissions ?? {}) }} permissions
+          {{ permCount(rolesStore.roleById(assignForm.roleId)?.permissions ?? {}) }} permissões
           across
-          {{ Object.keys(rolesStore.roleById(assignForm.roleId)?.permissions ?? {}).length }} pages
+          {{ Object.keys(rolesStore.roleById(assignForm.roleId)?.permissions ?? {}).length }} páginas
         </p>
       </div>
 
-      <!-- Dashboard login — creates the same users/{uid} record as Dashboard Access below -->
+      <!-- Dashboard login — creates the same users/{uid} record as Acesso ao Painel below -->
       <div
         v-if="authStore.isSuperAdmin && assignForm.memberId"
         class="flex flex-col gap-3 border-t border-gray-100 pt-4"
@@ -948,11 +953,11 @@ function permCount(perms: RolePermissions) {
             :disabled="!!existingAccountForMember"
             class="rounded border-gray-300 text-blue-600 focus:ring-blue-500/20"
           />
-          Also give them a login to the dashboard
+          Também conceder acesso ao painel
         </label>
 
         <p v-if="existingAccountForMember" class="text-xs text-gray-500">
-          Already has dashboard access ({{
+          Já possui acesso ao painel ({{
             existingAccountForMember.email ?? existingAccountForMember.uid
           }}).
         </p>
@@ -960,7 +965,7 @@ function permCount(perms: RolePermissions) {
         <template v-if="assignForm.sendInvite">
           <Input
             v-model="assignForm.inviteEmail"
-            label="Email address"
+            label="Endereço de Email"
             type="email"
             placeholder="person@example.com"
             :error="assignErrors.inviteEmail"
@@ -970,16 +975,16 @@ function permCount(perms: RolePermissions) {
             <div class="flex items-end gap-2">
               <Input
                 v-model="assignForm.invitePassword"
-                label="Password"
+                label="Palavra-passe"
                 :type="showAssignPassword ? 'text' : 'password'"
-                placeholder="At least 6 characters"
+                placeholder="Pelo menos 6 caracteres"
                 :error="assignErrors.invitePassword"
                 class="flex-1"
               >
                 <template #icon-right>
                   <button
                     type="button"
-                    :aria-label="showAssignPassword ? 'Hide password' : 'Show password'"
+                    :aria-label="showAssignPassword ? 'Ocultar palavra-passe' : 'Mostrar palavra-passe'"
                     class="pointer-events-auto"
                     @click="showAssignPassword = !showAssignPassword"
                   >
@@ -993,12 +998,11 @@ function permCount(perms: RolePermissions) {
                 size="sm"
                 @click="assignForm.invitePassword = generatePassword()"
               >
-                Generate
+                Gerar
               </Button>
             </div>
             <p class="text-xs text-gray-400">
-              Share this password with them directly — there is no way to look it up again once you
-              close this window.
+              Partilhe esta palavra-passe diretamente com a pessoa. Depois de fechar esta janela, não será possível consultá-la novamente.
             </p>
           </div>
         </template>
@@ -1007,27 +1011,27 @@ function permCount(perms: RolePermissions) {
 
     <template #footer>
       <div class="flex gap-2 justify-end">
-        <Button variant="secondary" @click="showAssign = false">Cancel</Button>
+        <Button variant="secondary" @click="showAssign = false">Cancelar</Button>
         <Button :loading="rolesStore.saving || accountsStore.saving" @click="doAssign">
           <template #icon-left><Icon icon="mdi:shield-check-outline" /></template>
-          {{ assignForm.sendInvite ? 'Assign Role & Create Login' : 'Assign Role' }}
+          {{ assignForm.sendInvite ? 'Atribuir Cargo & Create Login' : 'Atribuir Cargo' }}
         </Button>
       </div>
     </template>
   </Modal>
 
-  <!-- ── Custom permissions modal ──────────────────────────────────────────── -->
-  <Modal v-model="showCustom" title="Customize Member Permissions" size="xl">
+  <!-- ── Custom permissões modal ──────────────────────────────────────────── -->
+  <Modal v-model="showCustom" title="Personalizar Permissões do Membro" size="xl">
     <div class="flex flex-col gap-4">
       <p class="text-sm text-gray-500">
-        These permissions override the role defaults for this specific member only.
+        These permissões override the role defaults for this specific member only.
       </p>
 
       <div class="overflow-x-auto rounded-xl border border-gray-200">
         <table class="w-full text-sm">
           <thead>
             <tr class="bg-gray-50 border-b border-gray-200">
-              <th class="text-left px-4 py-2.5 text-xs font-medium text-gray-500 w-36">Page</th>
+              <th class="text-left px-4 py-2.5 text-xs font-medium text-gray-500 w-36">Página</th>
               <th
                 v-for="action in ALL_ACTIONS"
                 :key="action"
@@ -1043,7 +1047,7 @@ function permCount(perms: RolePermissions) {
               :key="page"
               class="border-b border-gray-100 hover:bg-gray-50 transition-colors"
             >
-              <td class="px-4 py-2.5 font-medium text-gray-700 text-xs">{{ page }}</td>
+              <td class="px-4 py-2.5 font-medium text-gray-700 text-xs">{{ pageLabels[page] ?? page }}</td>
               <td v-for="action in ALL_ACTIONS" :key="action" class="px-3 py-2.5 text-center">
                 <button
                   :class="[
@@ -1052,7 +1056,7 @@ function permCount(perms: RolePermissions) {
                       ? 'bg-blue-600 border-blue-600'
                       : 'border-gray-300 hover:border-blue-400',
                   ]"
-                  :aria-label="`${customPerms[page]?.[action] ? 'Revoke' : 'Grant'} ${action} on ${page}`"
+                  :aria-label="`${customPerms[page]?.[action] ? 'Remover' : 'Conceder'} ${action} on ${page}`"
                   @click="toggleCustomPerm(page, action)"
                 >
                   <Icon
@@ -1070,10 +1074,10 @@ function permCount(perms: RolePermissions) {
 
     <template #footer>
       <div class="flex gap-2 justify-end">
-        <Button variant="secondary" @click="showCustom = false">Cancel</Button>
+        <Button variant="secondary" @click="showCustom = false">Cancelar</Button>
         <Button :loading="rolesStore.saving" @click="saveCustomPerms">
           <template #icon-left><Icon icon="mdi:content-save-outline" /></template>
-          Save Custom Permissions
+          Guardar Permissões Personalizadas
         </Button>
       </div>
     </template>

@@ -68,7 +68,7 @@ function share() {
         class="rounded-full bg-[#2563EB] px-6 py-3 text-sm font-semibold text-white hover:bg-blue-700 transition-colors"
         aria-label="Back to sermons"
       >
-        Back to Sermons
+        Voltar aos Sermões
       </NuxtLink>
     </div>
 
@@ -76,10 +76,10 @@ function share() {
       <!-- Breadcrumb -->
       <div class="mx-auto max-w-7xl px-4 py-5 sm:px-6 lg:px-8">
         <nav class="flex items-center gap-2 text-xs text-gray-400" aria-label="Breadcrumb">
-          <NuxtLink to="/" class="hover:text-[#2563EB] transition-colors">Home</NuxtLink>
+          <NuxtLink to="/" class="hover:text-[#2563EB] transition-colors">Início</NuxtLink>
           <Icon icon="heroicons:chevron-right" class="h-3 w-3" />
           <NuxtLink to="/teachings/sermons" class="hover:text-[#2563EB] transition-colors"
-            >Sermons</NuxtLink
+            >Sermões</NuxtLink
           >
           <Icon icon="heroicons:chevron-right" class="h-3 w-3" />
           <span class="text-gray-600 line-clamp-1">{{ sermon.title }}</span>

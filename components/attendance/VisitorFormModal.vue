@@ -51,12 +51,12 @@ function pick(v: Visitor) {
 }
 
 function save() {
-  errors.name = form.name.trim() ? '' : 'Name is required'
+  errors.name = form.name.trim() ? '' : 'O nome é obrigatório'
   // Optional, but if given it should be an address that could receive a reply.
   errors.email =
     !form.email.trim() || /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.email)
       ? ''
-      : 'Enter a valid email address or leave it blank'
+      : 'Introduza um email válido ou deixe o campo vazio'
 
   if (errors.name || errors.email) return
 
@@ -82,7 +82,7 @@ function close() {
 <template>
   <Modal
     :model-value="modelValue"
-    :title="isEdit ? 'Edit Visitor' : 'Record a Visitor'"
+    :title="isEdit ? 'Editar Visitante' : 'Registar Visitante'"
     size="xl"
     @update:model-value="close"
   >
@@ -90,20 +90,20 @@ function close() {
       <p class="text-xs text-gray-500">{{ serviceType }} · {{ formatDate(date, 'full') }}</p>
 
       <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
-        <EditField label="Full Name *" :error="errors.name" class="sm:col-span-2">
+        <EditField label="Nome Completo *" :error="errors.name" class="sm:col-span-2">
           <input
             v-model="form.name"
             type="text"
-            placeholder="Enter the visitor's full name"
+            placeholder="Digite o nome completo do visitante"
             :aria-invalid="Boolean(errors.name)"
           />
         </EditField>
 
-        <EditField label="Phone Number">
-          <input v-model="form.phone" type="tel" placeholder="+234 800 000 0000" />
+        <EditField label="Telefone">
+          <input v-model="form.phone" type="tel" placeholder="+258 84 000 0000" />
         </EditField>
 
-        <EditField label="Email Address" :error="errors.email">
+        <EditField label="Email" :error="errors.email">
           <input
             v-model="form.email"
             type="email"
@@ -112,30 +112,30 @@ function close() {
           />
         </EditField>
 
-        <EditField label="Church / Congregation" class="sm:col-span-2">
+        <EditField label="Igreja / Congregação" class="sm:col-span-2">
           <input
             v-model="form.church"
             type="text"
-            placeholder="e.g. Church of Christ, Uyo — or leave blank"
+            placeholder="Ex.: ICFR Beira Sede — ou deixe em branco"
           />
         </EditField>
 
-        <EditField label="Address" class="sm:col-span-2">
-          <input v-model="form.address" type="text" placeholder="No. 8 Convent Road, Ikot Ekpene" />
+        <EditField label="Endereço" class="sm:col-span-2">
+          <input v-model="form.address" type="text" placeholder="Ex.: Munhava, Beira" />
         </EditField>
       </div>
 
       <p class="text-xs text-gray-400">
-        Only the name is required — record whatever the visitor was willing to give.
+        Apenas o nome é obrigatório. Registe os outros dados que o visitante desejar fornecer.
       </p>
     </div>
 
     <template #footer>
       <div class="flex gap-2 justify-end">
-        <Button variant="secondary" @click="close">Cancel</Button>
+        <Button variant="secondary" @click="close">Cancelar</Button>
         <Button :loading="visitorsStore.saving" @click="save">
           <template #icon-left><Icon icon="mdi:account-plus-outline" /></template>
-          {{ isEdit ? 'Save Changes' : 'Record Visitor' }}
+          {{ isEdit ? 'Guardar Alterações' : 'Registar Visitante' }}
         </Button>
       </div>
     </template>
