@@ -20,7 +20,7 @@ const categories = computed(() =>
 
 <template>
   <div class="px-8 pb-14">
-    <h2 class="mb-5 text-[22px] font-bold text-gray-900">Explore More Images</h2>
+    <h2 class="mb-5 text-[22px] font-bold text-gray-900">Explore Mais Fotografias</h2>
 
     <div class="grid grid-cols-3 gap-4 sm:grid-cols-3">
       <NuxtLink

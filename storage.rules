@@ -1,0 +1,28 @@
+rules_version = '2';
+
+service firebase.storage {
+  match /b/{bucket}/o {
+
+    // Fotografias de membros/cadastros
+    match /members/{allPaths=**} {
+      allow read: if true;
+
+      allow create: if
+        request.resource.size < 5 * 1024 * 1024
+        && request.resource.contentType.matches('image/.*');
+
+      allow update, delete: if request.auth != null;
+    }
+
+    // Uploads gerais usados pelo projeto
+    match /uploads/{allPaths=**} {
+      allow read: if true;
+
+      allow create: if
+        request.resource.size < 5 * 1024 * 1024
+        && request.resource.contentType.matches('image/.*');
+
+      allow update, delete: if request.auth != null;
+    }
+  }
+}

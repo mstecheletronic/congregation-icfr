@@ -11,6 +11,7 @@ import type {
 // ─── Member ───────────────────────────────────────────────────────────────────
 
 export const MEMBER_STATUSES: Member['status'][] = [
+  'Pending',
   'Active',
   'Inactive',
   'Backslider',
@@ -23,7 +24,7 @@ export const MEMBER_STATUSES: Member['status'][] = [
 ]
 
 /** Statuses excluded from the default "All Members" view */
-export const HIDDEN_STATUSES: Member['status'][] = ['Late']
+export const HIDDEN_STATUSES: Member['status'][] = ['Pending', 'Late']
 
 export const MEMBER_GENDERS = ['Male', 'Female'] as const
 export type Gender = (typeof MEMBER_GENDERS)[number]
@@ -343,3 +344,27 @@ export const LECTURESHIP_ROLES: Record<LectureshipSpeakerRole, LectureshipRoleMe
     emptyDescription: 'The moderator you add will appear here and on the public Lectureship page.',
   },
 }
+
+// ─── ICFR Departamentos e Grupos ─────────────────────────────────────────────
+
+export const ICFR_CHURCH_GROUPS = [
+  'Jovens',
+  'Mulheres / Mães',
+  'Homens / Pais',
+  'Crianças',
+  'Louvor e Adoração',
+  'Evangelismo',
+  'Protocolo',
+  'Pastores / Liderança',
+  'Diáconos',
+] as const
+
+export const ICFR_CHURCH_POSITIONS = [
+  'Membro',
+  'Líder',
+  'Vice-líder',
+  'Pastor',
+  'Diácono',
+  'Coordenador',
+  'Secretário',
+] as const

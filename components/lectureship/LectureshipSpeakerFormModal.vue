@@ -157,7 +157,7 @@ async function handleSubmit() {
 
     <template #footer>
       <div class="flex justify-end gap-2">
-        <Button variant="secondary" type="button" @click="close">Cancel</Button>
+        <Button variant="secondary" type="button" @click="close">Cancelar</Button>
         <Button type="button" :loading="saving" @click="handleSubmit">
           {{ isEditing ? 'Save changes' : 'Add profile' }}
         </Button>

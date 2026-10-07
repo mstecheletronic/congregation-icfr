@@ -16,16 +16,60 @@ const props = withDefaults(defineProps<Props>(), {
 
 const attendanceStore = useAttendanceStore()
 const membersStore = useMembersStore()
+const route = useRoute()
 const { exportCSV } = useExportCSV()
+
+function dateFromIso(date: string) {
+  const [year, month, day] = date.split('-').map(Number)
+  return new Date(year!, month! - 1, day!)
+}
+
+function fullDatePt(date: string) {
+  const formatted = new Intl.DateTimeFormat('pt-MZ', {
+    weekday: 'long',
+    day: 'numeric',
+    month: 'long',
+    year: 'numeric',
+  }).format(dateFromIso(date))
+
+  return formatted.charAt(0).toUpperCase() + formatted.slice(1)
+}
+
+function shortDatePt(date: string) {
+  const formatted = new Intl.DateTimeFormat('pt-MZ', {
+    weekday: 'short',
+    day: 'numeric',
+    month: 'short',
+  })
+    .format(dateFromIso(date))
+    .replace(/\./g, '')
+
+  return formatted.charAt(0).toUpperCase() + formatted.slice(1)
+}
 
 const searchQuery = ref('')
 const hasChanged = ref(false)
+
+const congregationOptions = [
+  'Todas as Congregações',
+  'Muchatazina Sede',
+  'Cerâmica',
+  'Crespim',
+  'Chimoio',
+  'Tete',
+]
+
+const selectedCongregation = ref(
+  typeof route.query.congregation === 'string' ? route.query.congregation : 'Todas as Congregações'
+)
+
+const focusDate = computed(() => (typeof route.query.date === 'string' ? route.query.date : ''))
 
 // Get every meeting date for this service in this month. Combines:
 // 1. The service's scheduled day-of-week (e.g. Wednesdays for Bible Class).
 // 2. Any other dates that already have records for this month + service, so
 //    off-schedule meetings the user already recorded still get a column.
-const sundaysInMonth = computed(() => {
+const serviceDatesInMonth = computed(() => {
   const year = parseInt(props.month.substring(0, 4), 10)
   const mon = parseInt(props.month.substring(5, 7), 10)
   const dates = new Set<string>()
@@ -46,10 +90,24 @@ const sundaysInMonth = computed(() => {
 })
 
 const filteredMembers = computed(() => {
-  const q = searchQuery.value.toLowerCase()
-  return membersStore.members.filter(
-    (m) => !q || m.name.toLowerCase().includes(q) || m.phone.includes(q)
-  )
+  const q = searchQuery.value.toLowerCase().trim()
+
+  return membersStore.members.filter((m) => {
+    // Cadastros ainda aguardando aprovação não entram na folha de presenças.
+    if (m.status === 'Pending') return false
+
+    const matchesCongregation =
+      selectedCongregation.value === 'Todas as Congregações' ||
+      m.congregation === selectedCongregation.value
+
+    const matchesSearch =
+      !q ||
+      m.name.toLowerCase().includes(q) ||
+      (m.phone ?? '').toLowerCase().includes(q) ||
+      (m.churchNumber ?? '').toLowerCase().includes(q)
+
+    return matchesCongregation && matchesSearch
+  })
 })
 
 function isPresent(memberId: string, date: string) {
@@ -77,7 +135,7 @@ const pendingMark = ref<{
 
 const showWorshipModal = ref(false)
 
-function memberName(memberId: string) {
+function memberNome(memberId: string) {
   return membersStore.members.find((m) => m.id === memberId)?.name ?? 'Este membro'
 }
 
@@ -95,7 +153,7 @@ function toggle(memberId: string, date: string, event: Event) {
   pendingMark.value = {
     memberId,
     dates: [date],
-    subject: `${memberName(memberId)} · ${formatDate(date, 'full')}`,
+    subject: `${memberNome(memberId)} · ${formatDate(date, 'full')}`,
     scopeNote: '',
     revert: () => {
       checkbox.checked = false
@@ -140,9 +198,9 @@ function elsewhereTitle(memberId: string, date: string) {
   if (!record) return ''
   const where = record.congregation || 'outra congregação'
   const certificate = record.certificate
-    ? 'certificate of worship produced'
-    : 'certificate not yet produced'
-  return `Worshipped with ${where} — ${certificate}`
+    ? 'comprovativo de culto apresentado'
+    : 'comprovativo ainda não apresentado'
+  return `Participou em ${where} — ${certificate}`
 }
 
 // Registers can run to hundreds of names; page them so the sheet stays usable.
@@ -159,7 +217,7 @@ const {
 const openRowMenu = ref<string | null>(null)
 
 /**
- * Marks every Sunday in the displayed month for one member in a single go.
+ * Marks todas as datas da atividade in the displayed month for one member in a single go.
  *
  * Asks where once, not once per Sunday — a month of dialogs to record a month of attendance would
  * make the shortcut slower than ticking the boxes. The one answer applies to all of them, which the
@@ -167,7 +225,7 @@ const openRowMenu = ref<string | null>(null)
  */
 function markMonth(memberId: string, present: boolean) {
   openRowMenu.value = null
-  const dates = sundaysInMonth.value
+  const dates = serviceDatesInMonth.value
 
   if (!present) {
     for (const date of dates) {
@@ -180,14 +238,16 @@ function markMonth(memberId: string, present: boolean) {
   pendingMark.value = {
     memberId,
     dates: [...dates],
-    subject: `${memberName(memberId)} · ${dates.length} ${props.serviceType} services`,
-    scopeNote: `This answer applies to all ${dates.length} services in ${formatDate(props.month + '-01', 'monthYear')}.`,
+    subject: `${memberNome(memberId)} · ${dates.length} cultos de ${props.serviceType}`,
+    scopeNote: `Esta informação será aplicada aos ${dates.length} cultos de ${formatDate(props.month + '-01', 'monthYear')}.`,
     revert: () => {},
   }
   showWorshipModal.value = true
 }
 
-onMounted(() => {
+onMounted(async () => {
+  await membersStore.load()
+
   const dismiss = () => {
     openRowMenu.value = null
   }
@@ -196,7 +256,7 @@ onMounted(() => {
 })
 
 function getMonthlySummary(memberId: string) {
-  const dates = sundaysInMonth.value
+  const dates = serviceDatesInMonth.value
   const sessionsTotal = dates.length
   const sessionsPresent = dates.reduce((n, d) => (isPresent(memberId, d) ? n + 1 : n), 0)
   const percentage = sessionsTotal ? Math.round((sessionsPresent / sessionsTotal) * 100) : 0
@@ -222,14 +282,14 @@ function doExport() {
     filteredMembers.value.map((m) => {
       const summary = getMonthlySummary(m.id)
       const row: Record<string, unknown> = {
-        Name: m.name,
+        Nome: m.name,
         Phone: m.phone,
-        'Sessions Total': summary.sessionsTotal,
-        'Sessions Present': summary.sessionsPresent,
-        'Attendance %': summary.percentage,
+        'Total de Cultos': summary.sessionsTotal,
+        'Cultos Presentes': summary.sessionsPresent,
+        'Presença %': summary.percentage,
       }
-      sundaysInMonth.value.forEach((d) => {
-        // Names the congregation in the cell, so an exported register still shows which ticks were
+      serviceDatesInMonth.value.forEach((d) => {
+        // Nomes the congregation in the cell, so an exported register still shows which ticks were
         // earned elsewhere — a bare "Present" would flatten the two back together.
         if (!isPresent(m.id, d)) {
           row[d] = 'Ausente'
@@ -241,11 +301,11 @@ function doExport() {
           return
         }
         const where = record.congregation || 'outra congregação'
-        row[d] = `Present (${where}${record.certificate ? '' : ', certificate pending'})`
+        row[d] = `Presente (${where}${record.certificate ? '' : ', comprovativo pendente'})`
       })
       return row
     }),
-    `attendance-${props.month}`
+    `presencas-${props.month}`
   )
 }
 </script>
@@ -253,29 +313,60 @@ function doExport() {
 <template>
   <div class="flex flex-col gap-0">
     <!-- Controls -->
-    <div class="flex flex-col sm:flex-row gap-3 mb-4">
-      <div class="relative flex-1">
-        <Icon
-          icon="mdi:magnify"
-          class="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 text-base"
-        />
-        <input
-          v-model="searchQuery"
-          type="search"
-          placeholder="Pesquisar membros..."
-          class="w-full pl-9 pr-3 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500"
-          aria-label="Pesquisar presenças"
-        />
+    <div class="flex flex-col gap-3 mb-4">
+      <div class="grid grid-cols-1 gap-3 lg:grid-cols-[260px_1fr_auto]">
+        <div>
+          <label class="mb-1 block text-xs font-medium text-gray-500"> Congregação </label>
+
+          <select
+            v-model="selectedCongregation"
+            class="w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20"
+          >
+            <option
+              v-for="congregation in congregationOptions"
+              :key="congregation"
+              :value="congregation"
+            >
+              {{ congregation }}
+            </option>
+          </select>
+        </div>
+
+        <div class="relative self-end">
+          <Icon
+            icon="mdi:magnify"
+            class="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 text-base"
+          />
+          <input
+            v-model="searchQuery"
+            type="search"
+            placeholder="Pesquisar membros..."
+            class="w-full pl-9 pr-3 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500"
+            aria-label="Pesquisar presenças"
+          />
+        </div>
+
+        <div class="flex items-end gap-2">
+          <Button variant="secondary" size="sm" @click="doExport">
+            <template #icon-left><Icon icon="mdi:upload-outline" /></template>
+            Exportar CSV
+          </Button>
+          <Button variant="secondary" size="sm">
+            <template #icon-left><Icon icon="mdi:download-outline" /></template>
+            Importar CSV
+          </Button>
+        </div>
       </div>
-      <div class="flex gap-2">
-        <Button variant="secondary" size="sm" @click="doExport">
-          <template #icon-left><Icon icon="mdi:upload-outline" /></template>
-          Export CSV
-        </Button>
-        <Button variant="secondary" size="sm">
-          <template #icon-left><Icon icon="mdi:download-outline" /></template>
-          Import CSV
-        </Button>
+
+      <div class="flex flex-wrap items-center gap-2 text-xs text-gray-500">
+        <span class="rounded-lg bg-blue-50 px-2.5 py-1.5 font-medium text-blue-700">
+          {{ filteredMembers.length }}
+          membro{{ filteredMembers.length === 1 ? '' : 's' }}
+        </span>
+
+        <span v-if="selectedCongregation !== 'Todas as Congregações'">
+          Congregação: <strong>{{ selectedCongregation }}</strong>
+        </span>
       </div>
     </div>
 
@@ -285,13 +376,13 @@ function doExport() {
           <thead>
             <tr class="bg-gray-50 border-b border-gray-100">
               <th scope="col" class="text-left px-3 py-2.5 text-xs font-medium text-gray-500 w-10">
-                S/N
+                N.º
               </th>
               <th
                 scope="col"
                 class="text-left px-3 py-2.5 text-xs font-medium text-gray-500 min-w-[140px]"
               >
-                Name
+                Nome
               </th>
               <th
                 scope="col"
@@ -300,12 +391,15 @@ function doExport() {
                 Resumo Mensal do Membro
               </th>
               <th
-                v-for="date in sundaysInMonth"
+                v-for="date in serviceDatesInMonth"
                 :key="date"
                 scope="col"
-                class="text-center px-2 py-2.5 text-xs font-medium text-gray-500 w-16"
+                :class="[
+                  'text-center px-2 py-2.5 text-xs font-medium w-20',
+                  date === focusDate ? 'bg-blue-50 text-blue-700' : 'text-gray-500',
+                ]"
               >
-                {{ formatDate(date, 'dayMonth') }}
+                {{ shortDatePt(date) }}
               </th>
               <th scope="col" class="w-8 px-2 py-2.5"></th>
             </tr>
@@ -343,13 +437,17 @@ function doExport() {
                   </p>
                 </div>
               </td>
-              <td v-for="date in sundaysInMonth" :key="date" class="px-2 py-2.5 text-center">
+              <td
+                v-for="date in serviceDatesInMonth"
+                :key="date"
+                :class="['px-2 py-2.5 text-center', date === focusDate && 'bg-blue-50/50']"
+              >
                 <span class="inline-flex items-center gap-1">
                   <input
                     type="checkbox"
                     class="attendance-check"
                     :checked="isPresent(member.id, date)"
-                    :aria-label="`${member.name} attendance on ${date}`"
+                    :aria-label="`Presença de ${member.name} em ${fullDatePt(date)}`"
                     @change="toggle(member.id, date, $event)"
                   />
                   <!-- Marks a tick that came from another congregation. Without it the sheet shows
@@ -396,12 +494,12 @@ function doExport() {
               </td>
             </tr>
             <tr v-if="membersStore.loading && !pagedMembers.length">
-              <td :colspan="4 + sundaysInMonth.length" class="px-4">
+              <td :colspan="4 + serviceDatesInMonth.length" class="px-4">
                 <LoadingState :rows="6" title="Carregando registo..." />
               </td>
             </tr>
             <tr v-else-if="!pagedMembers.length">
-              <td :colspan="4 + sundaysInMonth.length" class="px-4">
+              <td :colspan="4 + serviceDatesInMonth.length" class="px-4">
                 <EmptyState
                   icon="mdi:calendar-check-outline"
                   title="Nenhum membro para marcar"

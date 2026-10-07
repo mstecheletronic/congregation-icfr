@@ -4,14 +4,17 @@ import type { ChartData } from 'chart.js'
 
 import { MEMBER_STATUSES } from '~/constants'
 definePageMeta({ layout: 'admin', middleware: ['auth'] })
-useSeoMeta({ title: 'Youth', description: 'Youth members management.' })
+useSeoMeta({
+  title: 'Jovens — ICFR Família Redimida',
+  description: 'Gestão dos jovens da ICFR Família Redimida.',
+})
 
 const { setHeader } = usePageHeader()
 const membersStore = useMembersStore()
 const { exportCSV } = useExportCSV()
 
 onMounted(() => {
-  setHeader('Youth', 'Managing youth members aged 13–35')
+  setHeader('Jovens', 'Gestão dos jovens com idades entre 13 e 35 anos')
 })
 
 // ─── Local filter state (independent from nominal-roll store filters) ────────
@@ -19,11 +22,11 @@ const search = ref('')
 const activeTab = ref<'all' | 'boys' | 'girls' | 'active' | 'inactive'>('all')
 
 const tabs = [
-  { label: 'All Youth', value: 'all' },
-  { label: 'Boys', value: 'boys' },
-  { label: 'Girls', value: 'girls' },
-  { label: 'Active', value: 'active' },
-  { label: 'Inactive', value: 'inactive' },
+  { label: 'Todos os Jovens', value: 'all' },
+  { label: 'Rapazes', value: 'boys' },
+  { label: 'Raparigas', value: 'girls' },
+  { label: 'Ativos', value: 'active' },
+  { label: 'Inativos', value: 'inactive' },
 ]
 
 // ─── Youth computed list ─────────────────────────────────────────────────────
@@ -49,31 +52,27 @@ const filteredYouth = computed(() => {
 // ─── Stats cards ─────────────────────────────────────────────────────────────
 const statCards = computed(() => [
   {
-    label: 'Total Youth',
+    label: 'Total de Jovens',
     value: membersStore.youthMembers.length,
-    subtitle: 'Ages 13–35',
-    change: 12,
+    subtitle: 'Idades entre 13 e 35 anos',
     tab: 'all' as const,
   },
   {
-    label: 'Youth Girls',
+    label: 'Raparigas',
     value: membersStore.youthGirlsCount,
-    subtitle: `${membersStore.youthMembers.length - membersStore.youthGirlsCount} boys`,
-    change: 8,
+    subtitle: `${membersStore.youthMembers.length - membersStore.youthGirlsCount} rapazes`,
     tab: 'girls' as const,
   },
   {
-    label: 'Youth Boys',
+    label: 'Rapazes',
     value: membersStore.youthBoysCount,
-    subtitle: `${membersStore.youthMembers.length - membersStore.youthBoysCount} girls`,
-    change: 15,
+    subtitle: `${membersStore.youthMembers.length - membersStore.youthBoysCount} raparigas`,
     tab: 'boys' as const,
   },
   {
-    label: 'Active Youth',
+    label: 'Jovens Ativos',
     value: membersStore.youthActiveCount,
-    subtitle: `${membersStore.youthMembers.length - membersStore.youthActiveCount} inactive`,
-    change: 10,
+    subtitle: `${membersStore.youthMembers.length - membersStore.youthActiveCount} inativos`,
     tab: 'active' as const,
   },
 ])
@@ -95,7 +94,21 @@ function viewList(tab: 'all' | 'boys' | 'girls' | 'active' | 'inactive') {
  * Plots counts, not percentages. Chart.js works out the arcs, tooltips then show real numbers,
  * and rounding each slice to a whole percent no longer makes them fail to add up to 100.
  */
+const STATUS_LABELS: Record<string, string> = {
+  Pending: 'Aguardando',
+  Active: 'Ativo',
+  Inactive: 'Inativo',
+  Backslider: 'Desviado',
+  Weak: 'Em Acompanhamento',
+  Distant: 'Distante',
+  Withdrawal: 'Afastamento',
+  Disfellowshipped: 'Desligado',
+  Transfer: 'Transferido',
+  Late: 'Afastado',
+}
+
 const STATUS_COLORS: Record<string, string> = {
+  Pending: '#f59e0b',
   Active: '#3b82f6',
   Inactive: '#94a3b8',
   Backslider: '#f59e0b',
@@ -114,9 +127,10 @@ const STATUS_COLORS: Record<string, string> = {
  */
 const emptyYouthReason = computed(() => {
   const withDob = membersStore.members.filter((m) => m.dob).length
-  if (!membersStore.members.length) return 'No members on the roll yet.'
-  if (!withDob) return 'No dates of birth recorded, so nobody can be identified as youth (13–35).'
-  return 'No members aged 13–35 on the roll.'
+  if (!membersStore.members.length) return 'Ainda não existem membros cadastrados.'
+  if (!withDob)
+    return 'Ainda não existem datas de nascimento registadas para identificar jovens entre 13 e 35 anos.'
+  return 'Não existem membros com idade entre 13 e 35 anos.'
 })
 
 const youthByStatus = computed(() =>
@@ -129,7 +143,7 @@ const youthByStatus = computed(() =>
 const donutData = computed<ChartData<'doughnut'>>(() => {
   const entries = youthByStatus.value
   return {
-    labels: entries.map((e) => e.status),
+    labels: entries.map((e) => STATUS_LABELS[e.status] ?? e.status),
     datasets: [
       {
         data: entries.map((e) => e.count),
@@ -168,23 +182,23 @@ async function onMemberSaved(member: Omit<Member, 'id' | 'absenceCount'>) {
 function doExport() {
   exportCSV(
     filteredYouth.value.map((m) => ({
-      Name: m.name,
-      Gender: m.gender,
-      Phone: m.phone,
+      Nome: m.name,
+      Sexo: m.gender === 'Male' ? 'Masculino' : 'Feminino',
+      Telefone: m.phone,
       Email: m.email,
-      'Date of Birth': m.dob ?? '',
-      Status: m.status,
-      School: m.school ?? '',
-      Department: m.department ?? '',
-      'Course of Study': m.courseOfStudy ?? '',
-      Programme: m.program ?? '',
-      Level: m.level ?? '',
-      'Hall of Residence': m.hallOfResidence ?? '',
-      'Year of Entry': m.yearOfEntry ?? '',
-      'Year of Exit': m.yearOfExit ?? '',
-      Comment: m.comment ?? '',
+      'Data de Nascimento': m.dob ?? '',
+      Estado: m.status,
+      Escola: m.school ?? '',
+      Departamento: m.department ?? '',
+      Curso: m.courseOfStudy ?? '',
+      Programa: m.program ?? '',
+      Nível: m.level ?? '',
+      Residência: m.hallOfResidence ?? '',
+      'Ano de Entrada': m.yearOfEntry ?? '',
+      'Ano de Saída': m.yearOfExit ?? '',
+      Comentário: m.comment ?? '',
     })),
-    'youth-members'
+    'jovens-icfr'
   )
 }
 
@@ -206,7 +220,7 @@ async function onImport(members: Omit<Member, 'id' | 'absenceCount'>[]) {
       <div></div>
       <Button @click="showAddModal = true">
         <template #icon-left><Icon icon="mdi:plus" /></template>
-        Add Youth Member
+        Adicionar Jovem
       </Button>
     </div>
 
@@ -221,28 +235,19 @@ async function onImport(members: Omit<Member, 'id' | 'absenceCount'>[]) {
               <p class="text-3xl font-bold text-gray-900 mt-1">{{ card.value }}</p>
               <p class="text-xs text-gray-400 mt-1">{{ card.subtitle }}</p>
             </div>
-            <Badge :variant="card.change >= 0 ? 'success' : 'danger'" size="sm">
-              <template #icon>
-                <Icon
-                  :icon="card.change >= 0 ? 'mdi:trending-up' : 'mdi:trending-down'"
-                  class="text-[10px]"
-                />
-              </template>
-              {{ Math.abs(card.change) }}%
-            </Badge>
           </div>
           <button
             class="mt-3 text-xs text-blue-600 hover:underline cursor-pointer"
             @click="viewList(card.tab)"
           >
-            View List
+            Ver Lista
           </button>
         </Card>
       </div>
 
       <!-- Donut chart -->
       <div class="bg-slate-800 rounded-xl p-4 flex flex-col">
-        <h3 class="text-sm font-semibold text-white mb-3">Youth Summary</h3>
+        <h3 class="text-sm font-semibold text-white mb-3">Resumo dos Jovens</h3>
         <DonutChart v-if="youthByStatus.length" :data="donutData" :height="180" />
         <p v-else class="py-10 text-center text-xs leading-relaxed text-slate-400">
           {{ emptyYouthReason }}
@@ -256,11 +261,11 @@ async function onImport(members: Omit<Member, 'id' | 'absenceCount'>[]) {
       <div class="flex gap-2 shrink-0">
         <Button variant="secondary" size="sm" @click="doExport">
           <template #icon-left><Icon icon="mdi:upload-outline" /></template>
-          Export CSV
+          Exportar CSV
         </Button>
         <Button variant="secondary" size="sm" @click="showImport = true">
           <template #icon-left><Icon icon="mdi:download-outline" /></template>
-          Import CSV
+          Importar CSV
         </Button>
       </div>
     </div>
@@ -275,9 +280,9 @@ async function onImport(members: Omit<Member, 'id' | 'absenceCount'>[]) {
         <input
           v-model="search"
           type="search"
-          placeholder="Search youth members..."
+          placeholder="Pesquisar jovens..."
           class="w-full pl-9 pr-3 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500"
-          aria-label="Search youth"
+          aria-label="Pesquisar jovens"
         />
       </div>
       <Button variant="secondary" size="sm">
@@ -292,12 +297,12 @@ async function onImport(members: Omit<Member, 'id' | 'absenceCount'>[]) {
       <EmptyState
         icon="mdi:account-star-outline"
         title="Ainda não existem jovens cadastrados"
-        description="Members aged 13–35 appear here automatically once their date of birth is recorded."
+        description="Os membros com idade entre 13 e 35 anos aparecem aqui automaticamente quando a data de nascimento está registada."
       >
         <template #action>
           <Button @click="showAddModal = true">
             <template #icon-left><Icon icon="mdi:plus" /></template>
-            Add Youth Member
+            Adicionar Jovem
           </Button>
         </template>
       </EmptyState>

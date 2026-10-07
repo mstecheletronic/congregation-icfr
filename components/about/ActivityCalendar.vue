@@ -27,9 +27,9 @@ const cfg = computed(() => s.settings.activityCalendar)
           <!-- Header -->
           <thead>
             <tr class="bg-navy text-white">
-              <th class="py-3.5 px-6 text-left font-medium tracking-wide">Day</th>
-              <th class="py-3.5 px-6 text-left font-medium tracking-wide">Activity</th>
-              <th class="py-3.5 px-6 text-left font-medium tracking-wide">Time</th>
+              <th class="py-3.5 px-6 text-left font-medium tracking-wide">Dia</th>
+              <th class="py-3.5 px-6 text-left font-medium tracking-wide">Atividade</th>
+              <th class="py-3.5 px-6 text-left font-medium tracking-wide">Horário</th>
             </tr>
           </thead>
 
@@ -51,7 +51,7 @@ const cfg = computed(() => s.settings.activityCalendar)
                   icon="mdi:calendar-blank-outline"
                   size="sm"
                   title="Nenhuma atividade programada"
-                  description="The weekly calendar is set up in Settings → Activity Calendar."
+                  description="O calendário semanal é configurado em Configurações → Calendário de Atividades."
                 />
               </td>
             </tr>
@@ -63,7 +63,7 @@ const cfg = computed(() => s.settings.activityCalendar)
                   to="/about-us"
                   class="text-sm font-medium text-blue-600 hover:text-blue-800 hover:underline"
                 >
-                  Get more information &rarr;
+                  Ver mais informações &rarr;
                 </NuxtLink>
               </td>
             </tr>

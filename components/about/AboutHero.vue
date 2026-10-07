@@ -8,13 +8,13 @@ const cfg = computed(() => s.settings.aboutHero)
   <div class="relative h-[200px] w-full overflow-hidden md:h-[280px]">
     <!-- Background image -->
     <img
-      :src="displayableImageUrl(cfg.backgroundImage)"
-      alt="Congregation gathering"
+      src="/images/gallery/icfr-17.jpg"
+      alt="Comunidade da ICFR Família Redimida"
       class="absolute inset-0 h-full w-full object-cover object-center"
     />
 
     <!-- Dark overlay -->
-    <div class="absolute inset-0 bg-black/65"></div>
+    <div class="absolute inset-0 bg-gradient-to-b from-black/55 via-black/45 to-[#1E3A5F]/80"></div>
 
     <!-- Centered text -->
     <div class="relative z-10 flex h-full flex-col items-center justify-center px-4 text-center">

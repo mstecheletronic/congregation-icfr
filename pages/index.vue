@@ -8,8 +8,7 @@ useSeoMeta({
   description:
     'Bem-vindo à ICFR Família Redimida. Acompanhe cultos, ensinamentos, eventos, congregações e atividades da igreja.',
   ogTitle: 'ICFR Família Redimida',
-  ogDescription:
-    'ICFR Família Redimida — Resgatando vidas para Cristo.',
+  ogDescription: 'ICFR Família Redimida — Resgatando vidas para Cristo.',
   ogImage: '/images/heroImg.png',
 })
 
@@ -53,6 +52,6 @@ useHead({
 
     <ContactForm />
 
-    <PhotoGallery />
+    <ChurchGallery />
   </div>
 </template>

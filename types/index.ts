@@ -18,6 +18,7 @@ export interface Member {
    * rest are pastoral decisions and are never overwritten automatically.
    */
   status:
+    | 'Pending'
     | 'Active'
     | 'Inactive'
     | 'Backslider'
@@ -42,6 +43,17 @@ export interface Member {
    * Congregação atual do membro na ICFR Família Redimida.
    */
   congregation?: string
+
+  /**
+   * Departamentos/grupos da igreja aos quais o membro pertence.
+   * Um membro pode participar em mais de um grupo.
+   */
+  churchGroups?: string[]
+
+  /**
+   * Função/cargo principal exercido pelo membro na igreja.
+   */
+  churchPosition?: string
 
   maritalStatus?: string
   dateOfBaptism?: string
@@ -261,19 +273,9 @@ export type ExpenseCategory =
   | 'Media'
   | 'Others'
 
-export type FinanceIncomeType =
-  | 'Tithe'
-  | 'Offering'
-  | 'Contribution'
-  | 'Special Offering'
-  | 'Other'
+export type FinanceIncomeType = 'Tithe' | 'Offering' | 'Contribution' | 'Special Offering' | 'Other'
 
-export type FinancePaymentMethod =
-  | 'Cash'
-  | 'M-Pesa'
-  | 'E-Mola'
-  | 'Bank'
-  | 'Other'
+export type FinancePaymentMethod = 'Cash' | 'M-Pesa' | 'E-Mola' | 'Bank' | 'Other'
 
 export interface FinanceCollection {
   id: string

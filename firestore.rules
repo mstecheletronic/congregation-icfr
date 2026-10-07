@@ -348,6 +348,106 @@ service cloud.firestore {
       allow write: if canEditSettings();
     }
 
+
+    // ── Group chat ────────────────────────────────────────────────────────
+    //
+    // Staff pode moderar todos os chats.
+    // Contas ligadas a um memberId só podem usar chats dos grupos
+    // aos quais o respetivo membro pertence.
+
+    function linkedMemberId() {
+      return hasRoleDoc()
+        && get(
+          /databases/$(database)/documents/users/$(request.auth.uid)
+        ).data.keys().hasAny(['memberId'])
+        ? get(
+            /databases/$(database)/documents/users/$(request.auth.uid)
+          ).data.memberId
+        : '';
+    }
+
+    function memberBelongsToGroup(groupName) {
+      let memberId = linkedMemberId();
+
+      return memberId != ''
+        && exists(
+          /databases/$(database)/documents/members/$(memberId)
+        )
+        && get(
+          /databases/$(database)/documents/members/$(memberId)
+        ).data.keys().hasAny(['churchGroups'])
+        && groupName in get(
+          /databases/$(database)/documents/members/$(memberId)
+        ).data.churchGroups;
+    }
+
+    match /groupChats/{groupId} {
+
+      allow read: if isStaff()
+        || memberBelongsToGroup(resource.data.name);
+
+      allow create: if signedIn()
+        && request.resource.data.keys().hasOnly([
+          'name',
+          'createdAt',
+          'updatedAt'
+        ])
+        && (
+          isStaff()
+          || memberBelongsToGroup(
+            request.resource.data.name
+          )
+        );
+
+      allow update, delete: if isStaff();
+
+      match /messages/{messageId} {
+
+        function chatGroupName() {
+          return get(
+            /databases/$(database)/documents/groupChats/$(groupId)
+          ).data.name;
+        }
+
+        allow read: if isStaff()
+          || memberBelongsToGroup(
+            chatGroupName()
+          );
+
+        allow create: if signedIn()
+          && (
+            isStaff()
+            || memberBelongsToGroup(
+              chatGroupName()
+            )
+          )
+          && request.resource.data.keys().hasOnly([
+            'senderUid',
+            'senderName',
+            'senderMemberId',
+            'type',
+            'text',
+            'createdAt'
+          ])
+          && request.resource.data.senderUid
+              == request.auth.uid
+          && request.resource.data.senderName is string
+          && request.resource.data.senderName.size() > 0
+          && request.resource.data.senderName.size() <= 150
+          && request.resource.data.senderMemberId is string
+          && request.resource.data.type == 'text'
+          && request.resource.data.text is string
+          && request.resource.data.text.size() > 0
+          && request.resource.data.text.size() <= 3000
+          && request.resource.data.createdAt
+              == request.time;
+
+        allow update: if false;
+
+        allow delete: if isStaff();
+      }
+    }
+
     // ── Members ────────────────────────────────────────────────────────────
     match /members/{memberId} {
 
@@ -356,7 +456,8 @@ service cloud.firestore {
       function allowedFields() {
         return [
           'name', 'gender', 'phone', 'email', 'dob', 'status', 'absenceCount',
-          'avatar', 'churchNumber', 'congregation', 'maritalStatus', 'dateOfBaptism',
+          'avatar', 'churchNumber', 'congregation', 'churchGroups', 'churchPosition',
+          'maritalStatus', 'dateOfBaptism',
           'dateJoined', 'country', 'state', 'localGovernment', 'village',
           'address', 'occupation', 'previousCongregation',
           'previousMinisterPhone', 'emergencyContact', 'createdAt', 'updatedAt',
@@ -381,7 +482,7 @@ service cloud.firestore {
       // A self-registration may not hand itself a privileged status or a
       // pre-cooked absence count — the secretary sets those later.
       function selfRegistrationIsSane(data) {
-        return data.status == 'Active' && data.absenceCount == 0;
+        return data.status == 'Pending' && data.absenceCount == 0;
       }
 
       allow read: if isStaff();

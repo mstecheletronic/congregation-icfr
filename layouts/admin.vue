@@ -28,9 +28,14 @@ const allNavItems = [
     icon: 'mdi:account-group-outline',
   },
   {
-    label: 'Jovens',
-    to: '/admin/youth',
-    icon: 'mdi:account-star-outline',
+    label: 'Aprovações',
+    to: '/admin/approvals',
+    icon: 'mdi:account-check-outline',
+  },
+  {
+    label: 'Departamentos e Grupos',
+    to: '/admin/groups',
+    icon: 'mdi:account-multiple-outline',
   },
   {
     label: 'Presenças',
@@ -99,9 +104,7 @@ async function logout() {
     <aside
       :class="[
         'fixed top-0 left-0 h-full w-60 bg-white border-r border-gray-200 flex flex-col z-30 transition-transform duration-200',
-        uiStore.mobileSidebarOpen
-          ? 'translate-x-0'
-          : '-translate-x-full lg:translate-x-0',
+        uiStore.mobileSidebarOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0',
       ]"
     >
       <!-- Identificação da igreja -->
@@ -110,31 +113,20 @@ async function logout() {
           <div
             class="w-9 h-9 rounded-lg bg-blue-600 flex items-center justify-center flex-shrink-0"
           >
-            <Icon
-              icon="mdi:church"
-              class="text-white text-lg"
-            />
+            <Icon icon="mdi:church" class="text-white text-lg" />
           </div>
 
           <div class="min-w-0">
-            <p
-              class="font-bold text-gray-900 text-sm leading-tight"
-            >
+            <p class="font-bold text-gray-900 text-sm leading-tight">
               {{ settingsStore.settings.name }}
             </p>
 
-            <p class="text-xs text-blue-600">
-              Painel Administrativo
-            </p>
+            <p class="text-xs text-blue-600">Painel Administrativo</p>
           </div>
         </div>
 
         <div class="mt-3">
-          <p
-            class="text-[10px] font-medium text-gray-400 uppercase tracking-wide"
-          >
-            Igreja
-          </p>
+          <p class="text-[10px] font-medium text-gray-400 uppercase tracking-wide">Igreja</p>
 
           <p class="text-xs text-gray-600 mt-0.5">
             {{ settingsStore.settings.address }}
@@ -143,9 +135,7 @@ async function logout() {
       </div>
 
       <!-- Navegação -->
-      <nav
-        class="flex-1 px-3 py-4 space-y-0.5 sidebar-scroll overflow-y-auto"
-      >
+      <nav class="flex-1 px-3 py-4 space-y-0.5 sidebar-scroll overflow-y-auto">
         <NuxtLink
           v-for="item in navItems"
           :key="item.to"
@@ -158,10 +148,7 @@ async function logout() {
           ]"
           @click="uiStore.closeMobileSidebar()"
         >
-          <Icon
-            :icon="item.icon"
-            class="text-[18px] flex-shrink-0"
-          />
+          <Icon :icon="item.icon" class="text-[18px] flex-shrink-0" />
 
           {{ item.label }}
 
@@ -177,9 +164,7 @@ async function logout() {
 
       <!-- Parte inferior -->
       <div class="border-t border-gray-100 px-3 py-4">
-        <p
-          class="text-[10px] font-medium text-gray-400 uppercase tracking-wide px-3 mb-2"
-        >
+        <p class="text-[10px] font-medium text-gray-400 uppercase tracking-wide px-3 mb-2">
           Acesso rápido
         </p>
 
@@ -187,10 +172,7 @@ async function logout() {
           to="/"
           class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium text-gray-600 hover:bg-gray-50 hover:text-gray-900 transition-all"
         >
-          <Icon
-            icon="mdi:home-outline"
-            class="text-[18px]"
-          />
+          <Icon icon="mdi:home-outline" class="text-[18px]" />
 
           Ir para o início
         </NuxtLink>
@@ -202,10 +184,7 @@ async function logout() {
         >
           <Icon
             :icon="signingOut ? 'mdi:loading' : 'mdi:logout'"
-            :class="[
-              'text-[18px]',
-              signingOut && 'animate-spin',
-            ]"
+            :class="['text-[18px]', signingOut && 'animate-spin']"
           />
 
           {{ signingOut ? 'A sair…' : 'Sair' }}
@@ -216,69 +195,46 @@ async function logout() {
     <!-- Área principal -->
     <div class="flex flex-col flex-1 min-w-0 lg:ml-60">
       <!-- Barra superior -->
-      <header
-        class="sticky top-0 z-10 bg-white border-b border-gray-200"
-      >
+      <header class="sticky top-0 z-10 bg-white border-b border-gray-200">
         <EnvironmentBanner />
 
         <!-- Aviso caso a conta não tenha função -->
         <div
-          v-if="
-            authStore.roleLoaded &&
-            authStore.isAuthenticated &&
-            !authStore.isStaff
-          "
+          v-if="authStore.roleLoaded && authStore.isAuthenticated && !authStore.isStaff"
           class="flex items-start gap-2 bg-red-50 px-4 py-2 text-xs text-red-800"
           role="alert"
         >
-          <Icon
-            icon="mdi:shield-alert-outline"
-            class="mt-0.5 shrink-0 text-sm"
-          />
+          <Icon icon="mdi:shield-alert-outline" class="mt-0.5 shrink-0 text-sm" />
 
           <p>
-            Esta conta não possui uma função atribuída.
-            As alterações não poderão ser guardadas.
+            Esta conta não possui uma função atribuída. As alterações não poderão ser guardadas.
             Peça a um Super Administrador para atribuir uma função.
           </p>
         </div>
 
-        <div
-          class="px-4 lg:px-6 py-4 flex items-start gap-3"
-        >
+        <div class="px-4 lg:px-6 py-4 flex items-start gap-3">
           <!-- Botão do menu mobile -->
           <button
             class="lg:hidden mt-1 p-1.5 rounded-md hover:bg-gray-100 text-gray-500 shrink-0"
             aria-label="Abrir menu"
             @click="uiStore.toggleSidebar()"
           >
-            <Icon
-              icon="mdi:menu"
-              class="text-xl"
-            />
+            <Icon icon="mdi:menu" class="text-xl" />
           </button>
 
           <!-- Título -->
           <div class="min-w-0 flex-1">
-            <h1
-              class="font-serif text-xl sm:text-2xl font-bold text-gray-900 leading-tight"
-            >
+            <h1 class="font-serif text-xl sm:text-2xl font-bold text-gray-900 leading-tight">
               {{ title }}
             </h1>
 
-            <p
-              v-if="subtitle"
-              class="text-sm text-gray-500 mt-1"
-            >
+            <p v-if="subtitle" class="text-sm text-gray-500 mt-1">
               {{ subtitle }}
             </p>
           </div>
 
           <!-- Ações das páginas -->
-          <div
-            id="admin-header-actions"
-            class="shrink-0 self-center"
-          ></div>
+          <div id="admin-header-actions" class="shrink-0 self-center"></div>
         </div>
       </header>
 

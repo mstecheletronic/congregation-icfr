@@ -94,7 +94,7 @@ const cfg = computed(() => s.settings.worshipThisSunday)
               class="inline-flex items-center gap-2 text-sm font-medium text-blue-600 hover:text-blue-800 hover:underline"
             >
               <Icon icon="mdi:directions" class="h-4 w-4" />
-              Get directions
+              Ver Direções
             </a>
           </div>
         </div>

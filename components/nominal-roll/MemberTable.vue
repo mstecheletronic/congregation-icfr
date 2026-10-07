@@ -43,6 +43,7 @@ const hasAnyMembers = computed(() =>
 )
 
 const statusBadge = {
+  Pending: 'warning',
   Active: 'success',
   Inactive: 'neutral',
   Backslider: 'danger',
@@ -166,7 +167,9 @@ onUnmounted(() => {
             <td class="px-4 py-3 text-gray-600">{{ member.phone }}</td>
             <td class="px-4 py-3 text-gray-600">{{ member.email }}</td>
             <td class="px-4 py-3">
-              <Badge :variant="statusBadge[member.status] ?? 'neutral'">{{ member.status }}</Badge>
+              <Badge :variant="statusBadge[member.status] ?? 'neutral'">{{
+                member.status === 'Pending' ? 'Aguardando' : member.status
+              }}</Badge>
             </td>
             <td class="px-4 py-3 relative">
               <button
@@ -189,7 +192,11 @@ onUnmounted(() => {
             <td colspan="8" class="px-4">
               <EmptyState
                 icon="mdi:account-group-outline"
-                :title="hasAnyMembers ? 'Nenhum membro corresponde a estes filtros' : 'Ainda não existem membros'"
+                :title="
+                  hasAnyMembers
+                    ? 'Nenhum membro corresponde a estes filtros'
+                    : 'Ainda não existem membros'
+                "
                 :description="
                   hasAnyMembers
                     ? 'Tente limpar a pesquisa ou selecionar outra categoria.'

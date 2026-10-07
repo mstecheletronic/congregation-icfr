@@ -69,6 +69,8 @@ const ef = reactive<
   dob: '',
   churchNumber: '',
   congregation: '',
+  churchGroups: [],
+  churchPosition: 'Membro',
   status: 'Active',
   maritalStatus: '',
   dateOfBaptism: '',
@@ -107,6 +109,8 @@ function startEdit() {
     dob: m.dob ?? '',
     churchNumber: m.churchNumber ?? '',
     congregation: m.congregation ?? '',
+    churchGroups: m.churchGroups ?? [],
+    churchPosition: m.churchPosition ?? 'Membro',
     status: m.status ?? 'Active',
     maritalStatus: m.maritalStatus ?? '',
     dateOfBaptism: m.dateOfBaptism ?? '',
@@ -165,6 +169,28 @@ const yearRangeError = computed(() => {
  * anyone who already has details recorded — someone who has since turned 36 must still be able
  * to see and correct what was entered when they were 24.
  */
+const churchGroupOptions = [
+  'Jovens',
+  'Mulheres / Mães',
+  'Homens / Pais',
+  'Crianças',
+  'Louvor e Adoração',
+  'Evangelismo',
+  'Protocolo',
+  'Pastores / Liderança',
+  'Diáconos',
+]
+
+const churchPositionOptions = [
+  'Membro',
+  'Líder',
+  'Vice-líder',
+  'Pastor',
+  'Diácono',
+  'Coordenador',
+  'Secretário',
+]
+
 const showSchooling = computed(
   () => !!props.member && (isYouth(props.member) || hasSchoolingDetails(props.member))
 )
@@ -182,6 +208,8 @@ async function saveEdit() {
       dob: ef.dob,
       churchNumber: ef.churchNumber,
       congregation: ef.congregation,
+      churchGroups: ef.churchGroups,
+      churchPosition: ef.churchPosition,
       status: ef.status,
       maritalStatus: ef.maritalStatus,
       dateOfBaptism: ef.dateOfBaptism,
@@ -263,6 +291,7 @@ function fmt(d?: string) {
 }
 
 const statusConfig = {
+  Pending: { variant: 'warning', label: 'Aguardando Aprovação' },
   Active: { variant: 'success', label: 'Membro Ativo' },
   Inactive: { variant: 'neutral', label: 'Inativo' },
   Backslider: { variant: 'danger', label: 'Desviado' },
@@ -503,7 +532,11 @@ const initials = computed(() =>
                   label="Distrito"
                   :value="member.localGovernment ?? '—'"
                 />
-                <InfoField icon="mdi:home-outline" label="Localidade" :value="member.village ?? '—'" />
+                <InfoField
+                  icon="mdi:home-outline"
+                  label="Localidade"
+                  :value="member.village ?? '—'"
+                />
               </div>
             </div>
 
@@ -639,7 +672,7 @@ const initials = computed(() =>
                 @click="startEdit"
               >
                 <Icon icon="mdi:pencil-outline" class="text-base" />
-                Edit Details
+                Editar Dados
               </button>
               <button
                 class="flex items-center justify-center gap-1.5 border border-red-500 text-red-500 hover:bg-red-50 text-sm font-medium px-4 py-2.5 rounded-xl transition-colors disabled:opacity-60"
@@ -664,21 +697,23 @@ const initials = computed(() =>
             <div class="flex items-center gap-3">
               <button
                 class="p-1.5 rounded-lg hover:bg-gray-100 text-gray-500 transition-colors"
-                aria-label="Back to view"
+                aria-label="Voltar à visualização"
                 @click="cancelEdit"
               >
                 <Icon icon="mdi:arrow-top-left" class="text-lg" />
               </button>
               <div>
                 <h2 class="text-base font-bold text-gray-900 leading-tight">
-                  Edit Informações do Membro
+                  Editar Informações do Membro
                 </h2>
-                <p class="text-xs text-gray-400 mt-0.5">Atualize abaixo as informações do membro.</p>
+                <p class="text-xs text-gray-400 mt-0.5">
+                  Atualize abaixo as informações do membro.
+                </p>
               </div>
             </div>
             <button
               class="p-1.5 rounded-lg hover:bg-gray-100 text-gray-400 transition-colors"
-              aria-label="Close editor"
+              aria-label="Fechar editor"
               @click="cancelEdit"
             >
               <Icon icon="mdi:close" class="text-xl" />
@@ -687,14 +722,14 @@ const initials = computed(() =>
 
           <!-- Edit form (scrollable) -->
           <div class="flex-1 overflow-y-auto px-5 py-5 space-y-6 sidebar-scroll">
-            <!-- ── Personal Information ─────────────────────── -->
+            <!-- ── Informações Pessoais ─────────────────────── -->
             <section>
-              <h3 class="text-base font-bold text-gray-900 mb-4">Personal Information</h3>
+              <h3 class="text-base font-bold text-gray-900 mb-4">Informações Pessoais</h3>
               <div class="space-y-4">
                 <!-- Nome | Email -->
                 <div class="grid grid-cols-2 gap-3">
                   <EditField label="Nome">
-                    <input v-model="ef.name" type="text" placeholder="Full name" />
+                    <input v-model="ef.name" type="text" placeholder="Nome completo" />
                   </EditField>
                   <EditField label="Email">
                     <input v-model="ef.email" type="email" placeholder="email@example.com" />
@@ -706,12 +741,12 @@ const initials = computed(() =>
                   <EditField
                     label="Código de Membro"
                     :error="churchNumberError"
-                    hint="Must be unique. Leave blank if none has been assigned."
+                    hint="Deve ser único. Deixe em branco se ainda não foi atribuído."
                   >
                     <input
                       v-model="ef.churchNumber"
                       type="text"
-                      placeholder="e.g. COC/001"
+                      placeholder="Ex.: MEM-0001"
                       :aria-invalid="Boolean(churchNumberError)"
                     />
                   </EditField>
@@ -720,10 +755,49 @@ const initials = computed(() =>
                   </EditField>
                 </div>
 
-                <!-- Date of Registration -->
+                <!-- Data de Registo | Congregação Atual -->
                 <div class="grid grid-cols-2 gap-3">
-                  <EditField label="Date of Registration">
+                  <EditField label="Data de Registo">
                     <input v-model="ef.dateJoined" type="date" />
+                  </EditField>
+
+                  <EditField label="Congregação Atual">
+                    <select v-model="ef.congregation">
+                      <option value="">— Selecionar congregação —</option>
+                      <option value="Muchatazina Sede">Muchatazina Sede</option>
+                      <option value="Cerâmica">Cerâmica</option>
+                      <option value="Crespim">Crespim</option>
+                      <option value="Chimoio">Chimoio</option>
+                      <option value="Tete">Tete</option>
+                    </select>
+                  </EditField>
+                </div>
+
+                <!-- Departamentos / Grupos -->
+                <div class="space-y-3">
+                  <EditField label="Departamentos / Grupos">
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                      <label
+                        v-for="group in churchGroupOptions"
+                        :key="group"
+                        class="flex items-center gap-2 rounded-lg border border-gray-200 px-3 py-2 text-sm"
+                      >
+                        <input v-model="ef.churchGroups" type="checkbox" :value="group" />
+                        <span>{{ group }}</span>
+                      </label>
+                    </div>
+                  </EditField>
+
+                  <EditField label="Cargo / Função">
+                    <select v-model="ef.churchPosition">
+                      <option
+                        v-for="position in churchPositionOptions"
+                        :key="position"
+                        :value="position"
+                      >
+                        {{ position }}
+                      </option>
+                    </select>
                   </EditField>
                 </div>
 
@@ -740,7 +814,7 @@ const initials = computed(() =>
                     </select>
                   </EditField>
                   <EditField label="Estado Civil" class="col-span-1">
-                    <input v-model="ef.maritalStatus" type="text" placeholder="Single" />
+                    <input v-model="ef.maritalStatus" type="text" placeholder="Solteiro(a)" />
                   </EditField>
                 </div>
 
@@ -754,7 +828,7 @@ const initials = computed(() =>
                     </select>
                   </EditField>
                   <EditField label="Ocupação">
-                    <input v-model="ef.occupation" type="text" placeholder="e.g. Teacher" />
+                    <input v-model="ef.occupation" type="text" placeholder="Ex.: Professor" />
                   </EditField>
                 </div>
               </div>
@@ -768,16 +842,16 @@ const initials = computed(() =>
                   <EditField label="País">
                     <input v-model="ef.country" type="text" placeholder="Moçambique" />
                   </EditField>
-                  <EditField label="State of Origin">
-                    <input v-model="ef.state" type="text" placeholder="Akwa Ibom State" />
+                  <EditField label="Província de Origem">
+                    <input v-model="ef.state" type="text" placeholder="Sofala" />
                   </EditField>
                 </div>
                 <div class="grid grid-cols-2 gap-3">
-                  <EditField label="Local Government Area">
-                    <input v-model="ef.localGovernment" type="text" placeholder="Ibiono Ibom" />
+                  <EditField label="Distrito">
+                    <input v-model="ef.localGovernment" type="text" placeholder="Beira" />
                   </EditField>
                   <EditField label="Localidade">
-                    <input v-model="ef.village" type="text" placeholder="Ikot Oku" />
+                    <input v-model="ef.village" type="text" placeholder="Ex.: Muchatazina" />
                   </EditField>
                 </div>
               </div>
@@ -792,15 +866,11 @@ const initials = computed(() =>
                     <input v-model="ef.country" type="text" placeholder="Moçambique" />
                   </EditField>
                   <EditField label="Província">
-                    <input v-model="ef.state" type="text" placeholder="Akwa Ibom State" />
+                    <input v-model="ef.state" type="text" placeholder="Sofala" />
                   </EditField>
                 </div>
                 <EditField label="Endereço">
-                  <input
-                    v-model="ef.address"
-                    type="text"
-                    placeholder="Ex.: Munhava, Beira"
-                  />
+                  <input v-model="ef.address" type="text" placeholder="Ex.: Munhava, Beira" />
                 </EditField>
               </div>
             </section>

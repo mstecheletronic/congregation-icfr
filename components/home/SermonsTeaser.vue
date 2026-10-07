@@ -12,7 +12,7 @@ const { el: sectionRef, isVisible } = useScrollReveal()
       <div :class="['mb-10 flex items-end justify-between', 'reveal', isVisible && 'is-visible']">
         <SectionHeader
           title="Sermões e Ensinamentos"
-          subtitle="Biblical preaching for every season of life."
+          subtitle="Ensinos bíblicos para fortalecer a fé e transformar vidas."
         />
         <NuxtLink
           to="/teachings/sermons"

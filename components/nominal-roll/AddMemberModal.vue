@@ -40,6 +40,8 @@ const form = reactive<
   dob: '',
   churchNumber: '',
   congregation: '',
+  churchGroups: [],
+  churchPosition: 'Membro',
   status: 'Active',
   maritalStatus: '',
   dateOfBaptism: '',
@@ -103,17 +105,34 @@ const genderOptions = [
   { label: 'Feminino', value: 'Female' },
 ]
 
-const congregationOptions = [
-  'Muchatazina Sede',
-  'Cerâmica',
-  'Crespim',
-  'Chimoio',
-  'Tete',
+const congregationOptions = ['Muchatazina Sede', 'Cerâmica', 'Crespim', 'Chimoio', 'Tete']
+
+const churchGroupOptions = [
+  'Jovens',
+  'Mulheres / Mães',
+  'Homens / Pais',
+  'Crianças',
+  'Louvor e Adoração',
+  'Evangelismo',
+  'Protocolo',
+  'Pastores / Liderança',
+  'Diáconos',
+]
+
+const churchPositionOptions = [
+  'Membro',
+  'Líder',
+  'Vice-líder',
+  'Pastor',
+  'Diácono',
+  'Coordenador',
+  'Secretário',
 ]
 
 // Derived from MEMBER_STATUSES rather than hand-listed, so adding a status cannot leave it
 // missing from the dropdown that sets it.
 const statusLabels: Record<Member['status'], string> = {
+  Pending: 'Aguardando',
   Active: 'Ativo',
   Inactive: 'Inativo',
   Backslider: 'Desviado',
@@ -164,6 +183,8 @@ function save() {
     dob: form.dob,
     churchNumber: form.churchNumber,
     congregation: form.congregation,
+    churchGroups: form.churchGroups,
+    churchPosition: form.churchPosition,
     status: form.status,
     maritalStatus: form.maritalStatus,
     dateOfBaptism: form.dateOfBaptism,
@@ -214,6 +235,8 @@ function reset() {
     dob: '',
     churchNumber: '',
     congregation: '',
+    churchGroups: [],
+    churchPosition: 'Membro',
     status: 'Active',
     maritalStatus: '',
     dateOfBaptism: '',
@@ -320,6 +343,30 @@ watch(
             </EditField>
           </div>
 
+          <!-- Departamentos / Grupos -->
+          <div class="grid grid-cols-1 gap-3">
+            <EditField label="Departamentos / Grupos">
+              <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                <label
+                  v-for="group in churchGroupOptions"
+                  :key="group"
+                  class="flex items-center gap-2 rounded-lg border border-gray-200 px-3 py-2 text-sm"
+                >
+                  <input v-model="form.churchGroups" type="checkbox" :value="group" />
+                  <span>{{ group }}</span>
+                </label>
+              </div>
+            </EditField>
+
+            <EditField label="Cargo / Função">
+              <select v-model="form.churchPosition">
+                <option v-for="position in churchPositionOptions" :key="position" :value="position">
+                  {{ position }}
+                </option>
+              </select>
+            </EditField>
+          </div>
+
           <!-- Phone (wide) | Sexo | Marital Status -->
           <div class="grid grid-cols-4 gap-3">
             <EditField label="Telefone *" class="col-span-2">
@@ -404,11 +451,7 @@ watch(
             <input v-model="form.state" type="text" placeholder="Ex.: Sofala" />
           </EditField>
           <EditField label="Endereço Completo" class="sm:col-span-2">
-            <input
-              v-model="form.address"
-              type="text"
-              placeholder="Ex.: Munhava, Beira"
-            />
+            <input v-model="form.address" type="text" placeholder="Ex.: Munhava, Beira" />
           </EditField>
         </div>
       </section>
@@ -506,11 +549,7 @@ watch(
             />
           </EditField>
           <EditField label="Telefone do Pastor / Ministro">
-            <input
-              v-model="form.previousMinisterPhone"
-              type="tel"
-              placeholder="+258 84 000 0000"
-            />
+            <input v-model="form.previousMinisterPhone" type="tel" placeholder="+258 84 000 0000" />
           </EditField>
         </div>
       </section>

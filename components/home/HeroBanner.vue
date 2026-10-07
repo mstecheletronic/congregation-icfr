@@ -17,7 +17,8 @@ onMounted(() => {
 const name = computed(() => props.churchName ?? settingsStore.settings.name)
 const addr = computed(() => props.address ?? settingsStore.settings.address)
 const image = computed(
-  () => props.buildingImage ?? (settingsStore.settings.heroImageUrl || '/images/heroImg.png')
+  () =>
+    props.buildingImage ?? (settingsStore.settings.heroImageUrl || '/images/gallery/icfr-03.jpg')
 )
 const eyebrow = computed(() => settingsStore.settings.heroEyebrow)
 const tagline = computed(() => settingsStore.settings.heroTagline)
@@ -35,12 +36,12 @@ const secondaryCtaHref = computed(() => settingsStore.settings.heroSecondaryCtaH
     <img
       :src="displayableImageUrl(image)"
       :alt="`${name}`"
-      class="absolute inset-0 h-full w-full object-cover opacity-30 pointer-events-none select-none"
+      class="absolute inset-0 h-full w-full object-cover object-center pointer-events-none select-none"
       loading="eager"
     />
     <!-- Overlay gradient -->
     <div
-      class="absolute inset-0 bg-gradient-to-b from-black/60 via-[#1E3A5F]/50 to-[#1E3A5F]/90"
+      class="absolute inset-0 bg-gradient-to-b from-black/55 via-[#1E3A5F]/45 to-[#102A43]/90"
     ></div>
 
     <!-- Content -->
@@ -62,7 +63,7 @@ const secondaryCtaHref = computed(() => settingsStore.settings.heroSecondaryCtaH
       </p>
       <p
         v-if="tagline"
-        class="hero-animate mt-3 text-base italic text-white/60 md:text-lg"
+        class="hero-animate mt-4 text-lg font-medium italic text-white/90 md:text-xl"
         style="animation-delay: 360ms"
       >
         {{ tagline }}

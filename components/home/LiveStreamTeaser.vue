@@ -1,7 +1,11 @@
 <script setup lang="ts">
 const liveStore = usePublicLiveStreamStore()
 const settingsStore = useChurchSettingsStore()
-onMounted(() => settingsStore.load())
+
+onMounted(() => {
+  settingsStore.load()
+  liveStore.load(true)
+})
 
 const isLive = computed(() => liveStore.isLive && !!liveStore.currentStream)
 const stream = computed(() => liveStore.currentStream)
@@ -30,15 +34,14 @@ const { el: sectionRef, isVisible } = useScrollReveal()
           <div
             class="live-preview"
             :aria-label="
-              isLive && stream ? `Current live stream: ${stream.title}` : 'Nenhuma transmissão ao vivo ativa'
+              isLive && stream
+                ? `Transmissão ao vivo: ${stream.title}`
+                : 'Nenhuma transmissão ao vivo ativa'
             "
           >
             <!-- Background image -->
             <img
-              :src="
-                displayableImageUrl(stream?.thumbnailSrc) ??
-                'https://picsum.photos/seed/live-bg/800/500'
-              "
+              :src="displayableImageUrl(stream?.thumbnailSrc) ?? '/images/gallery/icfr-14.jpg'"
               alt=""
               class="live-preview-img"
               loading="eager"
@@ -115,13 +118,11 @@ const { el: sectionRef, isVisible } = useScrollReveal()
               </div>
 
               <!-- Stream title -->
-              <p v-if="isLive" class="live-title">Cultue Connosco Agora</p>
+              <p v-if="isLive" class="live-title">{{ stream?.title || 'Cultue Connosco Agora' }}</p>
               <p v-else class="live-title">Nenhuma Transmissão ao Vivo</p>
 
               <!-- Location / offline sub -->
-              <p v-if="isLive" class="live-location">
-                {{ stream?.city ?? 'Beira' }}, Moçambique
-              </p>
+              <p v-if="isLive" class="live-location">{{ stream?.city ?? 'Beira' }}, Moçambique</p>
               <p v-else class="live-location" style="opacity: 0.7">
                 Próximo culto: quinta 17:30 ou domingo 09:30
               </p>
@@ -152,8 +153,15 @@ const { el: sectionRef, isVisible } = useScrollReveal()
           <!-- White info bar -->
           <div class="live-info-bar">
             <div v-if="isLive">
-              <p class="live-stream-name">{{ lw.nextTitle }}</p>
-              <p class="live-moderator">{{ lw.moderatorLabel }}</p>
+              <p class="live-stream-name">
+                {{ stream?.title }}
+              </p>
+
+              <p class="live-moderator">
+                {{ stream?.preacher }}
+                ·
+                {{ stream?.congregation }}
+              </p>
             </div>
             <div v-else>
               <p class="live-stream-name">Próximo: {{ lw.nextTitle }}</p>
@@ -166,13 +174,13 @@ const { el: sectionRef, isVisible } = useScrollReveal()
               class="watch-btn"
               :aria-label="`Assistir ${stream?.title ?? 'transmissão ao vivo'} agora`"
             >
-              {{ lw.watchCtaLabel }}
+              Assistir Agora
             </NuxtLink>
             <NuxtLink
               v-else
               to="/live-streams"
               class="reminder-btn"
-              :aria-label="`Set reminder for ${lw.nextTitle}`"
+              :aria-label="`Ver informações sobre ${lw.nextTitle}`"
             >
               {{ lw.reminderCtaLabel }}
             </NuxtLink>
@@ -192,7 +200,10 @@ const { el: sectionRef, isVisible } = useScrollReveal()
             :aria-label="`${rs.title}, ${rs.date}, ${rs.views} visualizações`"
           >
             <p class="recent-meta">
-              {{ rs.date }}&nbsp;&nbsp;&bull;&nbsp;&nbsp;{{ rs.views.toLocaleString() }} visualizações
+              {{ rs.date }}&nbsp;&nbsp;&bull;&nbsp;&nbsp;{{
+                rs.views.toLocaleString()
+              }}
+              visualizações
             </p>
             <p class="recent-title">{{ rs.title }}</p>
           </NuxtLink>

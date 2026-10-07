@@ -41,7 +41,7 @@ defineProps<{
         </li>
         <li class="select-none">/</li>
         <li>
-          <NuxtLink to="/gallery/sunday-service" class="hover:text-white/90 transition-colors"
+          <NuxtLink to="/gallery" class="hover:text-white/90 transition-colors"
             >Galeria de Fotos</NuxtLink
           >
         </li>

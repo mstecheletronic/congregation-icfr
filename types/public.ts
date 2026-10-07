@@ -9,6 +9,15 @@ export interface LiveStream {
   videoUrl: string
   serviceType: string
   preacher: string
+
+  // Origem da transmissão
+  streamMode?: 'internal' | 'external'
+
+  // Sala usada pela transmissão interna da ICFR
+  roomName?: string
+
+  // Data/hora de agendamento, caso seja usada futuramente
+  scheduledAt?: string
 }
 
 export interface RecordedStream {

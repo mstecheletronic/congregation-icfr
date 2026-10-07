@@ -19,7 +19,6 @@ const liveStore = usePublicLiveStreamStore()
 const liveForm = reactive({
   title: '',
   preacher: '',
-  videoUrl: '',
   serviceType: 'Sunday Worship',
 })
 
@@ -29,28 +28,30 @@ async function createLiveFromDashboard() {
     return
   }
 
-  if (!liveForm.videoUrl.trim()) {
-    useToast().error('Cole o link da transmissão.')
-    return
-  }
+  const roomName = `icfr-live-${Date.now()}`
 
-  await liveStore.startLive({
+  const created = await liveStore.startLive({
     title: liveForm.title.trim(),
     preacher: liveForm.preacher.trim() || 'ICFR Família Redimida',
-    videoUrl: liveForm.videoUrl.trim(),
+    videoUrl: '',
     serviceType: liveForm.serviceType,
     congregation: 'ICFR Família Redimida',
     city: 'Beira',
     thumbnailSrc: '',
     viewerCount: 0,
     startedAt: new Date().toISOString(),
+
+    streamMode: 'internal',
+    roomName,
   })
 
   liveForm.title = ''
   liveForm.preacher = ''
-  liveForm.videoUrl = ''
-}
 
+  if (created?.id) {
+    await navigateTo(`/admin/live-streams/studio/${created.id}`)
+  }
+}
 
 const chartMode = ref<'weekly' | 'monthly'>('monthly')
 
@@ -60,12 +61,7 @@ const chartMode = ref<'weekly' | 'monthly'>('monthly')
  */
 const chartService = ref('Sunday Worship')
 
-const serviceOptions = [
-  'Sunday Worship',
-  'Sunday School',
-  'Bible Class',
-  'Prayer Meeting',
-]
+const serviceOptions = ['Sunday Worship', 'Sunday School', 'Bible Class', 'Prayer Meeting']
 
 const serviceLabels: Record<string, string> = {
   'Sunday Worship': 'Culto de Domingo',
@@ -75,9 +71,7 @@ const serviceLabels: Record<string, string> = {
 }
 
 const chartTitle = computed(() =>
-  chartMode.value === 'monthly'
-    ? 'Evolução Mensal das Presenças'
-    : 'Evolução Semanal das Presenças'
+  chartMode.value === 'monthly' ? 'Evolução Mensal das Presenças' : 'Evolução Semanal das Presenças'
 )
 
 const greeting = computed(() => {
@@ -93,9 +87,7 @@ const SUMMARY_SERVICE = 'Sunday Worship'
 
 const summary = useAttendanceSummary(SUMMARY_SERVICE)
 
-const noAttendanceYet = computed(
-  () => !summary.hasData.value
-)
+const noAttendanceYet = computed(() => !summary.hasData.value)
 
 const teachingsStore = useTeachingsStore()
 
@@ -122,10 +114,7 @@ const statsCards = computed(() => [
 
   {
     title: 'Presença este mês',
-    value:
-      summary.thisMonthRate.value === null
-        ? '—'
-        : `${summary.thisMonthRate.value}%`,
+    value: summary.thisMonthRate.value === null ? '—' : `${summary.thisMonthRate.value}%`,
 
     subtitle:
       summary.thisMonthRate.value === null
@@ -141,25 +130,17 @@ const statsCards = computed(() => [
 
   {
     title: 'Média semanal',
-    value:
-      summary.averageWeekly.value === null
-        ? '—'
-        : summary.averageWeekly.value,
+    value: summary.averageWeekly.value === null ? '—' : summary.averageWeekly.value,
 
     subtitle:
-      summary.averageWeekly.value === null
-        ? 'Nenhuma sessão registada'
-        : 'Pessoas por sessão',
+      summary.averageWeekly.value === null ? 'Nenhuma sessão registada' : 'Pessoas por sessão',
 
     sparkColor: '#a5b4fc',
   },
 
   {
     title: 'Taxa de presença anual',
-    value:
-      summary.annualRate.value === null
-        ? '—'
-        : `${summary.annualRate.value}%`,
+    value: summary.annualRate.value === null ? '—' : `${summary.annualRate.value}%`,
 
     subtitle:
       summary.annualRate.value === null
@@ -173,10 +154,7 @@ const statsCards = computed(() => [
 
 const barChartData = computed<ChartData<'bar'>>(() => {
   if (chartMode.value === 'monthly') {
-    const data =
-      attendanceStore.rollingMonthsByService(
-        chartService.value
-      )
+    const data = attendanceStore.rollingMonthsByService(chartService.value)
 
     return {
       labels: data.map((d) => d.label),
@@ -187,11 +165,7 @@ const barChartData = computed<ChartData<'bar'>>(() => {
 
           data: data.map((d) => d.present),
 
-          backgroundColor: data.map((_, i) =>
-            i === data.length - 1
-              ? '#2563eb'
-              : '#bfdbfe'
-          ),
+          backgroundColor: data.map((_, i) => (i === data.length - 1 ? '#2563eb' : '#bfdbfe')),
 
           borderRadius: 4,
         },
@@ -199,15 +173,9 @@ const barChartData = computed<ChartData<'bar'>>(() => {
         {
           label: 'Ausentes',
 
-          data: data.map(
-            (d) => d.total - d.present
-          ),
+          data: data.map((d) => d.total - d.present),
 
-          backgroundColor: data.map((_, i) =>
-            i === data.length - 1
-              ? '#f87171'
-              : '#fecaca'
-          ),
+          backgroundColor: data.map((_, i) => (i === data.length - 1 ? '#f87171' : '#fecaca')),
 
           borderRadius: 4,
         },
@@ -215,10 +183,7 @@ const barChartData = computed<ChartData<'bar'>>(() => {
     }
   }
 
-  const data =
-    attendanceStore.weeklyByService(
-      chartService.value
-    )
+  const data = attendanceStore.weeklyByService(chartService.value)
 
   return {
     labels: data.map((d) => d.label),
@@ -229,11 +194,7 @@ const barChartData = computed<ChartData<'bar'>>(() => {
 
         data: data.map((d) => d.present),
 
-        backgroundColor: data.map((_, i) =>
-          i === data.length - 1
-            ? '#2563eb'
-            : '#bfdbfe'
-        ),
+        backgroundColor: data.map((_, i) => (i === data.length - 1 ? '#2563eb' : '#bfdbfe')),
 
         borderRadius: 4,
       },
@@ -241,15 +202,9 @@ const barChartData = computed<ChartData<'bar'>>(() => {
       {
         label: 'Ausentes',
 
-        data: data.map(
-          (d) => d.total - d.present
-        ),
+        data: data.map((d) => d.total - d.present),
 
-        backgroundColor: data.map((_, i) =>
-          i === data.length - 1
-            ? '#f87171'
-            : '#fecaca'
-        ),
+        backgroundColor: data.map((_, i) => (i === data.length - 1 ? '#f87171' : '#fecaca')),
 
         borderRadius: 4,
       },
@@ -257,9 +212,7 @@ const barChartData = computed<ChartData<'bar'>>(() => {
   }
 })
 
-const barOptions = computed<
-  ChartOptions<'bar'>
->(() => ({
+const barOptions = computed<ChartOptions<'bar'>>(() => ({
   responsive: true,
   maintainAspectRatio: false,
 
@@ -284,27 +237,13 @@ const barOptions = computed<
 
       callbacks: {
         afterBody(items) {
-          const present =
-            items.find(
-              (i) =>
-                i.dataset.label === 'Presentes'
-            )?.parsed.y ?? 0
+          const present = items.find((i) => i.dataset.label === 'Presentes')?.parsed.y ?? 0
 
-          const absent =
-            items.find(
-              (i) =>
-                i.dataset.label === 'Ausentes'
-            )?.parsed.y ?? 0
+          const absent = items.find((i) => i.dataset.label === 'Ausentes')?.parsed.y ?? 0
 
           const total = present + absent
 
-          return total
-            ? [
-                `Taxa: ${Math.round(
-                  (present / total) * 100
-                )}%`,
-              ]
-            : []
+          return total ? [`Taxa: ${Math.round((present / total) * 100)}%`] : []
         },
       },
     },
@@ -344,16 +283,9 @@ const barOptions = computed<
 
 <template>
   <div class="flex flex-col gap-5">
-
     <!-- Estatísticas principais -->
-    <div
-      class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4"
-    >
-      <StatsCard
-        v-for="card in statsCards"
-        :key="card.title"
-        v-bind="card"
-      />
+    <div class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4">
+      <StatsCard v-for="card in statsCards" :key="card.title" v-bind="card" />
     </div>
 
     <!-- Aviso caso ainda não existam presenças -->
@@ -362,32 +294,24 @@ const barOptions = computed<
       to="/admin/attendance"
       class="flex items-start gap-2.5 rounded-xl border border-dashed border-gray-300 bg-white px-4 py-3 text-sm text-gray-600 transition-colors hover:border-blue-400 hover:text-blue-700"
     >
-      <Icon
-        icon="mdi:calendar-plus-outline"
-        class="mt-0.5 shrink-0 text-gray-400"
-      />
+      <Icon icon="mdi:calendar-plus-outline" class="mt-0.5 shrink-0 text-gray-400" />
 
       <span>
         Ainda não existem presenças registadas para
         {{ serviceLabels[SUMMARY_SERVICE] }}.
 
-        <span class="font-medium">
-          Registe um culto
-        </span>
+        <span class="font-medium"> Registe um culto </span>
 
         para começar a visualizar as estatísticas.
       </span>
     </NuxtLink>
-
 
     <!-- Transmissão ao Vivo -->
     <Card>
       <div class="flex flex-col gap-5">
         <div class="flex items-center justify-between gap-4">
           <div>
-            <h3 class="text-base font-semibold text-gray-900">
-              Transmissão ao Vivo
-            </h3>
+            <h3 class="text-base font-semibold text-gray-900">Transmissão ao Vivo</h3>
 
             <p class="mt-1 text-sm text-gray-500">
               Crie e gerencie a Live diretamente pelo Dashboard.
@@ -424,7 +348,19 @@ const barOptions = computed<
           </p>
 
           <div class="mt-4 flex flex-wrap gap-2">
+            <NuxtLink
+              v-if="
+                liveStore.currentStream.streamMode === 'internal' &&
+                liveStore.currentStream.roomName
+              "
+              :to="`/admin/live-streams/studio/${liveStore.currentStream.id}`"
+              class="rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white"
+            >
+              Abrir Estúdio ICFR
+            </NuxtLink>
+
             <a
+              v-else-if="liveStore.currentStream.videoUrl"
               :href="liveStore.currentStream.videoUrl"
               target="_blank"
               rel="noopener"
@@ -444,14 +380,9 @@ const barOptions = computed<
         </div>
 
         <!-- Criar nova Live -->
-        <div
-          v-else
-          class="grid gap-4 md:grid-cols-2"
-        >
+        <div v-else class="grid gap-4 md:grid-cols-2">
           <div>
-            <label class="mb-1 block text-sm font-medium text-gray-700">
-              Título
-            </label>
+            <label class="mb-1 block text-sm font-medium text-gray-700"> Título </label>
 
             <input
               v-model="liveForm.title"
@@ -462,9 +393,7 @@ const barOptions = computed<
           </div>
 
           <div>
-            <label class="mb-1 block text-sm font-medium text-gray-700">
-              Pregador
-            </label>
+            <label class="mb-1 block text-sm font-medium text-gray-700"> Pregador </label>
 
             <input
               v-model="liveForm.preacher"
@@ -475,43 +404,20 @@ const barOptions = computed<
           </div>
 
           <div>
-            <label class="mb-1 block text-sm font-medium text-gray-700">
-              Tipo de Culto
-            </label>
+            <label class="mb-1 block text-sm font-medium text-gray-700"> Tipo de Culto </label>
 
             <select
               v-model="liveForm.serviceType"
               class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm outline-none focus:border-blue-500"
             >
-              <option value="Sunday Worship">
-                Culto de Celebração
-              </option>
+              <option value="Sunday Worship">Culto de Celebração</option>
 
-              <option value="Bible Class">
-                Culto de Ensino
-              </option>
+              <option value="Bible Class">Culto de Ensino</option>
 
-              <option value="Sunday School">
-                Escola Dominical
-              </option>
+              <option value="Sunday School">Escola Dominical</option>
 
-              <option value="Evangelism">
-                Evangelismo
-              </option>
+              <option value="Evangelism">Evangelismo</option>
             </select>
-          </div>
-
-          <div>
-            <label class="mb-1 block text-sm font-medium text-gray-700">
-              Link da Live
-            </label>
-
-            <input
-              v-model="liveForm.videoUrl"
-              type="url"
-              placeholder="https://youtube.com/..."
-              class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm outline-none focus:border-blue-500"
-            />
           </div>
 
           <div class="md:col-span-2">
@@ -522,7 +428,7 @@ const barOptions = computed<
             >
               <Icon icon="mdi:broadcast" class="h-5 w-5" />
 
-              Publicar Live
+              Criar Live ICFR
             </button>
           </div>
         </div>
@@ -530,45 +436,23 @@ const barOptions = computed<
     </Card>
 
     <!-- Gráfico + vídeos -->
-    <div
-      class="grid grid-cols-1 xl:grid-cols-3 gap-4"
-    >
+    <div class="grid grid-cols-1 xl:grid-cols-3 gap-4">
       <Card class="xl:col-span-2">
-        <div
-          class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-4"
-        >
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-4">
           <div>
-            <h3
-              class="text-sm font-semibold text-gray-900"
-            >
+            <h3 class="text-sm font-semibold text-gray-900">
               {{ chartTitle }}
             </h3>
 
-            <div
-              class="flex items-center gap-4 mt-2"
-            >
-              <label
-                class="flex items-center gap-1.5 text-xs text-gray-600 cursor-pointer"
-              >
-                <input
-                  v-model="chartMode"
-                  type="radio"
-                  value="weekly"
-                  class="accent-blue-600"
-                />
+            <div class="flex items-center gap-4 mt-2">
+              <label class="flex items-center gap-1.5 text-xs text-gray-600 cursor-pointer">
+                <input v-model="chartMode" type="radio" value="weekly" class="accent-blue-600" />
 
                 Semanal
               </label>
 
-              <label
-                class="flex items-center gap-1.5 text-xs text-gray-600 cursor-pointer"
-              >
-                <input
-                  v-model="chartMode"
-                  type="radio"
-                  value="monthly"
-                  class="accent-blue-600"
-                />
+              <label class="flex items-center gap-1.5 text-xs text-gray-600 cursor-pointer">
+                <input v-model="chartMode" type="radio" value="monthly" class="accent-blue-600" />
 
                 Mensal
               </label>
@@ -580,11 +464,7 @@ const barOptions = computed<
             class="border border-gray-300 rounded-lg px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/20 flex-shrink-0"
             aria-label="Selecionar atividade"
           >
-            <option
-              v-for="s in serviceOptions"
-              :key="s"
-              :value="s"
-            >
+            <option v-for="s in serviceOptions" :key="s" :value="s">
               {{ serviceLabels[s] ?? s }}
             </option>
           </select>
@@ -610,15 +490,12 @@ const barOptions = computed<
     </div>
 
     <!-- Acompanhamento de membros + ensinamentos -->
-    <div
-      class="grid grid-cols-1 xl:grid-cols-3 gap-4"
-    >
+    <div class="grid grid-cols-1 xl:grid-cols-3 gap-4">
       <div class="xl:col-span-2">
         <BacksliderTable />
       </div>
 
       <RecentUploads />
     </div>
-
   </div>
 </template>

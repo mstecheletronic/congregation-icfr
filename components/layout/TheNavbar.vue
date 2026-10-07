@@ -65,9 +65,7 @@ const allTeachingLinks = [
 ]
 
 const teachingLinks = computed(() =>
-  isNavItemVisible('teachings')
-    ? visible(allTeachingLinks)
-    : []
+  isNavItemVisible('teachings') ? visible(allTeachingLinks) : []
 )
 
 onBeforeUnmount(() => {
@@ -75,10 +73,7 @@ onBeforeUnmount(() => {
     clearTimeout(teachingsTimer)
   }
 
-  window.removeEventListener(
-    'scroll',
-    handleScroll
-  )
+  window.removeEventListener('scroll', handleScroll)
 })
 </script>
 
@@ -91,57 +86,32 @@ onBeforeUnmount(() => {
         : 'bg-white/90 backdrop-blur-md border-b border-transparent shadow-sm'
     "
   >
-    <nav
-      class="mx-auto flex max-w-7xl items-center justify-between px-4 py-3 sm:px-6 lg:px-8"
-    >
+    <nav class="mx-auto flex max-w-7xl items-center justify-between px-4 py-3 sm:px-6 lg:px-8">
       <!-- Logo / Identidade ICFR -->
       <component
-        :is="
-          isHidden('/')
-            ? 'div'
-            : resolveComponent('NuxtLink')
-        "
+        :is="isHidden('/') ? 'div' : resolveComponent('NuxtLink')"
         :to="isHidden('/') ? undefined : '/'"
         class="flex shrink-0 items-center gap-3"
-        :aria-label="
-          isHidden('/')
-            ? undefined
-            : 'Página inicial da ICFR Família Redimida'
-        "
+        :aria-label="isHidden('/') ? undefined : 'Página inicial da ICFR Família Redimida'"
       >
         <div class="flex h-12 w-12 items-center justify-center overflow-hidden rounded-full">
-  <img
-    src="/images/icfr-logo.png"
-    alt="Logo ICFR Família Redimida"
-    class="h-full w-full object-contain"
-  />
-</div>
+          <img
+            src="/images/icfr-logo.png"
+            alt="Logo ICFR Família Redimida"
+            class="h-full w-full object-contain"
+          />
+        </div>
 
         <div class="hidden sm:block">
-          <p
-            class="text-sm font-bold leading-tight text-gray-900"
-          >
-            ICFR Família Redimida
-          </p>
+          <p class="text-sm font-bold leading-tight text-gray-900">ICFR Família Redimida</p>
 
-          <p
-            class="text-[11px] text-blue-600"
-          >
-            Resgatando vidas para Cristo.
-          </p>
+          <p class="text-[11px] text-blue-600">Resgatando vidas para Cristo.</p>
         </div>
       </component>
 
       <!-- Menu desktop -->
-      <ul
-        class="hidden items-center gap-7 lg:flex"
-      >
-        <li
-          v-if="
-            !isHidden('/') &&
-            isNavItemVisible('home')
-          "
-        >
+      <ul class="hidden items-center gap-7 lg:flex">
+        <li v-if="!isHidden('/') && isNavItemVisible('home')">
           <NuxtLink
             to="/"
             class="text-sm font-medium text-gray-700 transition-colors hover:text-gray-900"
@@ -152,33 +122,19 @@ onBeforeUnmount(() => {
           </NuxtLink>
         </li>
 
-        <li
-          v-if="
-            !isHidden('/live-streams') &&
-            isNavItemVisible('liveStreams')
-          "
-        >
+        <li v-if="!isHidden('/live-streams') && isNavItemVisible('liveStreams')">
           <NuxtLink
             to="/live-streams"
             class="flex items-center gap-1.5 text-sm font-medium transition-colors hover:text-gray-900"
-            :class="
-              liveStore.isLive
-                ? 'text-accent'
-                : 'text-gray-700'
-            "
+            :class="liveStore.isLive ? 'text-accent' : 'text-gray-700'"
             aria-label="Cultos ao vivo"
           >
-            <span
-              v-if="liveStore.isLive"
-              class="relative flex h-2 w-2"
-            >
+            <span v-if="liveStore.isLive" class="relative flex h-2 w-2">
               <span
                 class="absolute inline-flex h-full w-full rounded-full bg-live opacity-75 animate-ping"
               ></span>
 
-              <span
-                class="relative inline-flex h-2 w-2 rounded-full bg-live"
-              ></span>
+              <span class="relative inline-flex h-2 w-2 rounded-full bg-live"></span>
             </span>
 
             Cultos ao Vivo
@@ -196,22 +152,14 @@ onBeforeUnmount(() => {
             class="flex items-center gap-1 text-sm font-medium text-gray-700 transition-colors hover:text-gray-900"
             :aria-expanded="teachingsOpen"
             aria-haspopup="true"
-            @click="
-              teachingsOpen
-                ? (teachingsOpen = false)
-                : openTeachings()
-            "
+            @click="teachingsOpen ? (teachingsOpen = false) : openTeachings()"
           >
             Ensinamentos
 
             <Icon
               icon="heroicons:chevron-down"
               class="h-4 w-4 transition-transform duration-200"
-              :class="
-                teachingsOpen
-                  ? 'rotate-180'
-                  : ''
-              "
+              :class="teachingsOpen ? 'rotate-180' : ''"
             />
           </button>
 
@@ -239,22 +187,15 @@ onBeforeUnmount(() => {
                 <div
                   class="mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-blue-50"
                 >
-                  <Icon
-                    :icon="link.icon"
-                    class="h-4 w-4 text-accent"
-                  />
+                  <Icon :icon="link.icon" class="h-4 w-4 text-accent" />
                 </div>
 
                 <div>
-                  <p
-                    class="text-sm font-semibold text-gray-900"
-                  >
+                  <p class="text-sm font-semibold text-gray-900">
                     {{ link.label }}
                   </p>
 
-                  <p
-                    class="text-xs text-gray-500"
-                  >
+                  <p class="text-xs text-gray-500">
                     {{ link.desc }}
                   </p>
                 </div>
@@ -263,12 +204,7 @@ onBeforeUnmount(() => {
           </Transition>
         </li>
 
-        <li
-          v-if="
-            !isHidden('/events') &&
-            isNavItemVisible('events')
-          "
-        >
+        <li v-if="!isHidden('/events') && isNavItemVisible('events')">
           <NuxtLink
             to="/events"
             class="text-sm font-medium text-gray-700 transition-colors hover:text-gray-900"
@@ -279,13 +215,9 @@ onBeforeUnmount(() => {
           </NuxtLink>
         </li>
 
-        <li
-          v-if="
-            isNavItemVisible('gallery')
-          "
-        >
+        <li v-if="isNavItemVisible('gallery')">
           <NuxtLink
-            to="/gallery/sunday-service"
+            to="/gallery"
             class="text-sm font-medium text-gray-700 transition-colors hover:text-gray-900"
             active-class="text-blue-600"
             aria-label="Galeria"
@@ -294,12 +226,7 @@ onBeforeUnmount(() => {
           </NuxtLink>
         </li>
 
-        <li
-          v-if="
-            !isHidden('/about-us') &&
-            isNavItemVisible('aboutUs')
-          "
-        >
+        <li v-if="!isHidden('/about-us') && isNavItemVisible('aboutUs')">
           <NuxtLink
             to="/about-us"
             class="text-sm font-medium text-gray-700 transition-colors hover:text-gray-900"
@@ -310,11 +237,7 @@ onBeforeUnmount(() => {
           </NuxtLink>
         </li>
 
-        <li
-          v-if="
-            isNavItemVisible('contactUs')
-          "
-        >
+        <li v-if="isNavItemVisible('contactUs')">
           <a
             href="/#contact"
             class="text-sm font-medium text-gray-700 transition-colors hover:text-gray-900"
@@ -324,11 +247,7 @@ onBeforeUnmount(() => {
           </a>
         </li>
 
-        <li
-          v-if="
-            isNavItemVisible('register')
-          "
-        >
+        <li v-if="isNavItemVisible('register')">
           <NuxtLink
             to="/register"
             class="rounded-lg bg-accent px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-blue-700"
@@ -344,18 +263,9 @@ onBeforeUnmount(() => {
         class="flex items-center justify-center rounded-lg p-2 text-gray-600 hover:bg-gray-100 lg:hidden"
         :aria-expanded="mobileOpen"
         aria-label="Abrir menu"
-        @click="
-          mobileOpen = !mobileOpen
-        "
+        @click="mobileOpen = !mobileOpen"
       >
-        <Icon
-          :icon="
-            mobileOpen
-              ? 'heroicons:x-mark'
-              : 'heroicons:bars-3'
-          "
-          class="h-6 w-6"
-        />
+        <Icon :icon="mobileOpen ? 'heroicons:x-mark' : 'heroicons:bars-3'" class="h-6 w-6" />
       </button>
     </nav>
 
@@ -368,85 +278,48 @@ onBeforeUnmount(() => {
       leave-from-class="opacity-100 translate-y-0"
       leave-to-class="opacity-0 -translate-y-1"
     >
-      <div
-        v-if="mobileOpen"
-        class="border-t border-gray-100 bg-white lg:hidden"
-      >
-        <div
-          class="mx-auto max-w-7xl px-4 py-4 sm:px-6"
-        >
-          <ul
-            class="flex flex-col gap-1"
-          >
-            <li
-              v-if="
-                !isHidden('/') &&
-                isNavItemVisible('home')
-              "
-            >
+      <div v-if="mobileOpen" class="border-t border-gray-100 bg-white lg:hidden">
+        <div class="mx-auto max-w-7xl px-4 py-4 sm:px-6">
+          <ul class="flex flex-col gap-1">
+            <li v-if="!isHidden('/') && isNavItemVisible('home')">
               <NuxtLink
                 to="/"
                 class="block rounded-lg px-3 py-2.5 text-sm font-medium text-gray-700 hover:bg-gray-50"
-                @click="
-                  mobileOpen = false
-                "
+                @click="mobileOpen = false"
               >
                 Início
               </NuxtLink>
             </li>
 
-            <li
-              v-if="
-                !isHidden('/live-streams') &&
-                isNavItemVisible('liveStreams')
-              "
-            >
+            <li v-if="!isHidden('/live-streams') && isNavItemVisible('liveStreams')">
               <NuxtLink
                 to="/live-streams"
                 class="flex items-center gap-2 rounded-lg px-3 py-2.5 text-sm font-medium text-gray-700 hover:bg-gray-50"
-                @click="
-                  mobileOpen = false
-                "
+                @click="mobileOpen = false"
               >
-                <span
-                  v-if="liveStore.isLive"
-                  class="relative flex h-2 w-2"
-                >
+                <span v-if="liveStore.isLive" class="relative flex h-2 w-2">
                   <span
                     class="absolute inline-flex h-full w-full rounded-full bg-live opacity-75 animate-ping"
                   ></span>
 
-                  <span
-                    class="relative inline-flex h-2 w-2 rounded-full bg-live"
-                  ></span>
+                  <span class="relative inline-flex h-2 w-2 rounded-full bg-live"></span>
                 </span>
 
                 Cultos ao Vivo
               </NuxtLink>
             </li>
 
-            <li
-              v-if="
-                teachingLinks.length
-              "
-            >
+            <li v-if="teachingLinks.length">
               <button
                 class="flex w-full items-center justify-between rounded-lg px-3 py-2.5 text-sm font-medium text-gray-700 hover:bg-gray-50"
-                @click="
-                  teachingsOpen =
-                    !teachingsOpen
-                "
+                @click="teachingsOpen = !teachingsOpen"
               >
                 Ensinamentos
 
                 <Icon
                   icon="heroicons:chevron-down"
                   class="h-4 w-4 transition-transform"
-                  :class="
-                    teachingsOpen
-                      ? 'rotate-180'
-                      : ''
-                  "
+                  :class="teachingsOpen ? 'rotate-180' : ''"
                 />
               </button>
 
@@ -455,25 +328,14 @@ onBeforeUnmount(() => {
                 enter-from-class="opacity-0"
                 enter-to-class="opacity-100"
               >
-                <ul
-                  v-if="teachingsOpen"
-                  class="mt-1 flex flex-col gap-1 pl-4"
-                >
-                  <li
-                    v-for="link in teachingLinks"
-                    :key="link.label"
-                  >
+                <ul v-if="teachingsOpen" class="mt-1 flex flex-col gap-1 pl-4">
+                  <li v-for="link in teachingLinks" :key="link.label">
                     <NuxtLink
                       :to="link.to"
                       class="flex items-center gap-2 rounded-lg px-3 py-2 text-sm text-gray-600 hover:bg-gray-50"
-                      @click="
-                        closeMobileMenu
-                      "
+                      @click="closeMobileMenu"
                     >
-                      <Icon
-                        :icon="link.icon"
-                        class="h-4 w-4 text-accent"
-                      />
+                      <Icon :icon="link.icon" class="h-4 w-4 text-accent" />
 
                       {{ link.label }}
                     </NuxtLink>
@@ -482,87 +344,54 @@ onBeforeUnmount(() => {
               </Transition>
             </li>
 
-            <li
-              v-if="
-                !isHidden('/events') &&
-                isNavItemVisible('events')
-              "
-            >
+            <li v-if="!isHidden('/events') && isNavItemVisible('events')">
               <NuxtLink
                 to="/events"
                 active-class="text-blue-600 bg-blue-50"
                 class="block rounded-lg px-3 py-2.5 text-sm font-medium text-gray-700 hover:bg-gray-50"
-                @click="
-                  mobileOpen = false
-                "
+                @click="mobileOpen = false"
               >
                 Eventos
               </NuxtLink>
             </li>
 
-            <li
-              v-if="
-                isNavItemVisible('gallery')
-              "
-            >
+            <li v-if="isNavItemVisible('gallery')">
               <NuxtLink
-                to="/gallery/sunday-service"
+                to="/gallery"
                 active-class="text-blue-600 bg-blue-50"
                 class="block rounded-lg px-3 py-2.5 text-sm font-medium text-gray-700 hover:bg-gray-50"
-                @click="
-                  mobileOpen = false
-                "
+                @click="mobileOpen = false"
               >
                 Galeria
               </NuxtLink>
             </li>
 
-            <li
-              v-if="
-                !isHidden('/about-us') &&
-                isNavItemVisible('aboutUs')
-              "
-            >
+            <li v-if="!isHidden('/about-us') && isNavItemVisible('aboutUs')">
               <NuxtLink
                 to="/about-us"
                 active-class="text-blue-600 bg-blue-50"
                 class="block rounded-lg px-3 py-2.5 text-sm font-medium text-gray-700 hover:bg-gray-50"
-                @click="
-                  mobileOpen = false
-                "
+                @click="mobileOpen = false"
               >
                 Sobre Nós
               </NuxtLink>
             </li>
 
-            <li
-              v-if="
-                isNavItemVisible('contactUs')
-              "
-            >
+            <li v-if="isNavItemVisible('contactUs')">
               <a
                 href="/#contact"
                 class="block rounded-lg px-3 py-2.5 text-sm font-medium text-gray-700 hover:bg-gray-50"
-                @click="
-                  mobileOpen = false
-                "
+                @click="mobileOpen = false"
               >
                 Contactos
               </a>
             </li>
 
-            <li
-              v-if="
-                isNavItemVisible('register')
-              "
-              class="mt-1"
-            >
+            <li v-if="isNavItemVisible('register')" class="mt-1">
               <NuxtLink
                 to="/register"
                 class="block rounded-lg bg-accent px-3 py-2.5 text-center text-sm font-medium text-white hover:bg-blue-700"
-                @click="
-                  mobileOpen = false
-                "
+                @click="mobileOpen = false"
               >
                 Cadastrar
               </NuxtLink>

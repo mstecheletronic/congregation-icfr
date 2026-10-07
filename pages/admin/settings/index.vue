@@ -23,7 +23,7 @@ const accountRole = computed(() => {
 const showChangePassword = ref(false)
 
 onMounted(async () => {
-  setHeader('Settings', 'Manage church configuration and preferences')
+  setHeader('Configurações', 'Gerir as configurações e preferências da ICFR Família Redimida')
   await store.load()
 })
 
@@ -56,40 +56,42 @@ interface NavItem {
 // two public pages that have editable content, then access control.
 const baseNavGroups: { label: string; items: NavItem[] }[] = [
   {
-    label: 'Organisation',
+    label: 'Organização',
     items: [
-      { label: 'General', value: 'general', icon: 'mdi:office-building-outline' },
-      { label: 'Congregations', value: 'congregations', icon: 'mdi:map-marker-multiple-outline' },
-      { label: 'Leaders', value: 'leaders', icon: 'mdi:account-tie-outline' },
+      { label: 'Geral', value: 'general', icon: 'mdi:office-building-outline' },
+      { label: 'Congregações', value: 'congregations', icon: 'mdi:map-marker-multiple-outline' },
+      { label: 'Liderança', value: 'leaders', icon: 'mdi:account-tie-outline' },
     ],
   },
   {
-    label: 'Home Page',
+    label: 'Página Inicial',
     items: [
-      { label: 'Hero & Sections', value: 'homepage', icon: 'mdi:home-outline' },
-      { label: 'Minister', value: 'minister', icon: 'mdi:account-voice' },
-      { label: 'Live Worship', value: 'live', icon: 'mdi:broadcast' },
-      { label: 'Upcoming Events', value: 'events', icon: 'mdi:calendar-star' },
-      { label: 'Gallery', value: 'gallery', icon: 'mdi:image-multiple-outline' },
+      { label: 'Destaque e Secções', value: 'homepage', icon: 'mdi:home-outline' },
+      { label: 'Ministro / Líder', value: 'minister', icon: 'mdi:account-voice' },
+      { label: 'Culto ao Vivo', value: 'live', icon: 'mdi:broadcast' },
+      { label: 'Próximos Eventos', value: 'events', icon: 'mdi:calendar-star' },
+      { label: 'Galeria', value: 'gallery', icon: 'mdi:image-multiple-outline' },
     ],
   },
   {
-    label: 'About Page',
+    label: 'Página Sobre',
     items: [
-      { label: 'About Hero', value: 'about', icon: 'mdi:image-text' },
-      { label: 'History', value: 'history', icon: 'mdi:history' },
-      { label: 'Worship Activities', value: 'worship', icon: 'mdi:hands-pray' },
-      { label: 'Activity Calendar', value: 'calendar', icon: 'mdi:calendar-month-outline' },
-      { label: 'Worship This Sunday', value: 'sunday', icon: 'mdi:church' },
+      { label: 'Destaque da Página Sobre', value: 'about', icon: 'mdi:image-text' },
+      { label: 'História', value: 'history', icon: 'mdi:history' },
+      { label: 'Atividades de Culto', value: 'worship', icon: 'mdi:hands-pray' },
+      { label: 'Calendário de Atividades', value: 'calendar', icon: 'mdi:calendar-month-outline' },
+      { label: 'Culto deste Domingo', value: 'sunday', icon: 'mdi:church' },
     ],
   },
   {
-    label: 'Navigation',
-    items: [{ label: 'Public Nav Menu', value: 'navigation', icon: 'mdi:menu-open' }],
+    label: 'Navegação',
+    items: [{ label: 'Menu Público', value: 'navigation', icon: 'mdi:menu-open' }],
   },
   {
-    label: 'Access',
-    items: [{ label: 'Roles & Permissions', value: 'roles', icon: 'mdi:shield-account-outline' }],
+    label: 'Acesso',
+    items: [
+      { label: 'Administradores e Acessos', value: 'roles', icon: 'mdi:shield-account-outline' },
+    ],
   },
 ]
 
@@ -108,7 +110,7 @@ const navGroups = computed(() =>
             ...group,
             items: [
               ...group.items,
-              { label: 'Audit Log', value: 'audit' as Tab, icon: 'mdi:history' },
+              { label: 'Registo de Auditoria', value: 'audit' as Tab, icon: 'mdi:history' },
             ],
           }
         : group
@@ -142,7 +144,7 @@ watch(
 /**
  * The draft is shared by every panel, so "is anything unsaved?" is a page-level question.
  * Comparing serialised copies is cheap next to a Firestore write and avoids hand-maintaining a
- * dirty flag across fourteen panels' worth of fields.
+ * dirty flag em fourteen panels' worth of fields.
  */
 const isDirty = computed(() => JSON.stringify(draft.value) !== JSON.stringify(store.settings))
 
@@ -153,7 +155,7 @@ const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
 /** Only fields with a real constraint. Everything else is free text by design. */
 function validate(): boolean {
   const next: typeof errors.value = {}
-  if (!draft.value.name?.trim()) next.name = 'The church name appears across the public site'
+  if (!draft.value.name?.trim()) next.name = 'The church name appears em the public site'
   const email = draft.value.email?.trim()
   if (email && !EMAIL_RE.test(email)) next.email = 'Enter a valid email address'
   errors.value = next
@@ -284,7 +286,7 @@ function removeHistoryScheduleRow(i: number) {
   draft.value.aboutHistory.schedule.splice(i, 1)
 }
 
-// ── Worship Activities helpers ────────────────────────────────────────────
+// ── Atividades de Culto helpers ────────────────────────────────────────────
 function addWorshipActivity() {
   draft.value.worshipActivities.items.push({
     id: `wa${Date.now()}`,
@@ -297,7 +299,7 @@ function removeWorshipActivity(i: number) {
   draft.value.worshipActivities.items.splice(i, 1)
 }
 
-// ── Activity Calendar helpers ─────────────────────────────────────────────
+// ── Calendário de Atividades helpers ─────────────────────────────────────────────
 function addCalendarRow() {
   draft.value.activityCalendar.rows.push({
     id: `ac${Date.now()}`,
@@ -310,7 +312,7 @@ function removeCalendarRow(i: number) {
   draft.value.activityCalendar.rows.splice(i, 1)
 }
 
-// ── Worship This Sunday helpers ───────────────────────────────────────────
+// ── Culto deste Domingo helpers ───────────────────────────────────────────
 function addSundayDetail() {
   draft.value.worshipThisSunday.details.push({
     id: `wts${Date.now()}`,
@@ -333,8 +335,8 @@ function removeSundayDetail(i: number) {
         <!-- ── General ──────────────────────────────────────────────────── -->
         <div v-if="activeTab === 'general'" key="general" class="flex max-w-3xl flex-col gap-5">
           <SettingsSection
-            title="Church information"
-            description="Used across the public site — the footer, the contact section, the embedded map, and the admin sidebar."
+            title="Informações da Igreja"
+            description="Estas informações são utilizadas no site público, rodapé, contactos, mapa e painel administrativo."
           >
             <!-- Short fields pair up; long ones span, so no input is wider than its content needs. -->
             <div class="grid gap-4 sm:grid-cols-2">
@@ -350,20 +352,20 @@ function removeSundayDetail(i: number) {
               <div class="sm:col-span-2">
                 <Input
                   v-model="draft.address"
-                  label="Address"
+                  label="Endereço"
                   placeholder="Beira, Sofala"
                   helper="Also drives the map on the About page and the contact section."
                 />
               </div>
               <Input
                 v-model="draft.phone"
-                label="Phone number"
+                label="Número de Telefone"
                 type="tel"
                 placeholder="(+234) 900 000 0000"
               />
               <Input
                 v-model="draft.email"
-                label="Email address"
+                label="Endereço de Email"
                 type="email"
                 :error="errors.email"
                 placeholder="info@churchofchrist.org"
@@ -372,8 +374,8 @@ function removeSundayDetail(i: number) {
           </SettingsSection>
 
           <SettingsSection
-            title="Your account"
-            description="The signed-in account and the role it carries. Roles are managed under Access."
+            title="A sua conta"
+            description="Conta atualmente autenticada e respetivo nível de acesso. Os acessos são geridos na secção Administradores e Acessos."
           >
             <div class="flex items-center gap-3 rounded-lg border border-gray-100 bg-gray-50 p-3">
               <Avatar :name="authStore.user?.email ?? 'Admin'" size="lg" />
@@ -392,7 +394,7 @@ function removeSundayDetail(i: number) {
                 </span>
                 <Button variant="secondary" size="sm" @click="showChangePassword = true">
                   <template #icon-left><Icon icon="mdi:lock-reset" /></template>
-                  Change Password
+                  Alterar Palavra-passe
                 </Button>
               </div>
             </div>
@@ -612,17 +614,17 @@ function removeSundayDetail(i: number) {
           </SettingsSection>
         </div>
 
-        <!-- ── Live Worship ─────────────────────────────────────────────── -->
+        <!-- ── Culto ao Vivo ─────────────────────────────────────────────── -->
         <div v-else-if="activeTab === 'live'" key="live" class="flex max-w-2xl flex-col gap-5">
           <SettingsSection
-            title="Live Worship Section"
+            title="Culto ao Vivo Section"
             description="The live-stream teaser on the landing page, above the sermons."
           >
             <div class="flex flex-col gap-4">
               <Input
                 v-model="draft.liveWorship.heading"
                 label="Heading"
-                placeholder="Join Our Live Worship"
+                placeholder="Join Our Culto ao Vivo"
               />
               <div>
                 <label for="lw-sub" class="mb-1.5 block text-sm font-medium text-gray-700"
@@ -671,11 +673,11 @@ function removeSundayDetail(i: number) {
           </SettingsSection>
         </div>
 
-        <!-- ── About Hero ───────────────────────────────────────────────── -->
+        <!-- ── Destaque da Página Sobre ───────────────────────────────────────────────── -->
         <div v-else-if="activeTab === 'about'" key="about" class="flex max-w-2xl flex-col gap-5">
           <SettingsSection
             title="About Page Hero"
-            description="The banner across the top of the About page."
+            description="The banner em the top of the About page."
           >
             <div class="flex flex-col gap-4">
               <ImageUpload
@@ -900,7 +902,7 @@ function removeSundayDetail(i: number) {
           </SettingsSection>
         </div>
 
-        <!-- ── Worship Activities ───────────────────────────────────────── -->
+        <!-- ── Atividades de Culto ───────────────────────────────────────── -->
         <div
           v-else-if="activeTab === 'worship'"
           key="worship"
@@ -919,7 +921,7 @@ function removeSundayDetail(i: number) {
               <Input
                 v-model="draft.worshipActivities.heading"
                 label="Heading"
-                placeholder="Our Worship Activities"
+                placeholder="Our Atividades de Culto"
               />
               <div>
                 <label for="wa-sub" class="mb-1.5 block text-sm font-medium text-gray-700"
@@ -978,7 +980,7 @@ function removeSundayDetail(i: number) {
           </SettingsSection>
         </div>
 
-        <!-- ── Activity Calendar ────────────────────────────────────────── -->
+        <!-- ── Calendário de Atividades ────────────────────────────────────────── -->
         <div
           v-else-if="activeTab === 'calendar'"
           key="calendar"
@@ -997,7 +999,7 @@ function removeSundayDetail(i: number) {
               <Input
                 v-model="draft.activityCalendar.heading"
                 label="Heading"
-                placeholder="Our Activity Calendar"
+                placeholder="Our Calendário de Atividades"
               />
               <div>
                 <label for="ac-sub" class="mb-1.5 block text-sm font-medium text-gray-700"
@@ -1056,11 +1058,11 @@ function removeSundayDetail(i: number) {
           </SettingsSection>
         </div>
 
-        <!-- ── Worship This Sunday ──────────────────────────────────────── -->
+        <!-- ── Culto deste Domingo ──────────────────────────────────────── -->
         <div v-else-if="activeTab === 'sunday'" key="sunday" class="flex max-w-3xl flex-col gap-5">
           <SettingsSection
             title="Section Header"
-            description="Eyebrow, heading and subtitle for the “Worship This Sunday” section on the About page."
+            description="Eyebrow, heading and subtitle for the “Culto deste Domingo” section on the About page."
           >
             <div class="flex flex-col gap-4">
               <Input
@@ -1078,7 +1080,7 @@ function removeSundayDetail(i: number) {
 
           <SettingsSection
             title="Service Card"
-            description="The service card and map in the Worship This Sunday section."
+            description="The service card and map in the Culto deste Domingo section."
           >
             <div class="flex flex-col gap-4">
               <Input
@@ -1093,7 +1095,7 @@ function removeSundayDetail(i: number) {
               />
               <Input
                 v-model="draft.worshipThisSunday.mapAddress"
-                label="Map Address"
+                label="Endereço no Mapa"
                 placeholder="Beira, Sofala, Moçambique"
               />
               <Input
@@ -1275,9 +1277,13 @@ function removeSundayDetail(i: number) {
                 :key="cg.id"
                 class="relative grid grid-cols-1 gap-3 rounded-lg border border-gray-200 p-3 pr-9 sm:grid-cols-2"
               >
-                <Input v-model="cg.name" label="Name" placeholder="ICFR Família Redimida — Beira Sede" />
+                <Input
+                  v-model="cg.name"
+                  label="Name"
+                  placeholder="ICFR Família Redimida — Beira Sede"
+                />
                 <Input v-model="cg.city" label="City" placeholder="Uyo" />
-                <Input v-model="cg.address" label="Address" placeholder="14 Oron Road, Uyo" />
+                <Input v-model="cg.address" label="Endereço" placeholder="14 Oron Road, Uyo" />
                 <Input v-model="cg.serviceTime" label="Service Time" placeholder="Sun 8:30 AM" />
                 <button
                   class="absolute right-2 top-2 rounded bg-white/80 p-0.5 text-gray-400 hover:bg-red-50 hover:text-red-500"
@@ -1294,10 +1300,10 @@ function removeSundayDetail(i: number) {
           </SettingsSection>
         </div>
 
-        <!-- ── Upcoming Events (landing page) ───────────────────────────── -->
+        <!-- ── Próximos Eventos (landing page) ───────────────────────────── -->
         <div v-else-if="activeTab === 'events'" key="events" class="flex max-w-3xl flex-col gap-5">
           <SettingsSection
-            title="Upcoming Events"
+            title="Próximos Eventos"
             description="The event strip on the landing page. Separate from the full Events page."
             density="sm"
           >

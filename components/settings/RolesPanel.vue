@@ -392,21 +392,21 @@ function permCount(perms: RolePermissions) {
     <!-- ── Section header ───────────────────────────────────────────────────── -->
     <div class="flex items-center justify-between">
       <div>
-        <h2 class="text-base font-semibold text-gray-900">Cargos e Permissões</h2>
+        <h2 class="text-base font-semibold text-gray-900">Administradores e Acessos</h2>
         <p class="text-sm text-gray-500 mt-0.5">
-          Defina o que cada cargo pode aceder e atribua cargos aos membros.
+          Crie administradores, atribua cargos e controle quem pode aceder ao painel da ICFR.
         </p>
       </div>
       <Button @click="openAssign">
         <template #icon-left><Icon icon="mdi:account-plus-outline" /></template>
-        Atribuir Cargo
+        Adicionar Administrador / Acesso
       </Button>
     </div>
 
     <!-- ── Role definitions grid ─────────────────────────────────────────────── -->
     <div>
       <p class="text-xs font-semibold text-gray-400 uppercase tracking-wide mb-3">
-        Definições de Cargos
+        Cargos e Níveis de Acesso
       </p>
       <div class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-3">
         <button
@@ -431,7 +431,7 @@ function permCount(perms: RolePermissions) {
           <p class="text-sm font-bold text-gray-900 leading-tight">{{ role.name }}</p>
           <p class="text-xs text-gray-400 mt-1 line-clamp-2">{{ role.description }}</p>
           <p class="text-xs text-blue-500 mt-3 font-medium group-hover:underline">
-            Edit permissões →
+            Editar permissões →
           </p>
         </button>
       </div>
@@ -440,7 +440,7 @@ function permCount(perms: RolePermissions) {
     <!-- ── Member assignments table ──────────────────────────────────────────── -->
     <div>
       <p class="text-xs font-semibold text-gray-400 uppercase tracking-wide mb-3">
-        Cargos Atribuídos aos Membros
+        Utilizadores com Acesso ao Painel
       </p>
       <Card padding="none">
         <div class="overflow-x-auto">
@@ -450,7 +450,9 @@ function permCount(perms: RolePermissions) {
                 <th class="text-left px-4 py-3 text-xs font-medium text-gray-500">Membro</th>
                 <th class="text-left px-4 py-3 text-xs font-medium text-gray-500">Cargo</th>
                 <th class="text-left px-4 py-3 text-xs font-medium text-gray-500">Atribuído em</th>
-                <th class="text-left px-4 py-3 text-xs font-medium text-gray-500">Permissões Personalizadas</th>
+                <th class="text-left px-4 py-3 text-xs font-medium text-gray-500">
+                  Permissões Personalizadas
+                </th>
                 <th class="w-24 px-4 py-3"></th>
               </tr>
             </thead>
@@ -527,7 +529,7 @@ function permCount(perms: RolePermissions) {
                   <EmptyState
                     icon="mdi:shield-account-outline"
                     title="Ainda não existem cargos atribuídos"
-                    description="Use the Atribuir Cargo button to give a member access to the dashboard."
+                    description="Use o botão Adicionar Administrador / Acesso para conceder acesso ao painel a um membro."
                   />
                 </td>
               </tr>
@@ -555,7 +557,10 @@ function permCount(perms: RolePermissions) {
         <div class="flex items-start gap-2.5 rounded-lg bg-blue-50 p-3 text-xs text-blue-900">
           <Icon icon="mdi:information-outline" class="mt-0.5 shrink-0 text-sm" />
           <p>
-            Esta área controla o acesso real ao painel. Uma conta só poderá consultar ou alterar dados da igreja quando aparecer aqui. Isto é separado do registo de membros. Pode criar uma conta com palavra-passe ou conceder acesso a uma conta existente através do UID do Firebase.
+            Esta área controla o acesso real ao painel. Uma conta só poderá consultar ou alterar
+            dados da igreja quando aparecer aqui. Isto é separado do registo de membros. Pode criar
+            uma conta com palavra-passe ou conceder acesso a uma conta existente através do UID do
+            Firebase.
           </p>
         </div>
 
@@ -580,7 +585,9 @@ function permCount(perms: RolePermissions) {
               <template #icon-right>
                 <button
                   type="button"
-                  :aria-label="showCreatePassword ? 'Ocultar palavra-passe' : 'Mostrar palavra-passe'"
+                  :aria-label="
+                    showCreatePassword ? 'Ocultar palavra-passe' : 'Mostrar palavra-passe'
+                  "
                   class="pointer-events-auto"
                   @click="showCreatePassword = !showCreatePassword"
                 >
@@ -609,11 +616,12 @@ function permCount(perms: RolePermissions) {
             </Button>
             <Button :loading="accountsStore.saving" @click="doCreate">
               <template #icon-left><Icon icon="mdi:account-key-outline" /></template>
-              Criar Conta
+              Criar Administrador
             </Button>
           </div>
           <p class="mt-2 text-xs text-gray-500">
-            Cria a conta imediatamente com esta palavra-passe e atribui o cargo selecionado. Partilhe a palavra-passe diretamente com a pessoa.
+            Cria uma nova conta de acesso ao painel e atribui o cargo selecionado. Partilhe a
+            palavra-passe diretamente com a pessoa.
           </p>
         </div>
 
@@ -653,7 +661,8 @@ function permCount(perms: RolePermissions) {
         </details>
 
         <p v-if="!authStore.isSuperAdmin" class="mt-4 text-xs text-gray-500">
-          Apenas o Super Admin pode criar acessos ou alterar quem pode entrar no painel.
+          Apenas o Super Admin pode criar administradores, alterar cargos ou remover acessos ao
+          painel.
         </p>
       </Card>
 
@@ -776,7 +785,9 @@ function permCount(perms: RolePermissions) {
               :key="page"
               class="border-b border-gray-100 hover:bg-gray-50 transition-colors"
             >
-              <td class="px-4 py-2.5 font-medium text-gray-700 text-xs">{{ pageLabels[page] ?? page }}</td>
+              <td class="px-4 py-2.5 font-medium text-gray-700 text-xs">
+                {{ pageLabels[page] ?? page }}
+              </td>
               <td v-for="action in ALL_ACTIONS" :key="action" class="px-3 py-2.5 text-center">
                 <button
                   :class="[
@@ -809,7 +820,9 @@ function permCount(perms: RolePermissions) {
       </div>
 
       <p class="text-xs text-gray-400">
-        Clique nos títulos das colunas para alterar essa permissão em todas as páginas. Use "Todas/Nenhuma" para alterar todas as ações de uma página. Ao ativar qualquer ação, a permissão Ver também será ativada.
+        Clique nos títulos das colunas para alterar essa permissão em todas as páginas. Use
+        "Todas/Nenhuma" para alterar todas as ações de uma página. Ao ativar qualquer ação, a
+        permissão Ver também será ativada.
       </p>
     </div>
 
@@ -825,7 +838,7 @@ function permCount(perms: RolePermissions) {
   </Modal>
 
   <!-- ── Assign role modal ─────────────────────────────────────────────────── -->
-  <Modal v-model="showAssign" title="Atribuir Cargo ao Membro" size="md">
+  <Modal v-model="showAssign" title="Adicionar Administrador / Acesso ao Membro" size="md">
     <div class="flex flex-col gap-4">
       <!-- Member search -->
       <div class="flex flex-col gap-1">
@@ -931,9 +944,11 @@ function permCount(perms: RolePermissions) {
         </p>
         <p>{{ rolesStore.roleById(assignForm.roleId)?.description }}</p>
         <p class="mt-1 text-gray-400">
-          {{ permCount(rolesStore.roleById(assignForm.roleId)?.permissions ?? {}) }} permissões
-          across
-          {{ Object.keys(rolesStore.roleById(assignForm.roleId)?.permissions ?? {}).length }} páginas
+          {{ permCount(rolesStore.roleById(assignForm.roleId)?.permissions ?? {}) }} permissões em
+          {{
+            Object.keys(rolesStore.roleById(assignForm.roleId)?.permissions ?? {}).length
+          }}
+          páginas
         </p>
       </div>
 
@@ -953,7 +968,7 @@ function permCount(perms: RolePermissions) {
             :disabled="!!existingAccountForMember"
             class="rounded border-gray-300 text-blue-600 focus:ring-blue-500/20"
           />
-          Também conceder acesso ao painel
+          Criar acesso ao painel para este membro
         </label>
 
         <p v-if="existingAccountForMember" class="text-xs text-gray-500">
@@ -984,7 +999,9 @@ function permCount(perms: RolePermissions) {
                 <template #icon-right>
                   <button
                     type="button"
-                    :aria-label="showAssignPassword ? 'Ocultar palavra-passe' : 'Mostrar palavra-passe'"
+                    :aria-label="
+                      showAssignPassword ? 'Ocultar palavra-passe' : 'Mostrar palavra-passe'
+                    "
                     class="pointer-events-auto"
                     @click="showAssignPassword = !showAssignPassword"
                   >
@@ -1002,7 +1019,8 @@ function permCount(perms: RolePermissions) {
               </Button>
             </div>
             <p class="text-xs text-gray-400">
-              Partilhe esta palavra-passe diretamente com a pessoa. Depois de fechar esta janela, não será possível consultá-la novamente.
+              Partilhe esta palavra-passe diretamente com a pessoa. Depois de fechar esta janela,
+              não será possível consultá-la novamente.
             </p>
           </div>
         </template>
@@ -1014,7 +1032,11 @@ function permCount(perms: RolePermissions) {
         <Button variant="secondary" @click="showAssign = false">Cancelar</Button>
         <Button :loading="rolesStore.saving || accountsStore.saving" @click="doAssign">
           <template #icon-left><Icon icon="mdi:shield-check-outline" /></template>
-          {{ assignForm.sendInvite ? 'Atribuir Cargo & Create Login' : 'Atribuir Cargo' }}
+          {{
+            assignForm.sendInvite
+              ? 'Adicionar Administrador / Acesso & Criar Acesso'
+              : 'Adicionar Administrador / Acesso'
+          }}
         </Button>
       </div>
     </template>
@@ -1024,7 +1046,7 @@ function permCount(perms: RolePermissions) {
   <Modal v-model="showCustom" title="Personalizar Permissões do Membro" size="xl">
     <div class="flex flex-col gap-4">
       <p class="text-sm text-gray-500">
-        These permissões override the role defaults for this specific member only.
+        Estas permissões substituem as permissões padrão do cargo apenas para este membro.
       </p>
 
       <div class="overflow-x-auto rounded-xl border border-gray-200">
@@ -1047,7 +1069,9 @@ function permCount(perms: RolePermissions) {
               :key="page"
               class="border-b border-gray-100 hover:bg-gray-50 transition-colors"
             >
-              <td class="px-4 py-2.5 font-medium text-gray-700 text-xs">{{ pageLabels[page] ?? page }}</td>
+              <td class="px-4 py-2.5 font-medium text-gray-700 text-xs">
+                {{ pageLabels[page] ?? page }}
+              </td>
               <td v-for="action in ALL_ACTIONS" :key="action" class="px-3 py-2.5 text-center">
                 <button
                   :class="[

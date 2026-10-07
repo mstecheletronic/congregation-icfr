@@ -13,7 +13,7 @@ import type { WorshipDetails, WorshipPlace } from '~/types'
  */
 interface Props {
   modelValue: boolean
-  /** Who and what is being marked, e.g. "Grace Etim · Sunday, 9 August 2026". */
+  /** Who and what is being marked, e.g. "Grace Etim · Domingo, 9 August 2026". */
   subject?: string
   /** Wording for a bulk mark, where one answer covers several services. */
   scopeNote?: string
@@ -89,7 +89,7 @@ function cancel() {
 <template>
   <Modal
     :model-value="modelValue"
-    title="Where did they worship?"
+    title="Onde participou do culto?"
     size="lg"
     @update:model-value="cancel"
   >
@@ -109,8 +109,8 @@ function cancel() {
         >
           <input v-model="place" type="radio" value="local" class="mt-0.5" />
           <span class="min-w-0">
-            <span class="block text-sm font-medium text-gray-900">With this congregation</span>
-            <span class="block text-xs text-gray-500">They worshipped here.</span>
+            <span class="block text-sm font-medium text-gray-900">Nesta congregação</span>
+            <span class="block text-xs text-gray-500">Participou nesta congregação.</span>
           </span>
         </label>
 
@@ -124,9 +124,9 @@ function cancel() {
         >
           <input v-model="place" type="radio" value="elsewhere" class="mt-0.5" />
           <span class="min-w-0">
-            <span class="block text-sm font-medium text-gray-900"> With another congregation </span>
+            <span class="block text-sm font-medium text-gray-900"> Noutra congregação </span>
             <span class="block text-xs text-gray-500">
-              They travelled and brought a certificate of worship.
+              Participou noutra congregação e apresentou um comprovativo de culto.
             </span>
           </span>
         </label>
@@ -148,18 +148,21 @@ function cancel() {
         <label class="flex items-start gap-2.5">
           <input v-model="certificate" type="checkbox" class="mt-0.5" />
           <span class="text-sm text-gray-700">
-            Certificate of worship produced
+            Comprovativo de participação apresentado
             <span class="mt-0.5 block text-xs text-gray-400">
-              Leave unticked if they reported it but have not brought the certificate in yet.
+              Deixe desmarcado caso a pessoa ainda não tenha apresentado o comprovativo.
             </span>
           </span>
         </label>
 
-        <EditField label="Referência do comprovativo" hint="Opcional — nome de quem assinou ou número do comprovativo.">
+        <EditField
+          label="Referência do comprovativo"
+          hint="Opcional — nome de quem assinou ou número do comprovativo."
+        >
           <input
             v-model="certificateRef"
             type="text"
-            placeholder="e.g. signed by Bro. Udo Effiong"
+            placeholder="Ex.: assinado pelo responsável da congregação"
             @keyup.enter="submit"
           />
         </EditField>

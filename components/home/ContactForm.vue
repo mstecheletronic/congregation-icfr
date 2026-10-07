@@ -25,7 +25,8 @@ async function handleSubmit() {
     Object.assign(form, { name: '', email: '', phone: '', message: '' })
   } catch {
     error.value =
-      messagesStore.error ?? 'A sua mensagem não pôde ser enviada. Tente novamente ou contacte-nos por telefone.'
+      messagesStore.error ??
+      'A sua mensagem não pôde ser enviada. Tente novamente ou contacte-nos por telefone.'
   }
 }
 
@@ -173,21 +174,21 @@ onMounted(() => settingsStore.load())
               >
                 <Icon icon="heroicons:check-circle" class="h-7 w-7 text-green-600" />
               </div>
-              <h3 class="mb-2 text-lg font-bold text-gray-900">Message Sent!</h3>
+              <h3 class="mb-2 text-lg font-bold text-gray-900">Mensagem Enviada!</h3>
               <p class="text-sm text-gray-500">
-                Thank you for reaching out. We'll be in touch soon.
+                Obrigado por entrar em contacto. Responderemos assim que possível.
               </p>
               <button class="mt-5 text-sm text-accent hover:underline" @click="submitted = false">
-                Send another message
+                Enviar outra mensagem
               </button>
             </div>
 
             <!-- Form -->
             <form v-else @submit.prevent="handleSubmit">
-              <h2 class="mb-1 text-[22px] font-bold text-gray-900">Send Us A Message</h2>
+              <h2 class="mb-1 text-[22px] font-bold text-gray-900">Envie-nos uma Mensagem</h2>
               <p class="mb-6 text-[13px] leading-snug text-gray-500">
-                Tem alguma dúvida? Precisa de aconselhamento ou deseja aprender mais sobre a Palavra de Deus? Teremos prazer em
-                hear from you.
+                Tem alguma dúvida? Precisa de aconselhamento ou deseja aprender mais sobre a Palavra
+                de Deus? Teremos prazer em ouvir você.
               </p>
 
               <div class="flex flex-col gap-4">
@@ -232,7 +233,7 @@ onMounted(() => settingsStore.load())
                     type="tel"
                     autocomplete="tel"
                     required
-                    placeholder="+234 800 000 0000"
+                    placeholder="+258 84 000 0000"
                     class="w-full rounded-lg border border-gray-200 px-4 py-2.5 text-[14px] text-gray-900 placeholder:text-gray-400 outline-none transition focus:border-accent focus:ring-2 focus:ring-accent/20"
                   />
                 </div>
@@ -240,17 +241,19 @@ onMounted(() => settingsStore.load())
                 <!-- Message -->
                 <div>
                   <label class="mb-1.5 block text-[13px] font-medium text-gray-700" for="cf-message"
-                    >Your Message</label
+                    >Sua Mensagem</label
                   >
                   <textarea
                     id="cf-message"
                     v-model="form.message"
                     rows="4"
                     required
-                    placeholder="How can we help you?"
+                    placeholder="Como podemos ajudar?"
                     class="w-full resize-none rounded-lg border border-gray-200 px-4 py-2.5 text-[14px] text-gray-900 placeholder:text-gray-400 outline-none transition focus:border-accent focus:ring-2 focus:ring-accent/20"
                   ></textarea>
-                  <p class="mt-1 text-[12px] text-gray-400">Keep this simple of 500 words max.</p>
+                  <p class="mt-1 text-[12px] text-gray-400">
+                    Escreva uma mensagem clara com até 500 palavras.
+                  </p>
                 </div>
 
                 <p v-if="error" role="alert" class="text-[13px] text-red-600">{{ error }}</p>
@@ -260,7 +263,7 @@ onMounted(() => settingsStore.load())
                   :disabled="messagesStore.submitting"
                   class="mt-1 w-full rounded-full bg-[#026AA2] py-2.5 text-[14px] font-medium text-white transition-colors hover:bg-blue-700 disabled:opacity-60"
                 >
-                  {{ messagesStore.submitting ? 'Sending…' : 'Send message' }}
+                  {{ messagesStore.submitting ? 'Enviando…' : 'Enviar Mensagem' }}
                 </button>
               </div>
             </form>

@@ -25,7 +25,7 @@ const cfg = computed(() => s.settings.worshipActivities)
         v-if="!cfg.items.length"
         icon="mdi:hands-pray"
         title="Ainda não existem atividades cadastradas"
-        description="Add them in Settings → Worship Activities."
+        description="Adicione as atividades em Configurações → Atividades de Culto."
       />
 
       <!-- Cards row -->

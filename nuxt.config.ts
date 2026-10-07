@@ -46,12 +46,12 @@ export default defineNuxtConfig({
     // reads as a crossfade for a simple opacity transition, without that race.
     pageTransition: { name: 'fade' },
     head: {
-      title: 'Congregation',
-      titleTemplate: '%s | Congregation',
+      title: 'ICFR Família Redimida',
+      titleTemplate: '%s | ICFR Família Redimida',
       meta: [
         {
           name: 'description',
-          content: 'Congregation - Your All in one church management solution',
+          content: 'ICFR Família Redimida — Resgatando vidas para Cristo.',
         },
         { name: 'viewport', content: 'width=device-width, initial-scale=1' },
       ],

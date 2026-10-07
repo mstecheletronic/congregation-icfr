@@ -38,7 +38,7 @@ const { el: sectionRef, isVisible } = useScrollReveal()
     <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
       <div :class="['reveal', isVisible && 'is-visible']">
         <SectionHeader
-          title="Find a Congregation Near You"
+          title="Encontre uma Congregação Perto de Si"
           subtitle="Encontre uma congregação da ICFR Família Redimida na sua região."
           centered
         />
@@ -63,7 +63,7 @@ const { el: sectionRef, isVisible } = useScrollReveal()
         />
         <button
           class="rounded-lg bg-[#2563EB] px-4 py-1.5 text-xs font-semibold text-white hover:bg-blue-700 transition-colors"
-          aria-label="Show matching congregations"
+          aria-label="Mostrar congregações encontradas"
           @click="showResults"
         >
           Search
@@ -97,7 +97,7 @@ const { el: sectionRef, isVisible } = useScrollReveal()
               class="mt-auto w-full rounded-lg bg-[#1E3A5F] py-2 text-center text-xs font-semibold text-white hover:bg-[#2563EB] transition-colors"
               :aria-label="`Obter direções para ${cg.name}`"
             >
-              Get Directions
+              Ver Direções
             </a>
           </div>
         </div>
@@ -114,7 +114,7 @@ const { el: sectionRef, isVisible } = useScrollReveal()
         v-else
         icon="heroicons:building-library"
         title="Ainda não existem congregações cadastradas"
-        description="As congregações são adicionadas em Definições → Congregações."
+        description="As congregações são adicionadas em Configurações → Congregações."
       />
     </div>
   </section>

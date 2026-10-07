@@ -19,23 +19,23 @@ const { el: sectionRef, isVisible } = useScrollReveal()
         <div class="photo-stack-wrapper">
           <div class="photo-card photo-card--back">
             <img
-              :src="displayableImageUrl(cfg.congregationPhotos[0])"
-              alt="Congregation gathering 1"
+              src="/images/gallery/icfr-03.jpg"
+              alt="Comunidade da ICFR Família Redimida"
               loading="lazy"
             />
           </div>
           <div class="photo-card photo-card--mid">
             <img
-              :src="displayableImageUrl(cfg.congregationPhotos[1])"
-              alt="Congregation gathering 2"
+              src="/images/gallery/icfr-13.jpg"
+              alt="Membros da ICFR Família Redimida"
               loading="lazy"
             />
           </div>
           <div class="photo-card photo-card--front">
             <div class="photo-pin"></div>
             <img
-              :src="displayableImageUrl(cfg.ministerPhoto)"
-              alt="Foto da liderança"
+              src="/images/gallery/icfr-15.jpg"
+              alt="Liderança da ICFR Família Redimida"
               loading="eager"
             />
           </div>

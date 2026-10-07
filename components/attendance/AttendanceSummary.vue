@@ -14,6 +14,21 @@ const SERVICE_ICONS: Record<string, string> = {
   "Leaders' Class": 'mdi:account-tie-outline',
 }
 
+const SERVICE_LABELS: Record<string, string> = {
+  'Sunday Worship': 'Culto de Celebração',
+  'Sunday School': 'Escola Dominical',
+  'Bible Class': 'Culto de Ensino',
+  'Prayer Meeting': 'Culto de Oração',
+  'Youth Class': 'Encontro de Jovens',
+  'Singing Practice': 'Ensaio de Louvor',
+  Evangelism: 'Evangelismo',
+  "Leaders' Class": 'Encontro de Líderes',
+}
+
+function serviceLabel(service: string) {
+  return SERVICE_LABELS[service] ?? service
+}
+
 const selectedYear = ref(String(new Date().getFullYear()))
 
 // Build year options from records (so users always see years they have data
@@ -58,7 +73,7 @@ const stats = computed(() => {
 })
 
 function fmt(n: number) {
-  return new Intl.NumberFormat('en-NG').format(n)
+  return new Intl.NumberFormat('pt-MZ').format(n)
 }
 </script>
 
@@ -93,7 +108,9 @@ function fmt(n: number) {
       >
         <!-- Top row: name + icon -->
         <div class="flex items-start justify-between gap-2">
-          <p class="text-sm font-medium text-gray-700 leading-snug">{{ svc.serviceType }}</p>
+          <p class="text-sm font-medium text-gray-700 leading-snug">
+            {{ serviceLabel(svc.serviceType) }}
+          </p>
           <div
             class="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-blue-50"
             aria-hidden="true"
@@ -127,7 +144,7 @@ function fmt(n: number) {
             />
             {{ Math.abs(svc.change) }}%
           </span>
-          <span>Compared to last year</span>
+          <span>Comparado ao ano anterior</span>
         </div>
       </div>
     </div>

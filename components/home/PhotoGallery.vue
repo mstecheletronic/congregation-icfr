@@ -33,7 +33,7 @@ onMounted(() => {
           subtitle="Momentos dos nossos cultos, comunhão e atividades da igreja."
         />
         <NuxtLink
-          to="/gallery/sunday-service"
+          to="/gallery"
           class="hidden shrink-0 items-center gap-1 text-sm font-medium text-accent hover:underline sm:flex"
           aria-label="Ver galeria completa"
         >
