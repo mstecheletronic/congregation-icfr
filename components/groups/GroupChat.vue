@@ -92,6 +92,8 @@ async function sendMessage() {
   sending.value = true
 
   try {
+    await repo.ensureGroup(props.groupName)
+
     await repo.sendTextMessage({
       groupName: props.groupName,
       senderUid: currentUid.value,
